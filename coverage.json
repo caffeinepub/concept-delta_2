@@ -1,18 +1,18 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T20:44:50.272Z",
+  "generatedAt": "2026-02-25T20:54:56.401Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 1,
+    "total": 4,
+    "implemented": 4,
     "items": [
       {
-        "id": "REQ-77",
-        "summary": "Rewrite frontend/src/components/Navbar.tsx so that all navigation elements are always rendered and never hidden due to layout or overflow issues. The navbar must use a flex layout with `flex-nowrap` and `overflow-visible` on the desktop nav container so items are never clipped or collapsed. The three nav links must be: 'Home' (always visible, navigates to /), 'Dashboard' (visible only when the user is authenticated, navigates to /dashboard), and 'Admin Panel' (visible only when the user is authenticated AND isAdmin is true, navigates to /admin). The Login/Logout button must always be visible on the right side of the navbar, never wrapped or hidden. On desktop (md and above), all visible links and the Login/Logout button must appear in a single horizontal row without overflow. On mobile, the hamburger menu must include the same conditional link set (Home always, Dashboard if authenticated, Admin Panel if authenticated + isAdmin) plus the Login/Logout action. The mobile menu must open and close reliably with no z-index or overflow conflicts.",
+        "id": "REQ-80",
+        "summary": "Rewrite frontend/src/components/Navbar.tsx with a fully opaque navy (#0D1B4B) background that is never transparent, even when rendered over a dark hero image. The navbar must have a solid background-color at all times — do not use bg-transparent, bg-opacity-*, or any backdrop-blur that could cause the navbar content to visually disappear against dark page backgrounds. Set an explicit z-index (e.g. z-50) so the navbar always renders above page content.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/components/Navbar.tsx"
@@ -22,22 +22,37 @@
         ]
       },
       {
-        "id": "REQ-78",
-        "summary": "In frontend/src/hooks/useQueries.ts, ensure the useIsCallerAdmin query: (1) is enabled only when identity is non-null, (2) uses a fresh authenticated actor created directly with the identity (not a cached anonymous actor) to call the backend isCallerAdmin() function, (3) uses ['isCallerAdmin', principalString] as the query key so it re-fetches whenever the logged-in principal changes, and (4) has staleTime: 0 and gcTime: 0 so it never returns a stale cached result. This ensures the Admin Panel link appears reliably after login without a page refresh.",
-        "status": "missing",
+        "id": "REQ-81",
+        "summary": "In frontend/src/components/Navbar.tsx, ensure all navigation links and the Login/Logout button are always visible and never clipped or hidden. The desktop nav must use a flex layout with flex-nowrap and sufficient horizontal spacing so all rendered items fit in a single row. The three conditional nav links must be: 'Home' (always visible, navigates to /), 'Dashboard' (visible only when authenticated, navigates to /dashboard), and 'Admin Panel' (visible only when authenticated AND isAdmin is true, navigates to /admin). The Login/Logout button must always appear on the far right. No link or button must overflow, wrap, or be hidden at any viewport width on desktop (md and above).",
+        "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/components/Navbar.tsx"
         ],
-        "matchedFiles": []
+        "matchedFiles": [
+          "frontend/src/components/Navbar.tsx"
+        ]
       },
       {
-        "id": "REQ-79",
-        "summary": "In frontend/src/hooks/useActor.ts, add or verify a useEffect that watches the identity object and, whenever the identity changes from null/undefined to a non-null value (user has just logged in), calls queryClient.invalidateQueries() to invalidate all queries (including isCallerAdmin) so they immediately re-fetch with the new authenticated identity. This prevents the navbar from showing stale unauthenticated state after login.",
-        "status": "missing",
+        "id": "REQ-82",
+        "summary": "In frontend/src/components/Navbar.tsx, fix the mobile hamburger menu to correctly display all conditional links against the opaque navy background. The mobile dropdown menu must have a solid opaque navy (#0D1B4B) background (not transparent) so links are readable. Include the same conditional link set as desktop: 'Home' (always), 'Dashboard' (authenticated only), 'Admin Panel' (authenticated + isAdmin only), plus the Login/Logout action. The hamburger icon and the mobile dropdown must be clearly visible on all page backgrounds including dark hero images.",
+        "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useActor.ts"
+          "frontend/src/components/Navbar.tsx"
         ],
-        "matchedFiles": []
+        "matchedFiles": [
+          "frontend/src/components/Navbar.tsx"
+        ]
+      },
+      {
+        "id": "REQ-83",
+        "summary": "In frontend/src/components/Navbar.tsx, ensure the useIsCallerAdmin query is called at the top level of the component. Derive isAdmin = data === true. Render the 'Admin Panel' link in both desktop nav and mobile hamburger menu only when the user is authenticated AND isAdmin === true AND the query is not in a loading/fetching state. Remove any console.log or debug statements from prior iterations. The three nav links must be exactly: 'Home' (always visible), 'Dashboard' (authenticated only), 'Admin Panel' (authenticated + isAdmin only).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/Navbar.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/Navbar.tsx"
+        ]
       }
     ]
   },

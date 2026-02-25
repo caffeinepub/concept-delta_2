@@ -1,63 +1,72 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix Navbar Visibility – Always Show Home, Dashboard, Admin Panel, and Login/Logout",
+  "title": "Fix navbar transparency and link visibility issues",
   "requirements": [
     {
-      "id": "REQ-77",
-      "summary": "Rewrite Navbar.tsx with flex-nowrap layout to ensure all navigation elements are always rendered and never hidden due to overflow or layout issues, with conditional visibility for Dashboard and Admin Panel links based on authentication and admin status",
+      "id": "REQ-80",
+      "summary": "Replace transparent navbar with solid opaque navy background that is always visible over all page backgrounds including dark hero sections",
       "acceptanceCriteria": [
-        "On desktop, 'Home' link is always visible in the navbar.",
-        "On desktop, 'Dashboard' link is visible when the user is authenticated and hidden when not authenticated.",
-        "On desktop, 'Admin Panel' link is visible when the user is authenticated AND isCallerAdmin returns true; it is hidden for non-admin users.",
-        "On desktop, the Login/Logout button is always visible and never clipped or hidden by overflow.",
-        "No navbar items are ever hidden due to CSS overflow, flex-wrap, or z-index issues on any screen size.",
-        "On mobile, the hamburger icon is always visible and tapping it reliably toggles the mobile menu open/closed.",
-        "The mobile menu shows the same conditional link set (Home always, Dashboard if authenticated, Admin Panel if authenticated + isAdmin) plus a Login/Logout button.",
-        "The mobile menu has no z-index or overflow conflicts that would cause it to be hidden behind other elements.",
-        "The navbar layout does not break or clip items on viewport widths between 320px and 1440px."
+        "Navbar has a solid opaque navy (#0D1B4B) background on all pages, including the Home page with its dark hero section",
+        "Navbar text and links are always clearly readable (white text on navy background) with no transparency artifacts",
+        "Navbar renders above all page content with no z-index conflicts"
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/Navbar.tsx",
           "operation": "modify",
-          "description": "Rewrite the navbar component to use flex-nowrap and overflow-visible on the desktop nav container. Ensure Home link is always rendered. Conditionally render Dashboard link only when identity is non-null (authenticated). Conditionally render Admin Panel link only when identity is non-null AND isCallerAdmin returns true. Ensure the Login/Logout button is always visible on the right side and never wrapped or hidden. On mobile, ensure the hamburger menu includes the same conditional link set (Home always, Dashboard if authenticated, Admin Panel if authenticated + isAdmin) plus the Login/Logout action. Verify the mobile menu has proper z-index (e.g., z-50 or higher) and no overflow conflicts that would hide it behind other elements. Use the useInternetIdentity hook to check authentication status via identity and the useIsCallerAdmin query to check admin status. Ensure all visible links and the Login/Logout button appear in a single horizontal row on desktop (md and above) without overflow or wrapping."
+          "description": "Remove all transparency-related classes (bg-transparent, bg-opacity-*, backdrop-blur-*) from the navbar container. Set className to include 'bg-[#0D1B4B]' (solid opaque navy) with 'z-50' to ensure the navbar always renders above page content. Ensure white text color for all nav links and buttons (text-white) for maximum contrast against the navy background. The navbar must have a solid background-color at all times with no transparency or blur effects."
         }
       ]
     },
     {
-      "id": "REQ-78",
-      "summary": "Fix useIsCallerAdmin query in useQueries.ts to use fresh authenticated actor, principal-based query key, and zero staleTime/gcTime so admin status refreshes immediately after login",
+      "id": "REQ-81",
+      "summary": "Ensure all desktop navigation links (Home, Dashboard, Admin Panel) and Login/Logout button are visible in a single horizontal row without clipping or overflow",
       "acceptanceCriteria": [
-        "useIsCallerAdmin is not enabled when identity is null/undefined.",
-        "useIsCallerAdmin uses an authenticated actor (created with the current identity) to call isCallerAdmin().",
-        "The query key includes the principal string so it re-fetches on identity change.",
-        "staleTime and gcTime are both set to 0.",
-        "After login, the admin check re-fetches automatically without requiring a page refresh.",
-        "Non-admin users receive false from the query."
+        "On desktop, 'Home', 'Dashboard' (when authenticated), 'Admin Panel' (when admin), and the Login/Logout button are all visible in a single horizontal row",
+        "No nav link or button is clipped, wrapped, or hidden at standard desktop viewport widths",
+        "The 'Admin Panel' link appears only for authenticated admin users and is hidden for non-admin users",
+        "'Dashboard' link appears only when the user is authenticated"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/components/Navbar.tsx",
           "operation": "modify",
-          "description": "Modify the useIsCallerAdmin query function to ensure: (1) the query is enabled only when actor is non-null and identity is non-null (add enabled: !!actor && !!identity to the query options), (2) the query key is ['isCallerAdmin', principalString] where principalString is identity.getPrincipal().toString() so it re-fetches whenever the logged-in principal changes, (3) staleTime: 0 and gcTime: 0 are set in the query options so it never returns stale cached results, and (4) the query uses the actor (which is already created with the current authenticated identity in useActor.ts) to call actor.isCallerAdmin(). This ensures the Admin Panel link appears reliably after login without a page refresh."
+          "description": "Rewrite the desktop navigation layout to use a flex container with 'flex flex-nowrap items-center gap-6' for the nav links section. Ensure the three conditional nav links render in order: 'Home' (always visible, Link to='/'), 'Dashboard' (visible only when isAuthenticated, Link to='/dashboard'), and 'Admin Panel' (visible only when isAuthenticated AND isAdmin === true, Link to='/admin'). Position the Login/Logout button on the far right using 'ml-auto'. Verify sufficient horizontal spacing so all rendered items fit in a single row at md breakpoint and above without wrapping or clipping."
         }
       ]
     },
     {
-      "id": "REQ-79",
-      "summary": "Add or verify useEffect in useActor.ts that invalidates all queries when identity changes from null to non-null (user logs in) so navbar state refreshes immediately",
+      "id": "REQ-82",
+      "summary": "Fix mobile hamburger menu to display all conditional links with solid opaque navy background and ensure hamburger icon is always visible",
       "acceptanceCriteria": [
-        "After Internet Identity login completes, all React Query queries (including isCallerAdmin) are invalidated and re-fetched automatically.",
-        "The Admin Panel link appears in the navbar for the admin user immediately after login without a page refresh.",
-        "The Dashboard link appears for authenticated non-admin users immediately after login without a page refresh.",
-        "The Login button changes to a Logout button immediately after login."
+        "Mobile hamburger menu dropdown has a solid opaque navy background, not transparent",
+        "All conditional links are visible and readable in the mobile menu",
+        "Hamburger icon is visible on all page backgrounds",
+        "Mobile menu opens and closes reliably"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useActor.ts",
+          "path": "frontend/src/components/Navbar.tsx",
           "operation": "modify",
-          "description": "Add or verify a useEffect that watches the identity object and, whenever the identity changes from null/undefined to a non-null value (user has just logged in), calls queryClient.invalidateQueries() to invalidate all queries (including isCallerAdmin) so they immediately re-fetch with the new authenticated identity. This prevents the navbar from showing stale unauthenticated state after login. Ensure the useEffect dependency array includes identity or identity?.getPrincipal().toString() so it triggers on identity change. The queryClient should already be available from @tanstack/react-query."
+          "description": "Rewrite the mobile menu dropdown container to have 'bg-[#0D1B4B]' (solid opaque navy) background instead of any transparent or semi-transparent background. Include the same three conditional links as desktop: 'Home' (always visible), 'Dashboard' (authenticated only), 'Admin Panel' (authenticated + isAdmin only), plus the Login/Logout action. Ensure the hamburger icon button uses white color (text-white) and has sufficient contrast against all backgrounds. Verify the mobile menu state toggle works correctly and the dropdown opens/closes reliably."
+        }
+      ]
+    },
+    {
+      "id": "REQ-83",
+      "summary": "Call useIsCallerAdmin query at component top level and conditionally render Admin Panel link only when authenticated and isAdmin === true with no loading flicker",
+      "acceptanceCriteria": [
+        "Admin Panel link appears for the admin user in both desktop and mobile nav after login",
+        "Admin Panel link does not appear for non-admin authenticated users",
+        "Admin Panel link does not flicker or appear briefly for non-admin users during loading",
+        "No console.log debug statements remain in the component"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/Navbar.tsx",
+          "operation": "modify",
+          "description": "Call useIsCallerAdmin() at the top level of the Navbar component (import from '../hooks/useQueries'). Derive isAdmin by checking data === true. Conditionally render the 'Admin Panel' link in both desktop nav and mobile menu only when isAuthenticated AND isAdmin === true AND the query is not in a loading or fetching state. Remove any console.log or debug statements from prior iterations. Ensure the three nav links are exactly: 'Home' (always visible), 'Dashboard' (authenticated only), 'Admin Panel' (authenticated + isAdmin only)."
         }
       ]
     }

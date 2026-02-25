@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 49,
+  "projectStateVersion": 51,
   "summary": "Building 'Concept Delta' – a responsive MHT-CET Test Series website with Navy Blue theme. Includes Home Page, Dashboard, Test Page, and Admin Panel. Features Google/Internet Identity auth with profile setup (name, class, contact), Motoko backend with users/questions/tests/results data models, image-based questions where each question has one single image containing the full question and all 4 options (A, B, C, D), timed auto-submit tests, and an admin panel for question/test management and user/result viewing. Questions use a single uploaded image per question (no separate option images); answer selection is via four text buttons (A, B, C, D) shown below the question image. Images stored as base64 or via asset upload in the backend. Admin uploads images directly from device gallery.",
   "architectural_notes": [
     "Motoko backend on Internet Computer with stable storage for Users, Questions, Tests, TestResults",
@@ -474,6 +474,38 @@
       "title": "Rewrite frontend/src/components/Navbar.tsx so that all navigation elements are always rendered and never hidden due to layout or overflow issues. The navbar must use a flex layout with `flex-nowrap` and `overflow-visible` on the desktop nav container so items are never clipped or collapsed. The three nav links must be: 'Home' (always visible, navigates to /), 'Dashboard' (visible only when the user is authenticated, navigates to /dashboard), and 'Admin Panel' (visible only when the user is authenticated AND isAdmin is true, navigates to /admin). The Login/Logout button must always be visible on the right side of the navbar, never wrapped or hidden. On desktop (md and above), all visible links and the Login/Logout button must appear in a single horizontal row without overflow. On mobile, the hamburger menu must include the same conditional link set (Home always, Dashboard if authenticated, Admin Panel if authenticated + isAdmin) plus the Login/Logout action. The mobile menu must open and close reliably with no z-index or overflow conflicts.",
       "reqIds": [
         "REQ-77"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-rewrite-frontend-src-components-navbar-tsx-with-a-fully-opaque-navy-0d1b4b-background-that-is-never-transparent-even-when-rendered-over-a-dark-hero-image-the-navbar-must-have-a-solid-background-color-at-all-times-do-not-use-bg-transparent-bg-opacity-or-any-backdrop-blur-that-could-cause-the-navbar-content-to-visually-disappear-against-dark-page-backgrounds-set-an-explicit-z-index-e-g-z-50-so-the-navbar-always-renders-above-page-content",
+      "title": "Rewrite frontend/src/components/Navbar.tsx with a fully opaque navy (#0D1B4B) background that is never transparent, even when rendered over a dark hero image. The navbar must have a solid background-color at all times — do not use bg-transparent, bg-opacity-*, or any backdrop-blur that could cause the navbar content to visually disappear against dark page backgrounds. Set an explicit z-index (e.g. z-50) so the navbar always renders above page content.",
+      "reqIds": [
+        "REQ-80"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-components-navbar-tsx-ensure-all-navigation-links-and-the-login-logout-button-are-always-visible-and-never-clipped-or-hidden-the-desktop-nav-must-use-a-flex-layout-with-flex-nowrap-and-sufficient-horizontal-spacing-so-all-rendered-items-fit-in-a-single-row-the-three-conditional-nav-links-must-be-home-always-visible-navigates-to-dashboard-visible-only-when-authenticated-navigates-to-dashboard-and-admin-panel-visible-only-when-authenticated-and-isadmin-is-true-navigates-to-admin-the-login-logout-button-must-always-appear-on-the-far-right-no-link-or-button-must-overflow-wrap-or-be-hidden-at-any-viewport-width-on-desktop-md-and-above",
+      "title": "In frontend/src/components/Navbar.tsx, ensure all navigation links and the Login/Logout button are always visible and never clipped or hidden. The desktop nav must use a flex layout with flex-nowrap and sufficient horizontal spacing so all rendered items fit in a single row. The three conditional nav links must be: 'Home' (always visible, navigates to /), 'Dashboard' (visible only when authenticated, navigates to /dashboard), and 'Admin Panel' (visible only when authenticated AND isAdmin is true, navigates to /admin). The Login/Logout button must always appear on the far right. No link or button must overflow, wrap, or be hidden at any viewport width on desktop (md and above).",
+      "reqIds": [
+        "REQ-81"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-components-navbar-tsx-fix-the-mobile-hamburger-menu-to-correctly-display-all-conditional-links-against-the-opaque-navy-background-the-mobile-dropdown-menu-must-have-a-solid-opaque-navy-0d1b4b-background-not-transparent-so-links-are-readable-include-the-same-conditional-link-set-as-desktop-home-always-dashboard-authenticated-only-admin-panel-authenticated-isadmin-only-plus-the-login-logout-action-the-hamburger-icon-and-the-mobile-dropdown-must-be-clearly-visible-on-all-page-backgrounds-including-dark-hero-images",
+      "title": "In frontend/src/components/Navbar.tsx, fix the mobile hamburger menu to correctly display all conditional links against the opaque navy background. The mobile dropdown menu must have a solid opaque navy (#0D1B4B) background (not transparent) so links are readable. Include the same conditional link set as desktop: 'Home' (always), 'Dashboard' (authenticated only), 'Admin Panel' (authenticated + isAdmin only), plus the Login/Logout action. The hamburger icon and the mobile dropdown must be clearly visible on all page backgrounds including dark hero images.",
+      "reqIds": [
+        "REQ-82"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-components-navbar-tsx-ensure-the-useiscalleradmin-query-is-called-at-the-top-level-of-the-component-derive-isadmin-data-true-render-the-admin-panel-link-in-both-desktop-nav-and-mobile-hamburger-menu-only-when-the-user-is-authenticated-and-isadmin-true-and-the-query-is-not-in-a-loading-fetching-state-remove-any-console-log-or-debug-statements-from-prior-iterations-the-three-nav-links-must-be-exactly-home-always-visible-dashboard-authenticated-only-admin-panel-authenticated-isadmin-only",
+      "title": "In frontend/src/components/Navbar.tsx, ensure the useIsCallerAdmin query is called at the top level of the component. Derive isAdmin = data === true. Render the 'Admin Panel' link in both desktop nav and mobile hamburger menu only when the user is authenticated AND isAdmin === true AND the query is not in a loading/fetching state. Remove any console.log or debug statements from prior iterations. The three nav links must be exactly: 'Home' (always visible), 'Dashboard' (authenticated only), 'Admin Panel' (authenticated + isAdmin only).",
+      "reqIds": [
+        "REQ-83"
       ],
       "version": 1
     }

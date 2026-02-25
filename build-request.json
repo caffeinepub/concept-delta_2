@@ -1,86 +1,96 @@
 {
   "kind": "build_request",
-  "title": "Fix Navbar Visibility – Always Show Home, Dashboard, Admin Panel, and Login/Logout",
+  "title": "Fix navbar transparency and link visibility issues",
   "projectName": "Concept Delta",
   "priority": "high",
   "requirements": [
     {
-      "id": "REQ-77",
-      "text": "Rewrite frontend/src/components/Navbar.tsx so that all navigation elements are always rendered and never hidden due to layout or overflow issues. The navbar must use a flex layout with `flex-nowrap` and `overflow-visible` on the desktop nav container so items are never clipped or collapsed. The three nav links must be: 'Home' (always visible, navigates to /), 'Dashboard' (visible only when the user is authenticated, navigates to /dashboard), and 'Admin Panel' (visible only when the user is authenticated AND isAdmin is true, navigates to /admin). The Login/Logout button must always be visible on the right side of the navbar, never wrapped or hidden. On desktop (md and above), all visible links and the Login/Logout button must appear in a single horizontal row without overflow. On mobile, the hamburger menu must include the same conditional link set (Home always, Dashboard if authenticated, Admin Panel if authenticated + isAdmin) plus the Login/Logout action. The mobile menu must open and close reliably with no z-index or overflow conflicts.",
+      "id": "REQ-80",
+      "text": "Rewrite frontend/src/components/Navbar.tsx with a fully opaque navy (#0D1B4B) background that is never transparent, even when rendered over a dark hero image. The navbar must have a solid background-color at all times — do not use bg-transparent, bg-opacity-*, or any backdrop-blur that could cause the navbar content to visually disappear against dark page backgrounds. Set an explicit z-index (e.g. z-50) so the navbar always renders above page content.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "in navbar clearly show home,dashboard,and admin for admin and login logout button because some times navbar hide button please fix this problem"
+          "still same problem home dashboard and admin for admin hide, i think this problem creates because of transparent navbar"
         ]
       },
       "acceptanceCriteria": [
-        "On desktop, 'Home' link is always visible in the navbar.",
-        "On desktop, 'Dashboard' link is visible when the user is authenticated and hidden when not authenticated.",
-        "On desktop, 'Admin Panel' link is visible when the user is authenticated AND isCallerAdmin returns true; it is hidden for non-admin users.",
-        "On desktop, the Login/Logout button is always visible and never clipped or hidden by overflow.",
-        "No navbar items are ever hidden due to CSS overflow, flex-wrap, or z-index issues on any screen size.",
-        "On mobile, the hamburger icon is always visible and tapping it reliably toggles the mobile menu open/closed.",
-        "The mobile menu shows the same conditional link set (Home always, Dashboard if authenticated, Admin Panel if authenticated + isAdmin) plus a Login/Logout button.",
-        "The mobile menu has no z-index or overflow conflicts that would cause it to be hidden behind other elements.",
-        "The navbar layout does not break or clip items on viewport widths between 320px and 1440px."
+        "Navbar has a solid opaque navy (#0D1B4B) background on all pages, including the Home page with its dark hero section",
+        "Navbar text and links are always clearly readable (white text on navy background) with no transparency artifacts",
+        "Navbar renders above all page content with no z-index conflicts"
       ]
     },
     {
-      "id": "REQ-78",
-      "text": "In frontend/src/hooks/useQueries.ts, ensure the useIsCallerAdmin query: (1) is enabled only when identity is non-null, (2) uses a fresh authenticated actor created directly with the identity (not a cached anonymous actor) to call the backend isCallerAdmin() function, (3) uses ['isCallerAdmin', principalString] as the query key so it re-fetches whenever the logged-in principal changes, and (4) has staleTime: 0 and gcTime: 0 so it never returns a stale cached result. This ensures the Admin Panel link appears reliably after login without a page refresh.",
+      "id": "REQ-81",
+      "text": "In frontend/src/components/Navbar.tsx, ensure all navigation links and the Login/Logout button are always visible and never clipped or hidden. The desktop nav must use a flex layout with flex-nowrap and sufficient horizontal spacing so all rendered items fit in a single row. The three conditional nav links must be: 'Home' (always visible, navigates to /), 'Dashboard' (visible only when authenticated, navigates to /dashboard), and 'Admin Panel' (visible only when authenticated AND isAdmin is true, navigates to /admin). The Login/Logout button must always appear on the far right. No link or button must overflow, wrap, or be hidden at any viewport width on desktop (md and above).",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "admin for admin",
-          "some times navbar hide button please fix this problem"
+          "still same problem home dashboard and admin for admin hide"
         ]
       },
       "acceptanceCriteria": [
-        "useIsCallerAdmin is not enabled when identity is null/undefined.",
-        "useIsCallerAdmin uses an authenticated actor (created with the current identity) to call isCallerAdmin().",
-        "The query key includes the principal string so it re-fetches on identity change.",
-        "staleTime and gcTime are both set to 0.",
-        "After login, the admin check re-fetches automatically without requiring a page refresh.",
-        "Non-admin users receive false from the query."
+        "On desktop, 'Home', 'Dashboard' (when authenticated), 'Admin Panel' (when admin), and the Login/Logout button are all visible in a single horizontal row",
+        "No nav link or button is clipped, wrapped, or hidden at standard desktop viewport widths",
+        "The 'Admin Panel' link appears only for authenticated admin users and is hidden for non-admin users",
+        "'Dashboard' link appears only when the user is authenticated"
       ]
     },
     {
-      "id": "REQ-79",
-      "text": "In frontend/src/hooks/useActor.ts, add or verify a useEffect that watches the identity object and, whenever the identity changes from null/undefined to a non-null value (user has just logged in), calls queryClient.invalidateQueries() to invalidate all queries (including isCallerAdmin) so they immediately re-fetch with the new authenticated identity. This prevents the navbar from showing stale unauthenticated state after login.",
+      "id": "REQ-82",
+      "text": "In frontend/src/components/Navbar.tsx, fix the mobile hamburger menu to correctly display all conditional links against the opaque navy background. The mobile dropdown menu must have a solid opaque navy (#0D1B4B) background (not transparent) so links are readable. Include the same conditional link set as desktop: 'Home' (always), 'Dashboard' (authenticated only), 'Admin Panel' (authenticated + isAdmin only), plus the Login/Logout action. The hamburger icon and the mobile dropdown must be clearly visible on all page backgrounds including dark hero images.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "some times navbar hide button please fix this problem"
+          "still same problem home dashboard and admin for admin hide, i think this problem creates because of transparent navbar. please see what is happen to navbar and solve all problem"
         ]
       },
       "acceptanceCriteria": [
-        "After Internet Identity login completes, all React Query queries (including isCallerAdmin) are invalidated and re-fetched automatically.",
-        "The Admin Panel link appears in the navbar for the admin user immediately after login without a page refresh.",
-        "The Dashboard link appears for authenticated non-admin users immediately after login without a page refresh.",
-        "The Login button changes to a Logout button immediately after login."
+        "Mobile hamburger menu dropdown has a solid opaque navy background, not transparent",
+        "All conditional links are visible and readable in the mobile menu",
+        "Hamburger icon is visible on all page backgrounds",
+        "Mobile menu opens and closes reliably"
+      ]
+    },
+    {
+      "id": "REQ-83",
+      "text": "In frontend/src/components/Navbar.tsx, ensure the useIsCallerAdmin query is called at the top level of the component. Derive isAdmin = data === true. Render the 'Admin Panel' link in both desktop nav and mobile hamburger menu only when the user is authenticated AND isAdmin === true AND the query is not in a loading/fetching state. Remove any console.log or debug statements from prior iterations. The three nav links must be exactly: 'Home' (always visible), 'Dashboard' (authenticated only), 'Admin Panel' (authenticated + isAdmin only).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "admin for admin hide"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Admin Panel link appears for the admin user in both desktop and mobile nav after login",
+        "Admin Panel link does not appear for non-admin authenticated users",
+        "Admin Panel link does not flicker or appear briefly for non-admin users during loading",
+        "No console.log debug statements remain in the component"
       ]
     }
   ],
   "constraints": [
-    "Do not modify any file under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts immutable sections, frontend/src/main.tsx, or frontend/src/components/ui.",
-    "Do not change backend logic or data models.",
-    "Do not change Test Page timer, navigation, or submission logic.",
-    "The three navbar links must remain: Home (always), Dashboard (authenticated), Admin Panel (authenticated + admin only)."
+    "Do not modify any files listed in frontend.immutablePaths",
+    "Do not change backend logic",
+    "Navbar background must always be solid opaque navy (#0D1B4B) — never transparent or semi-transparent",
+    "Timer, question navigation, submission logic, and Back to Dashboard button on Test page must remain unchanged"
   ],
   "nonGoals": [
-    "Adding new navigation links beyond Home, Dashboard, and Admin Panel.",
-    "Changing the visual design theme or color palette.",
-    "Modifying any backend Motoko logic.",
-    "Changing the Test Page, Dashboard page, or Admin Panel page content."
+    "Changing any page content outside the Navbar component",
+    "Modifying the backend",
+    "Changing the test-taking flow or question display",
+    "Adding new navigation links beyond the three specified (Home, Dashboard, Admin Panel)"
   ],
   "imageRequirements": {
     "required": [],
