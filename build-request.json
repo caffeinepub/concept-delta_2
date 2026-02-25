@@ -1,44 +1,78 @@
 {
   "kind": "build_request",
-  "title": "Remove option image upload fields from Add Question modal",
+  "title": "Fix Admin Panel link not appearing in Navbar",
   "projectName": "Concept Delta",
-  "priority": "normal",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-50",
-      "text": "In the Admin Panel 'Add Question' modal (frontend/src/components/admin/AddQuestionModal.tsx), remove all four option image file picker inputs (Option 1–4). The modal must retain only: the single question image file picker (with live preview thumbnail), the correct option selector (radio buttons for A, B, C, D), and the Submit button. On submit, call the addQuestion backend function passing the single question image base64 data URI and empty strings (or a placeholder) for the four option image data fields to maintain backend compatibility. Close the modal on success, show a success toast, and refresh the question gallery.",
+      "id": "REQ-51",
+      "text": "In frontend/src/hooks/useQueries.ts, fix the `useIsCallerAdmin` query so it: (1) is enabled only when the user is authenticated (identity is available), (2) uses the authenticated actor (not anonymous) to call the backend `isCallerAdmin()` function, (3) includes the identity/principal as a query key dependency so it re-fetches automatically when the user logs in or out, and (4) has a short staleTime (e.g. 0 or 5000ms) so it re-fetches on mount after login.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-1"
         ],
         "quotes": [
-          "remove image upload feature of options only at the time of question creation",
-          "only remove options image upload feature and now i am upload question + options in single image"
+          "admin panel not show in navbar, please solve this issue"
         ]
       },
       "acceptanceCriteria": [
-        "The Add Question modal shows exactly one image file picker for the question image only.",
-        "No file picker inputs labeled Option 1, Option 2, Option 3, or Option 4 are present in the modal.",
-        "The correct option selector (radio buttons A/B/C/D) remains in the modal.",
-        "The question image file picker still shows a live preview thumbnail when a file is selected.",
-        "Submitting the form calls addQuestion with the question image base64 data URI; option image data fields are passed as empty strings to preserve backend function signature compatibility.",
-        "On successful submission the modal closes, a success toast is shown, and the question gallery refreshes.",
-        "All other modal behaviour (submit button, validation, loading state) remains unchanged."
+        "useIsCallerAdmin calls isCallerAdmin() on the authenticated backend actor",
+        "The query key includes the user's principal or identity so it invalidates on login/logout",
+        "The query is disabled when no identity is present (unauthenticated)",
+        "After admin logs in, the query re-fetches and returns true without requiring a page reload"
+      ]
+    },
+    {
+      "id": "REQ-52",
+      "text": "In frontend/src/components/Navbar.tsx, fix the Admin Panel link visibility: (1) call `useIsCallerAdmin` at the top of the component, (2) after login completes, ensure the query result is awaited before deciding whether to show the link, (3) conditionally render the 'Admin Panel' link (navigating to /admin) in both the desktop nav and mobile hamburger menu only when `isLoggedIn === true` AND `isCallerAdmin === true`, (4) do not render the link during the loading state of the admin check to avoid flicker.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "admin panel not show in navbar, please solve this issue"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Admin Panel link is visible in the desktop navbar when the admin user is logged in",
+        "Admin Panel link is visible in the mobile hamburger menu when the admin user is logged in",
+        "Admin Panel link is NOT visible for non-admin authenticated users",
+        "Admin Panel link is NOT visible for unauthenticated users",
+        "Link does not flicker or briefly appear for non-admins during the loading state"
+      ]
+    },
+    {
+      "id": "REQ-53",
+      "text": "In frontend/src/hooks/useActor.ts, verify that when the user logs in via Internet Identity, the authenticated actor is created and cached correctly with the new identity, and that React Query is notified to invalidate or refetch queries that depend on the authenticated actor (including `isCallerAdmin`). If query invalidation is not triggered after login, add an explicit `queryClient.invalidateQueries` call targeting the admin check query key upon identity change.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "admin panel not show in navbar, please solve this issue"
+        ]
+      },
+      "acceptanceCriteria": [
+        "After login, the authenticated actor is immediately available for backend calls",
+        "The isCallerAdmin query is invalidated/refetched after a new identity is set",
+        "The Admin Panel link appears in the navbar within one render cycle after the admin logs in"
       ]
     }
   ],
   "constraints": [
-    "Do not change the backend addQuestion function signature or data model.",
-    "Do not remove or modify the correct option selector (A/B/C/D radio buttons) in the modal.",
-    "Do not alter the question image file picker, its preview thumbnail, or the submit/cancel logic.",
-    "Timer, question navigation, submission logic, QuestionDisplay, and Test Page review section must remain completely unchanged."
+    "Do not modify any files listed in frontend.immutablePaths",
+    "Do not change the backend Motoko logic or data models",
+    "Do not alter timer, navigation, or test submission logic in Test.tsx",
+    "Preserve all existing tab functionality in Admin.tsx"
   ],
   "nonGoals": [
-    "Changing the backend Question data model or addQuestion function.",
-    "Modifying the Question Gallery display in the Admin Panel.",
-    "Modifying the QuestionDisplay component or Test Page.",
-    "Adding new fields or changing the correct option selector."
+    "Adding new navbar links beyond Home, Dashboard, and Admin Panel",
+    "Changing the Admin Panel page content or tabs",
+    "Modifying backend admin designation logic",
+    "Any changes to question, test, or result data models"
   ],
   "imageRequirements": {
     "required": [],

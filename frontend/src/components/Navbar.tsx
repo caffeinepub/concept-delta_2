@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { useQueryClient } from '@tanstack/react-query';
@@ -11,11 +11,18 @@ export default function Navbar() {
   const { login, clear, loginStatus, identity } = useInternetIdentity();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { data: isAdmin } = useIsCallerAdmin();
+  const { data: isAdmin, isLoading: adminCheckLoading, refetch: refetchIsAdmin } = useIsCallerAdmin();
   const claimAdminMutation = useClaimAdmin();
 
   const isAuthenticated = !!identity;
   const isLoggingIn = loginStatus === 'logging-in';
+
+  // Whenever identity changes (login/logout), force a refetch of admin status
+  useEffect(() => {
+    if (identity) {
+      refetchIsAdmin();
+    }
+  }, [identity, refetchIsAdmin]);
 
   const handleAuth = async () => {
     if (isAuthenticated) {
@@ -33,6 +40,8 @@ export default function Navbar() {
           await claimAdminMutation.mutateAsync();
         } catch {
           // Another principal is already admin — this is expected for non-admin users.
+          // Still refetch admin status to update the navbar correctly.
+          refetchIsAdmin();
         }
       } catch (error: any) {
         if (error?.message === 'User is already authenticated') {
@@ -42,6 +51,9 @@ export default function Navbar() {
       }
     }
   };
+
+  // Show Admin Panel link only when confirmed admin (not during loading to prevent flicker)
+  const showAdminLink = isAuthenticated && !adminCheckLoading && isAdmin === true;
 
   return (
     <nav className="sticky top-0 z-50 bg-navy shadow-md">
@@ -78,7 +90,7 @@ export default function Navbar() {
                 Dashboard
               </button>
             )}
-            {isAuthenticated && isAdmin === true && (
+            {showAdminLink && (
               <button
                 onClick={() => navigate({ to: '/admin' })}
                 className="text-navy-100 hover:text-white transition-colors text-sm font-medium"
@@ -140,7 +152,7 @@ export default function Navbar() {
               Dashboard
             </button>
           )}
-          {isAuthenticated && isAdmin === true && (
+          {showAdminLink && (
             <button
               onClick={() => { navigate({ to: '/admin' }); setMenuOpen(false); }}
               className="block w-full text-left text-navy-100 hover:text-white py-2 text-sm font-medium"

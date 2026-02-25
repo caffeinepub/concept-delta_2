@@ -1,14 +1,32 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T18:40:37.846Z",
-  "summary": "The diff modifies AddQuestionModal.tsx to remove option image file pickers and retain only the question image picker, correct option selector, and submit button. The implementation appears largely complete based on the available evidence, though the file is truncated. All key acceptance criteria appear to be addressed.",
-  "missing_requirements": [],
-  "hallucinated_features": [],
-  "confidence": 0.78,
+  "generatedAt": "2026-02-25T18:48:38.171Z",
+  "summary": "The diff implements all three requirements (REQ-51, REQ-52, REQ-53). REQ-51 is addressed in useQueries.ts with staleTime:0, refetchOnMount:true, principal-based query key, and enabled guard. REQ-52 is addressed in Navbar.tsx with showAdminLink derived variable and conditional rendering in both desktop and mobile menus. REQ-53 is partially addressed via a useEffect in Navbar.tsx that calls refetchIsAdmin on identity change, though explicit queryClient.invalidateQueries in useActor.ts is not evidenced in the diff since useActor.ts was not modified.",
+  "missing_requirements": [
+    {
+      "id": "REQ-53",
+      "requirement": "In frontend/src/hooks/useActor.ts, verify that when the user logs in via Internet Identity, the authenticated actor is created and cached correctly with the new identity, and that React Query is notified to invalidate or refetch queries that depend on the authenticated actor (including isCallerAdmin). If query invalidation is not triggered after login, add an explicit queryClient.invalidateQueries call targeting the admin check query key upon identity change.",
+      "reason": "The diff shows no modification to frontend/src/hooks/useActor.ts. The requirement explicitly states to add invalidation logic there if not already present. The workaround via useEffect in Navbar.tsx partially compensates, but the requirement mandates verification and potential changes in useActor.ts.",
+      "evidence": [
+        "frontend/src/hooks/useActor.ts"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "useClaimAdmin mutation is called automatically after login in handleAuth to attempt claiming admin status, with silent error handling for non-admin users.",
+      "reason": "The build request does not mention calling claimAdmin after login in the Navbar, nor integrating useClaimAdmin into the auth flow. This is extra logic not requested in any of the three requirements.",
+      "evidence": [
+        "frontend/src/components/Navbar.tsx"
+      ]
+    }
+  ],
+  "confidence": 0.82,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/src/components/admin/AddQuestionModal.tsx",
+    "frontend/src/components/Navbar.tsx",
+    "frontend/src/hooks/useQueries.ts",
     "project_state.json"
   ]
 }

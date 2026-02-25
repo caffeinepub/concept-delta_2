@@ -1,25 +1,45 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T18:40:37.850Z",
+  "generatedAt": "2026-02-25T18:48:38.175Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
-    "implemented": 1,
+    "total": 3,
+    "implemented": 2,
     "items": [
       {
-        "id": "REQ-50",
-        "summary": "In the Admin Panel 'Add Question' modal (frontend/src/components/admin/AddQuestionModal.tsx), remove all four option image file picker inputs (Option 1–4). The modal must retain only: the single question image file picker (with live preview thumbnail), the correct option selector (radio buttons for A, B, C, D), and the Submit button. On submit, call the addQuestion backend function passing the single question image base64 data URI and empty strings (or a placeholder) for the four option image data fields to maintain backend compatibility. Close the modal on success, show a success toast, and refresh the question gallery.",
+        "id": "REQ-51",
+        "summary": "In frontend/src/hooks/useQueries.ts, fix the `useIsCallerAdmin` query so it: (1) is enabled only when the user is authenticated (identity is available), (2) uses the authenticated actor (not anonymous) to call the backend `isCallerAdmin()` function, (3) includes the identity/principal as a query key dependency so it re-fetches automatically when the user logs in or out, and (4) has a short staleTime (e.g. 0 or 5000ms) so it re-fetches on mount after login.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/admin/AddQuestionModal.tsx"
+          "frontend/src/hooks/useQueries.ts"
         ],
         "matchedFiles": [
-          "frontend/src/components/admin/AddQuestionModal.tsx"
+          "frontend/src/hooks/useQueries.ts"
         ]
+      },
+      {
+        "id": "REQ-52",
+        "summary": "In frontend/src/components/Navbar.tsx, fix the Admin Panel link visibility: (1) call `useIsCallerAdmin` at the top of the component, (2) after login completes, ensure the query result is awaited before deciding whether to show the link, (3) conditionally render the 'Admin Panel' link (navigating to /admin) in both the desktop nav and mobile hamburger menu only when `isLoggedIn === true` AND `isCallerAdmin === true`, (4) do not render the link during the loading state of the admin check to avoid flicker.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/Navbar.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/Navbar.tsx"
+        ]
+      },
+      {
+        "id": "REQ-53",
+        "summary": "In frontend/src/hooks/useActor.ts, verify that when the user logs in via Internet Identity, the authenticated actor is created and cached correctly with the new identity, and that React Query is notified to invalidate or refetch queries that depend on the authenticated actor (including `isCallerAdmin`). If query invalidation is not triggered after login, add an explicit `queryClient.invalidateQueries` call targeting the admin check query key upon identity change.",
+        "status": "missing",
+        "plannedFiles": [
+          "frontend/src/hooks/useActor.ts"
+        ],
+        "matchedFiles": []
       }
     ]
   },
@@ -28,7 +48,8 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/admin/AddQuestionModal.tsx",
+    "frontend/src/components/Navbar.tsx",
+    "frontend/src/hooks/useQueries.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

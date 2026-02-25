@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 27,
+  "projectStateVersion": 29,
   "summary": "Building 'Concept Delta' – a responsive MHT-CET Test Series website with Navy Blue theme. Includes Home Page, Dashboard, Test Page, and Admin Panel. Features Google/Internet Identity auth with profile setup (name, class, contact), Motoko backend with users/questions/tests/results data models, image-based questions where each question has one single image containing the full question and all 4 options (A, B, C, D), timed auto-submit tests, and an admin panel for question/test management and user/result viewing. Questions use a single uploaded image per question (no separate option images); answer selection is via four text buttons (A, B, C, D) shown below the question image. Images stored as base64 or via asset upload in the backend. Admin uploads images directly from device gallery.",
   "architectural_notes": [
     "Motoko backend on Internet Computer with stable storage for Users, Questions, Tests, TestResults",
@@ -11,8 +11,10 @@
     "First principal to authenticate is auto-designated as admin; admin role stored in stable backend state",
     "Each question uses a single uploaded image containing the full question and all 4 options; answer selection is via A/B/C/D text buttons (no separate option images displayed on test screen)"
   ],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "Admin Panel link not appearing in navbar for admin users"
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
       "id": "feature-build-a-home-page-with-a-sticky-navbar-containing-a-triangular-delta-svg-logo-and-the-text-concept-delta-on-the-left-and-a-login-connect-button-on-the-right-using-internet-identity-a-hero-section-with-the-heading-free-mht-cet-mock-tests-subheading-created-by-coepians-coep-technological-university-one-of-the-top-engineering-colleges-in-maharashtra-motivational-student-focused-body-copy-about-smart-practice-and-free-mock-tests-and-a-large-cta-button-start-practicing-now-that-triggers-login-if-unauthenticated-or-navigates-to-dashboard-if-authenticated-social-buttons-for-telegram-https-t-me-conceptdelta-and-youtube-https-youtube-com-conceptdelta2026-below-the-cta",
@@ -333,6 +335,22 @@
         "REQ-50"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-hooks-usequeries-ts-fix-the-useiscalleradmin-query-so-it-1-is-enabled-only-when-the-user-is-authenticated-identity-is-available-2-uses-the-authenticated-actor-not-anonymous-to-call-the-backend-iscalleradmin-function-3-includes-the-identity-principal-as-a-query-key-dependency-so-it-re-fetches-automatically-when-the-user-logs-in-or-out-and-4-has-a-short-staletime-e-g-0-or-5000ms-so-it-re-fetches-on-mount-after-login",
+      "title": "In frontend/src/hooks/useQueries.ts, fix the `useIsCallerAdmin` query so it: (1) is enabled only when the user is authenticated (identity is available), (2) uses the authenticated actor (not anonymous) to call the backend `isCallerAdmin()` function, (3) includes the identity/principal as a query key dependency so it re-fetches automatically when the user logs in or out, and (4) has a short staleTime (e.g. 0 or 5000ms) so it re-fetches on mount after login.",
+      "reqIds": [
+        "REQ-51"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-components-navbar-tsx-fix-the-admin-panel-link-visibility-1-call-useiscalleradmin-at-the-top-of-the-component-2-after-login-completes-ensure-the-query-result-is-awaited-before-deciding-whether-to-show-the-link-3-conditionally-render-the-admin-panel-link-navigating-to-admin-in-both-the-desktop-nav-and-mobile-hamburger-menu-only-when-isloggedin-true-and-iscalleradmin-true-4-do-not-render-the-link-during-the-loading-state-of-the-admin-check-to-avoid-flicker",
+      "title": "In frontend/src/components/Navbar.tsx, fix the Admin Panel link visibility: (1) call `useIsCallerAdmin` at the top of the component, (2) after login completes, ensure the query result is awaited before deciding whether to show the link, (3) conditionally render the 'Admin Panel' link (navigating to /admin) in both the desktop nav and mobile hamburger menu only when `isLoggedIn === true` AND `isCallerAdmin === true`, (4) do not render the link during the loading state of the admin check to avoid flicker.",
+      "reqIds": [
+        "REQ-52"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -484,6 +502,14 @@
       "id": "AR-30",
       "summary": "In the Admin Panel Add Question modal, remove the four option image upload/input fields (Option 1–4 image pickers). The question creation form should only have a single image upload for the combined question+options image. All other logic (correct option selector A/B/C/D, submit, preview) remains unchanged.",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-33",
+      "summary": "In frontend/src/hooks/useActor.ts, verify that when the user logs in via Internet Identity, the authenticated actor is created and cached correctly with the new identity, and that React Query is notified to invalidate or refetch queries that depend on the authenticated actor (including `isCallerAdmin`). If query invalidation is not triggered after login, add an explicit `queryClient.invalidateQueries` call targeting the admin check query key upon identity change.",
+      "reqIds": [
+        "REQ-53"
+      ],
       "status": "pending"
     }
   ],

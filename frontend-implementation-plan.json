@@ -1,25 +1,56 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Remove option image upload fields from Add Question modal",
+  "title": "Fix Admin Panel link not appearing in Navbar",
   "requirements": [
     {
-      "id": "REQ-50",
-      "summary": "Remove the four option image file picker inputs from the Add Question modal, retaining only the question image picker, correct option selector, and submit button. Update submission logic to pass empty strings for option image data fields while maintaining backend compatibility.",
+      "id": "REQ-51",
+      "summary": "Fix useIsCallerAdmin query to use authenticated actor and re-fetch on identity change",
       "acceptanceCriteria": [
-        "The Add Question modal shows exactly one image file picker for the question image only.",
-        "No file picker inputs labeled Option 1, Option 2, Option 3, or Option 4 are present in the modal.",
-        "The correct option selector (radio buttons A/B/C/D) remains in the modal.",
-        "The question image file picker still shows a live preview thumbnail when a file is selected.",
-        "Submitting the form calls addQuestion with the question image base64 data URI; option image data fields are passed as empty strings to preserve backend function signature compatibility.",
-        "On successful submission the modal closes, a success toast is shown, and the question gallery refreshes.",
-        "All other modal behaviour (submit button, validation, loading state) remains unchanged."
+        "useIsCallerAdmin calls isCallerAdmin() on the authenticated backend actor",
+        "The query key includes the user's principal or identity so it invalidates on login/logout",
+        "The query is disabled when no identity is present (unauthenticated)",
+        "After admin logs in, the query re-fetches and returns true without requiring a page reload"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/admin/AddQuestionModal.tsx",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Remove all four option image file input fields and their associated state management (optionImages state array, handleOptionImageChange handler, preview rendering). Retain the question image file input with its preview thumbnail. Update the form submission logic in handleSubmit to call the addQuestion mutation with the question image base64 data URI and an array of four empty strings for optionImageData parameter to maintain backend function signature compatibility. Keep the correct option radio button selector (A/B/C/D), Submit button, loading state, success toast, and modal close behavior unchanged."
+          "description": "Modify the useIsCallerAdmin hook to: (1) enable the query only when both actor and identity are available by checking `!!actor && !!identity && !actorFetching`, (2) include the user's principal string in the query key as `['isCallerAdmin', identity?.getPrincipal().toString()]` to ensure automatic invalidation on login/logout, (3) set `staleTime: 0` to force re-fetching on mount after login, and (4) ensure the queryFn uses the authenticated actor to call `actor.isCallerAdmin()` and properly handles the case when actor is not yet available."
+        }
+      ]
+    },
+    {
+      "id": "REQ-52",
+      "summary": "Fix Admin Panel link visibility in Navbar based on authentication and admin status",
+      "acceptanceCriteria": [
+        "Admin Panel link is visible in the desktop navbar when the admin user is logged in",
+        "Admin Panel link is visible in the mobile hamburger menu when the admin user is logged in",
+        "Admin Panel link is NOT visible for non-admin authenticated users",
+        "Admin Panel link is NOT visible for unauthenticated users",
+        "Link does not flicker or briefly appear for non-admins during the loading state"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/Navbar.tsx",
+          "operation": "modify",
+          "description": "Modify the Navbar component to: (1) call `const { data: isAdmin, isLoading: adminCheckLoading } = useIsCallerAdmin()` at the top of the component, (2) update the condition for showing the Admin Panel link to `isAuthenticated && !adminCheckLoading && isAdmin === true` to prevent flickering during the loading state, (3) apply this same condition to both the desktop navigation links section and the mobile hamburger menu section, ensuring the link only renders when the user is confirmed to be an authenticated admin, and (4) verify the link navigates to /admin using the Link component from TanStack Router."
+        }
+      ]
+    },
+    {
+      "id": "REQ-53",
+      "summary": "Ensure authenticated actor creation and query invalidation after Internet Identity login",
+      "acceptanceCriteria": [
+        "After login, the authenticated actor is immediately available for backend calls",
+        "The isCallerAdmin query is invalidated/refetched after a new identity is set",
+        "The Admin Panel link appears in the navbar within one render cycle after the admin logs in"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useActor.ts",
+          "operation": "modify",
+          "description": "Verify that the useActor hook properly creates and caches the authenticated actor when identity changes. Add an explicit `queryClient.invalidateQueries({ queryKey: ['isCallerAdmin'] })` call inside the useEffect that runs when `identity` changes, ensuring all queries dependent on the authenticated actor (especially isCallerAdmin) are refetched immediately after login completes. This guarantees the Admin Panel link will appear promptly without requiring a page reload."
         }
       ]
     }

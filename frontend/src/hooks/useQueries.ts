@@ -64,7 +64,8 @@ export function useIsCallerAdmin() {
     },
     enabled: !!actor && !actorFetching && !!identity,
     retry: false,
-    placeholderData: false,
+    staleTime: 0,
+    refetchOnMount: true,
   });
 }
 
@@ -79,9 +80,12 @@ export function useClaimAdmin() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['isCallerAdmin'] });
+      queryClient.refetchQueries({ queryKey: ['isCallerAdmin'] });
     },
     onError: () => {
+      // Even on error (e.g. another principal is already admin), refetch to get current status
       queryClient.invalidateQueries({ queryKey: ['isCallerAdmin'] });
+      queryClient.refetchQueries({ queryKey: ['isCallerAdmin'] });
     },
   });
 }

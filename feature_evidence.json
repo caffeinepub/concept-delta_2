@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-in-the-admin-panel-add-question-modal-frontend-src-components-admin-addquestionmodal-tsx-remove-all-four-option-image-file-picker-inputs-option-1-4-the-modal-must-retain-only-the-single-question-image-file-picker-with-live-preview-thumbnail-the-correct-option-selector-radio-buttons-for-a-b-c-d-and-the-submit-button-on-submit-call-the-addquestion-backend-function-passing-the-single-question-image-base64-data-uri-and-empty-strings-or-a-placeholder-for-the-four-option-image-data-fields-to-maintain-backend-compatibility-close-the-modal-on-success-show-a-success-toast-and-refresh-the-question-gallery",
-      "featureTitle": "In the Admin Panel 'Add Question' modal (frontend/src/components/admin/AddQuestionModal.tsx), remove all four option image file picker inputs (Option 1–4). The modal must retain only: the single question image file picker (with live preview thumbnail), the correct option selector (radio buttons for A, B, C, D), and the Submit button. On submit, call the addQuestion backend function passing the single question image base64 data URI and empty strings (or a placeholder) for the four option image data fields to maintain backend compatibility. Close the modal on success, show a success toast, and refresh the question gallery.",
+      "featureId": "feature-in-frontend-src-hooks-usequeries-ts-fix-the-useiscalleradmin-query-so-it-1-is-enabled-only-when-the-user-is-authenticated-identity-is-available-2-uses-the-authenticated-actor-not-anonymous-to-call-the-backend-iscalleradmin-function-3-includes-the-identity-principal-as-a-query-key-dependency-so-it-re-fetches-automatically-when-the-user-logs-in-or-out-and-4-has-a-short-staletime-e-g-0-or-5000ms-so-it-re-fetches-on-mount-after-login",
+      "featureTitle": "In frontend/src/hooks/useQueries.ts, fix the `useIsCallerAdmin` query so it: (1) is enabled only when the user is authenticated (identity is available), (2) uses the authenticated actor (not anonymous) to call the backend `isCallerAdmin()` function, (3) includes the identity/principal as a query key dependency so it re-fetches automatically when the user logs in or out, and (4) has a short staleTime (e.g. 0 or 5000ms) so it re-fetches on mount after login.",
       "files": [
-        "frontend/src/components/admin/AddQuestionModal.tsx"
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -16,7 +16,26 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-50"
+        "REQ-51"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-in-frontend-src-components-navbar-tsx-fix-the-admin-panel-link-visibility-1-call-useiscalleradmin-at-the-top-of-the-component-2-after-login-completes-ensure-the-query-result-is-awaited-before-deciding-whether-to-show-the-link-3-conditionally-render-the-admin-panel-link-navigating-to-admin-in-both-the-desktop-nav-and-mobile-hamburger-menu-only-when-isloggedin-true-and-iscalleradmin-true-4-do-not-render-the-link-during-the-loading-state-of-the-admin-check-to-avoid-flicker",
+      "featureTitle": "In frontend/src/components/Navbar.tsx, fix the Admin Panel link visibility: (1) call `useIsCallerAdmin` at the top of the component, (2) after login completes, ensure the query result is awaited before deciding whether to show the link, (3) conditionally render the 'Admin Panel' link (navigating to /admin) in both the desktop nav and mobile hamburger menu only when `isLoggedIn === true` AND `isCallerAdmin === true`, (4) do not render the link during the loading state of the admin check to avoid flicker.",
+      "files": [
+        "frontend/src/components/Navbar.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-52"
       ],
       "confidence": "high"
     }

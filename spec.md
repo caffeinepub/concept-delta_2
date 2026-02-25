@@ -1,11 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Remove the four option image upload fields from the Add Question modal in the Admin Panel, keeping only the single question image file picker.
+**Goal:** Fix the Admin Panel link not appearing in the Navbar after an admin user logs in.
 
 **Planned changes:**
-- Remove all four option image file picker inputs (Option 1–4) from the Add Question modal (`AddQuestionModal.tsx`).
-- Retain the question image file picker with live preview thumbnail, the correct option selector (A/B/C/D radio buttons), and the Submit button.
-- On form submission, pass the question image base64 data URI and empty strings for the four option image fields to maintain backend compatibility.
+- Fix `useIsCallerAdmin` hook to use the authenticated actor, include the user's principal in the query key, disable when unauthenticated, and use a short staleTime so it re-fetches on mount after login.
+- Update `Navbar.tsx` to call `useIsCallerAdmin` and conditionally render the Admin Panel link (in both desktop nav and mobile hamburger menu) only when the user is logged in AND is an admin, hiding it during the loading state to prevent flicker.
+- Ensure `useActor.ts` properly invalidates/refetches the `isCallerAdmin` query when the identity changes after login.
 
-**User-visible outcome:** When adding a question in the Admin Panel, admins see only one image upload field (for the combined question+options image) instead of five separate image pickers, simplifying the question creation flow.
+**User-visible outcome:** After an admin logs in, the Admin Panel link appears in the navbar (desktop and mobile) without requiring a page reload. Non-admin and unauthenticated users do not see the link.
