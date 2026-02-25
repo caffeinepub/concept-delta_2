@@ -10,7 +10,9 @@ import Order "mo:core/Order";
 import Runtime "mo:core/Runtime";
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
   // Anonymous user profile type (no internal principal)
   type AnonymousProfile = {
@@ -95,6 +97,17 @@ actor {
     totalTests : Nat;
     averageScore : Nat;
     bestScore : Nat;
+  };
+
+  type TestResultWithUserName = {
+    id : Text;
+    userId : Principal;
+    userName : Text;
+    testId : Text;
+    testName : Text;
+    answers : [Nat];
+    score : Nat;
+    submittedAt : Time.Time;
   };
 
   // Persistent admin principal: set on first claim and kept forever
@@ -334,6 +347,26 @@ actor {
     tests.values().toArray().sort(
       func(a, b) {
         Int.compare(b.createdAt, a.createdAt);
+      }
+    );
+  };
+
+  // New function: Get all test results with user names
+  public query ({ caller }) func getAllResultsWithUserNames() : async [TestResultWithUserName] {
+    requirePersistentAdminQuery(caller);
+    results.values().toArray().sort().map(
+      func(r) : TestResultWithUserName {
+        let userName = switch (users.get(r.userId)) {
+          case (?u) { u.fullName };
+          case (null) { "(Unknown User)" };
+        };
+        let testName = switch (tests.get(r.testId)) {
+          case (?t) { t.name };
+          case (null) { "(Unknown Test)" };
+        };
+        {
+          r with userName; testName;
+        };
       }
     );
   };

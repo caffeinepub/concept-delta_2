@@ -1,17 +1,11 @@
-import { useGetAllResults, useGetPublishedTests, useGetAllUsers } from '../../hooks/useQueries';
+import { useGetAllResultsWithUserNames } from '../../hooks/useQueries';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BarChart3 } from 'lucide-react';
 
 export default function ResultsList() {
-  const { data: results, isLoading: resultsLoading } = useGetAllResults();
-  const { data: tests } = useGetPublishedTests();
-  const { data: _users } = useGetAllUsers();
-
-  const getTestName = (testId: string) => {
-    return tests?.find((t) => t.id === testId)?.name ?? testId.slice(0, 12) + '...';
-  };
+  const { data: results, isLoading: resultsLoading } = useGetAllResultsWithUserNames();
 
   return (
     <Card className="border border-gray-100 rounded-2xl shadow-sm">
@@ -42,11 +36,11 @@ export default function ResultsList() {
                 {results.map((result, idx) => (
                   <TableRow key={result.id} className="hover:bg-gray-50 transition-colors">
                     <TableCell className="text-gray-400 text-sm">{idx + 1}</TableCell>
-                    <TableCell className="font-mono text-xs text-gray-500">
-                      {result.userId.toString().slice(0, 15)}...
+                    <TableCell className="font-medium text-navy">
+                      {result.userName}
                     </TableCell>
                     <TableCell className="font-medium text-navy">
-                      {getTestName(result.testId)}
+                      {result.testName}
                     </TableCell>
                     <TableCell>
                       <span className="bg-navy/10 text-navy font-bold text-sm px-3 py-1 rounded-full">

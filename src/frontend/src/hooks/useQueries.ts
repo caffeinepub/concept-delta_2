@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
 import { useInternetIdentity } from './useInternetIdentity';
-import type { AnonymousProfile, TestSummary, Question, TestResult, LeaderboardEntry, Test } from '../backend';
+import type { AnonymousProfile, TestSummary, Question, TestResult, TestResultWithUserName, LeaderboardEntry, Test } from '../backend';
 import { createActorWithConfig } from '../config';
 
 // ─── Auth / Profile ──────────────────────────────────────────────────────────
@@ -236,6 +236,19 @@ export function useGetAllResults() {
     queryFn: async () => {
       if (!actor) return [];
       return actor.getAllResults();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useGetAllResultsWithUserNames() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<TestResultWithUserName[]>({
+    queryKey: ['allResultsWithUserNames'],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getAllResultsWithUserNames();
     },
     enabled: !!actor && !isFetching,
   });

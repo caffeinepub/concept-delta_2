@@ -46,6 +46,16 @@ export interface TestResult {
   'score' : bigint,
   'testId' : string,
 }
+export interface TestResultWithUserName {
+  'id' : string,
+  'userName' : string,
+  'userId' : Principal,
+  'answers' : Array<bigint>,
+  'testName' : string,
+  'submittedAt' : Time,
+  'score' : bigint,
+  'testId' : string,
+}
 export interface TestSummary {
   'id' : string,
   'subject' : [] | [string],
@@ -91,6 +101,7 @@ export interface _SERVICE {
    * / ADMIN: Get all test results sorted by submittedAt
    */
   'getAllResults' : ActorMethod<[], Array<TestResult>>,
+  'getAllResultsWithUserNames' : ActorMethod<[], Array<TestResultWithUserName>>,
   /**
    * / ADMIN: Get all tests (published and unpublished)
    */

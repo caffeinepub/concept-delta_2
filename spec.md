@@ -2,59 +2,41 @@
 
 ## Current State
 
-### Backend (`main.mo`)
-- ✅ `getPublishedTests()` query returns only tests where `isPublished = true`
-- ✅ `createTest()` creates tests with `isPublished = false` by default
-- ✅ `setTestPublished()` toggles publish status
-- ❌ **Missing**: No function to get ALL tests (published + unpublished) for admin panel
+The admin results page displays raw principal IDs (like `mv15-jvses-gd5...`) in the "User" column instead of user full names.
 
-### Frontend
-- **Dashboard.tsx**: Uses `useGetPublishedTests()` correctly to show published tests to students
-- **Admin Panel (TestManagement)**: Uses `useGetAllTests()` which incorrectly calls `getPublishedTests()` instead of a function that returns all tests
-- Result: Newly created unpublished tests are invisible in the admin panel
-
-### User Report
-"created test not show in dashboard"
-
-**Root Cause**: Tests are created as unpublished by default, but the admin panel cannot see unpublished tests because there's no backend query to fetch all tests (regardless of publish status).
-
----
+Backend has:
+- `adminGetAllUsers()` returns `AnonymousProfile[]` without principal field
+- `getAllResults()` returns `TestResult[]` with `userId` (Principal) but no name
+- Frontend cannot map userId → fullName
 
 ## Requested Changes (Diff)
 
 ### Add
-- Backend: New query function `getAllTests()` (admin-only) that returns ALL tests regardless of publish status
-- Backend: Return full `Test` objects (not just `TestSummary`) so admin can see publish status
+- New backend query: `getAllResultsWithUserNames()` → returns enriched results
+- New type: `TestResultWithUserName` with `userName` and `testName` fields
+- New frontend hook: `useGetAllResultsWithUserNames()`
 
 ### Modify
-- Frontend `useQueries.ts`: Update `useGetAllTests()` to call the new `getAllTests()` backend function
-- Frontend Admin Panel: Display publish status clearly for each test
+- `ResultsList.tsx` to use new hook and display `result.userName` instead of `result.userId`
 
 ### Remove
-None.
-
----
+- None
 
 ## Implementation Plan
 
-### Backend (`main.mo`)
-1. Add new query function `getAllTests()` restricted to admin
-2. Return full `Test[]` array sorted by `createdAt` (newest first)
-
-### Frontend (`useQueries.ts`)
-3. Update `useGetAllTests()` to call `actor.getAllTests()`
-4. Change return type from `TestSummary[]` to include `isPublished` field
-
-### Frontend (Admin Panel)
-5. Display publish toggle correctly for each test
-6. Show badge/indicator for published vs unpublished status
-
----
+1. ✅ Backend: Add `getAllResultsWithUserNames()` Motoko function
+   - Look up user profile by `userId` to get `fullName`
+   - Look up test by `testId` to get `name`
+   - Return enriched `TestResultWithUserName[]`
+2. ✅ Frontend: Add `useGetAllResultsWithUserNames()` hook in `useQueries.ts`
+3. ✅ Frontend: Update `ResultsList.tsx` to:
+   - Import and call `useGetAllResultsWithUserNames()` instead of `useGetAllResults()`
+   - Display `result.userName` in User column
+   - Display `result.testName` in Test Name column
+4. Deploy and verify
 
 ## UX Notes
 
-**After this fix:**
-- Admin creates a test → it appears immediately in Admin Panel as "Unpublished"
-- Admin toggles publish → test appears on Dashboard for students
-- Students only see published tests (no change to their experience)
-- Admin can manage all tests (published + unpublished) from one view
+- Users will now see actual student names in the results table
+- If a user or test is deleted/missing, display "(Unknown User)" or "(Unknown Test)"
+- This improves admin UX significantly for tracking student performance

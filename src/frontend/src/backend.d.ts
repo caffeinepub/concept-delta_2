@@ -22,6 +22,16 @@ export interface LeaderboardEntry {
     averageScore: bigint;
 }
 export type Time = bigint;
+export interface TestResultWithUserName {
+    id: string;
+    userName: string;
+    userId: Principal;
+    answers: Array<bigint>;
+    testName: string;
+    submittedAt: Time;
+    score: bigint;
+    testId: string;
+}
 export interface Test {
     id: string;
     isPublished: boolean;
@@ -88,6 +98,7 @@ export interface backendInterface {
      * / ADMIN: Get all test results sorted by submittedAt
      */
     getAllResults(): Promise<Array<TestResult>>;
+    getAllResultsWithUserNames(): Promise<Array<TestResultWithUserName>>;
     /**
      * / ADMIN: Get all tests (published and unpublished)
      */

@@ -39,6 +39,16 @@ export const TestResult = IDL.Record({
   'score' : IDL.Nat,
   'testId' : IDL.Text,
 });
+export const TestResultWithUserName = IDL.Record({
+  'id' : IDL.Text,
+  'userName' : IDL.Text,
+  'userId' : IDL.Principal,
+  'answers' : IDL.Vec(IDL.Nat),
+  'testName' : IDL.Text,
+  'submittedAt' : Time,
+  'score' : IDL.Nat,
+  'testId' : IDL.Text,
+});
 export const Test = IDL.Record({
   'id' : IDL.Text,
   'isPublished' : IDL.Bool,
@@ -81,6 +91,11 @@ export const idlService = IDL.Service({
   'getAdminPrincipal' : IDL.Func([], [IDL.Opt(IDL.Principal)], ['query']),
   'getAllQuestions' : IDL.Func([], [IDL.Vec(Question)], ['query']),
   'getAllResults' : IDL.Func([], [IDL.Vec(TestResult)], ['query']),
+  'getAllResultsWithUserNames' : IDL.Func(
+      [],
+      [IDL.Vec(TestResultWithUserName)],
+      ['query'],
+    ),
   'getAllTests' : IDL.Func([], [IDL.Vec(Test)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(AnonymousProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
@@ -136,6 +151,16 @@ export const idlFactory = ({ IDL }) => {
     'score' : IDL.Nat,
     'testId' : IDL.Text,
   });
+  const TestResultWithUserName = IDL.Record({
+    'id' : IDL.Text,
+    'userName' : IDL.Text,
+    'userId' : IDL.Principal,
+    'answers' : IDL.Vec(IDL.Nat),
+    'testName' : IDL.Text,
+    'submittedAt' : Time,
+    'score' : IDL.Nat,
+    'testId' : IDL.Text,
+  });
   const Test = IDL.Record({
     'id' : IDL.Text,
     'isPublished' : IDL.Bool,
@@ -178,6 +203,11 @@ export const idlFactory = ({ IDL }) => {
     'getAdminPrincipal' : IDL.Func([], [IDL.Opt(IDL.Principal)], ['query']),
     'getAllQuestions' : IDL.Func([], [IDL.Vec(Question)], ['query']),
     'getAllResults' : IDL.Func([], [IDL.Vec(TestResult)], ['query']),
+    'getAllResultsWithUserNames' : IDL.Func(
+        [],
+        [IDL.Vec(TestResultWithUserName)],
+        ['query'],
+      ),
     'getAllTests' : IDL.Func([], [IDL.Vec(Test)], ['query']),
     'getCallerUserProfile' : IDL.Func(
         [],

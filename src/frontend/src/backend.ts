@@ -104,6 +104,16 @@ export interface LeaderboardEntry {
     averageScore: bigint;
 }
 export type Time = bigint;
+export interface TestResultWithUserName {
+    id: string;
+    userName: string;
+    userId: Principal;
+    answers: Array<bigint>;
+    testName: string;
+    submittedAt: Time;
+    score: bigint;
+    testId: string;
+}
 export interface Test {
     id: string;
     isPublished: boolean;
@@ -171,6 +181,7 @@ export interface backendInterface {
      * / ADMIN: Get all test results sorted by submittedAt
      */
     getAllResults(): Promise<Array<TestResult>>;
+    getAllResultsWithUserNames(): Promise<Array<TestResultWithUserName>>;
     /**
      * / ADMIN: Get all tests (published and unpublished)
      */
@@ -325,6 +336,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.getAllResults();
+            return result;
+        }
+    }
+    async getAllResultsWithUserNames(): Promise<Array<TestResultWithUserName>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllResultsWithUserNames();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllResultsWithUserNames();
             return result;
         }
     }
