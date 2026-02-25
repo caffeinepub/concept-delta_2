@@ -64,7 +64,6 @@ export function useIsCallerAdmin() {
     },
     enabled: !!actor && !actorFetching && !!identity,
     retry: false,
-    // Return false as placeholder while loading
     placeholderData: false,
   });
 }
@@ -76,15 +75,12 @@ export function useClaimAdmin() {
   return useMutation({
     mutationFn: async () => {
       if (!actor) throw new Error('Actor not available');
-      // claimAdmin: first caller becomes admin, same caller is a no-op, different caller throws
       await actor.claimAdmin();
     },
     onSuccess: () => {
-      // Re-fetch admin status after claiming
       queryClient.invalidateQueries({ queryKey: ['isCallerAdmin'] });
     },
     onError: () => {
-      // If claim fails (another principal is already admin), still refresh admin status
       queryClient.invalidateQueries({ queryKey: ['isCallerAdmin'] });
     },
   });
@@ -142,17 +138,12 @@ export function useSubmitTest() {
 export function useGetMyResults() {
   const { actor, isFetching: actorFetching } = useActor();
   const { identity } = useInternetIdentity();
-  const principalStr = identity?.getPrincipal().toString();
 
   return useQuery<TestResult[]>({
-    queryKey: ['myResults', principalStr],
+    queryKey: ['myResults'],
     queryFn: async () => {
       if (!actor) return [];
-      try {
-        return await actor.getMyResults();
-      } catch {
-        return [];
-      }
+      return actor.getMyResults();
     },
     enabled: !!actor && !actorFetching && !!identity,
   });
@@ -197,6 +188,34 @@ export function useAddQuestion() {
   });
 }
 
+export function useGetAllResults() {
+  const { actor, isFetching: actorFetching } = useActor();
+  const { identity } = useInternetIdentity();
+
+  return useQuery<TestResult[]>({
+    queryKey: ['allResults'],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getAllResults();
+    },
+    enabled: !!actor && !actorFetching && !!identity,
+  });
+}
+
+export function useGetAllUsers() {
+  const { actor, isFetching: actorFetching } = useActor();
+  const { identity } = useInternetIdentity();
+
+  return useQuery({
+    queryKey: ['allUsers'],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.adminGetAllUsers();
+    },
+    enabled: !!actor && !actorFetching && !!identity,
+  });
+}
+
 export function useCreateTest() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
@@ -217,8 +236,8 @@ export function useCreateTest() {
       return actor.createTest(name, subject, durationSeconds, questionIds);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allTests'] });
       queryClient.invalidateQueries({ queryKey: ['publishedTests'] });
+      queryClient.invalidateQueries({ queryKey: ['allTests'] });
     },
   });
 }
@@ -230,41 +249,12 @@ export function useSetTestPublished() {
   return useMutation({
     mutationFn: async ({ testId, published }: { testId: string; published: boolean }) => {
       if (!actor) throw new Error('Actor not available');
-      await actor.setTestPublished(testId, published);
+      return actor.setTestPublished(testId, published);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['publishedTests'] });
       queryClient.invalidateQueries({ queryKey: ['allTests'] });
-      queryClient.invalidateQueries({ queryKey: ['adminAllTests'] });
     },
-  });
-}
-
-export function useAdminGetAllUsers() {
-  const { actor, isFetching: actorFetching } = useActor();
-  const { identity } = useInternetIdentity();
-
-  return useQuery<AnonymousProfile[]>({
-    queryKey: ['adminAllUsers'],
-    queryFn: async () => {
-      if (!actor) return [];
-      return actor.adminGetAllUsers();
-    },
-    enabled: !!actor && !actorFetching && !!identity,
-  });
-}
-
-export function useGetAllResults() {
-  const { actor, isFetching: actorFetching } = useActor();
-  const { identity } = useInternetIdentity();
-
-  return useQuery<TestResult[]>({
-    queryKey: ['allResults'],
-    queryFn: async () => {
-      if (!actor) return [];
-      return actor.getAllResults();
-    },
-    enabled: !!actor && !actorFetching && !!identity,
   });
 }
 
@@ -276,12 +266,35 @@ export function useGetLeaderboard() {
     queryKey: ['leaderboard'],
     queryFn: async () => {
       if (!actor) return [];
-      try {
-        return await actor.getLeaderboard();
-      } catch {
-        return [];
-      }
+      return actor.getLeaderboard();
     },
     enabled: !!actor && !actorFetching && !!identity,
   });
 }
+
+export function useGetUserStats() {
+  const { actor, isFetching: actorFetching } = useActor();
+  const { identity } = useInternetIdentity();
+
+  return useQuery({
+    queryKey: ['userStats'],
+    queryFn: async () => {
+      if (!actor) return null;
+      const results = await actor.getMyResults();
+      if (!results || results.length === 0) {
+        return { testsAttempted: 0, averageScore: 0, bestScore: 0 };
+      }
+      const scores = results.map((r) => Number(r.score));
+      const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+      const best = Math.max(...scores);
+      return {
+        testsAttempted: results.length,
+        averageScore: Math.round(avg),
+        bestScore: best,
+      };
+    },
+    enabled: !!actor && !actorFetching && !!identity,
+  });
+}
+
+export type { UserClass };

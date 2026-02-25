@@ -1,55 +1,79 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Designate first-login user as admin and grant Admin Panel access",
+  "title": "Revert to Image-Based Questions and Options with Responsive Image Display",
   "requirements": [
     {
-      "id": "REQ-29",
-      "summary": "Ensure useIsCallerAdmin query correctly fetches admin status and re-fetches on identity change",
+      "id": "REQ-39",
+      "summary": "Update Admin Panel 'Add Question' modal to use image URL input fields with live preview thumbnails",
       "acceptanceCriteria": [
-        "useIsCallerAdmin re-fetches whenever the authenticated principal changes.",
-        "Returns true for the designated admin principal and false for all others.",
-        "Returns false (not undefined/null) when the user is not logged in."
+        "Modal has a question image URL input with a live preview thumbnail",
+        "Modal has four option image URL inputs each with a live preview thumbnail",
+        "Radio buttons allow selecting the correct option (1–4)",
+        "Submitting calls addQuestion with image URL values",
+        "Modal closes on success and shows a success toast",
+        "Question gallery refreshes to show the new question"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/components/admin/AddQuestionModal.tsx",
           "operation": "modify",
-          "description": "Modify the useIsCallerAdmin hook to ensure it properly depends on the actor and actorFetching state, includes retry: false to prevent repeated unauthorized calls, and returns false (not undefined/null) when the user is not authenticated. The query should be enabled only when actor is available and not fetching, and the queryKey should be structured to invalidate when identity changes. Verify the authorization component's usage instructions before implementing."
+          "description": "Replace the existing text input fields with image URL input fields. Add a text input for questionImageUrl and four text inputs labeled 'Option 1 Image URL' through 'Option 4 Image URL'. Below each URL input, render a live preview thumbnail using an <img> element with max-h-32, w-auto, object-contain classes to show a small preview of the image. Keep the radio button selector for the correct option (1-4). Update the form submission to call addQuestion(questionImageUrl, optionImageUrls, correctOption) with the image URL values. Ensure the modal closes on success and shows a success toast."
         }
       ]
     },
     {
-      "id": "REQ-30",
-      "summary": "Conditionally render Admin Panel link in Navbar only for authenticated admin users",
+      "id": "REQ-40",
+      "summary": "Update Admin Panel Question Gallery to display questions and options as responsive images with correct answer highlighting",
       "acceptanceCriteria": [
-        "Admin Panel link is visible in the navbar when the admin principal is logged in.",
-        "Admin Panel link is NOT visible when a non-admin principal is logged in.",
-        "Admin Panel link is NOT visible when no user is logged in.",
-        "Mobile hamburger menu mirrors the same conditional rendering."
+        "Each question card shows the question image with object-contain and a defined max height",
+        "Four option images are shown in a 2×2 grid per card",
+        "Correct answer option image is highlighted with a green border",
+        "Image containers are responsive and do not overflow on mobile or desktop",
+        "Images are clearly visible at all screen sizes"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/Navbar.tsx",
+          "path": "frontend/src/components/admin/QuestionGallery.tsx",
           "operation": "modify",
-          "description": "Update the Navbar component to use both isAuthenticated from useInternetIdentity and isCallerAdmin from useIsCallerAdmin hooks. Conditionally render the 'Admin Panel' Link (navigating to /admin) only when both isAuthenticated is true AND isCallerAdmin returns true. Apply the same conditional rendering logic to both the desktop navigation menu and the mobile hamburger menu so the Admin Panel link appears consistently across all viewports only for the designated admin user. Verify the authorization component's usage instructions before implementing."
+          "description": "Replace text-based question rendering with image-based rendering. For each question card, display question.questionImageUrl in a responsive container with w-full, object-contain, and max-h-48 classes. Below the question image, render the four option images (question.optionImageUrls) in a 2×2 grid using a grid grid-cols-2 gap-2 layout. Each option image should use object-contain and max-h-24 classes. Highlight the correct answer option image (based on question.correctOption index) with a green border (e.g., border-4 border-green-500). Ensure all image containers are responsive and do not overflow on mobile or desktop."
         }
       ]
     },
     {
-      "id": "REQ-31",
-      "summary": "Add access guard to Admin Panel page for non-admin users",
+      "id": "REQ-41",
+      "summary": "Update QuestionDisplay component to render question and answer options as responsive images with selectable cards",
       "acceptanceCriteria": [
-        "Navigating to /admin while not authenticated redirects to the Home page.",
-        "Navigating to /admin as a non-admin authenticated user shows an 'Access Denied' or unauthorized message.",
-        "The full Admin Panel with all five tabs (Question Gallery, Test Builder, User List, Results, Leaderboard) is rendered only for the designated admin principal.",
-        "All five tabs remain fully functional for the admin user."
+        "Question image renders with object-contain in a responsive container",
+        "Question image max height is defined and adjustable, ensuring full visibility",
+        "Four option images render as selectable cards in a 2-column grid on tablet/desktop and 1-column on mobile",
+        "Option image containers use object-contain with defined max height",
+        "Selected option card shows a navy border highlight",
+        "No image overflow or clipping on any screen size"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/Admin.tsx",
+          "path": "frontend/src/components/QuestionDisplay.tsx",
           "operation": "modify",
-          "description": "Add an access guard at the top of the Admin component using both isAuthenticated from useInternetIdentity and isCallerAdmin from useIsCallerAdmin hooks. If the user is not authenticated, redirect to the Home page (/). If the user is authenticated but isCallerAdmin returns false, display an 'Access Denied' message using a styled card or alert component explaining that only the designated admin can access this page. Only render the existing five-tab Admin Panel (Question Gallery, Test Builder, User List, Results, Leaderboard) when both isAuthenticated is true AND isCallerAdmin returns true. Ensure all five tabs remain fully functional for the admin user. Verify the authorization component's usage instructions before implementing."
+          "description": "Replace text-based question and option rendering with image-based rendering. Display question.questionImageUrl in a responsive container with w-full, object-contain, and responsive max height classes (e.g., max-h-64 on mobile via default, max-h-80 on desktop via md:max-h-80). Render the four option images (question.optionImageUrls) as selectable cards in a grid that is single-column on mobile and 2-column on tablet/desktop (grid grid-cols-1 md:grid-cols-2 gap-4). Each option card should contain an <img> element with object-contain and max-h-40 classes. Highlight the selected option card with a navy border (e.g., border-4 border-navy-600 or using the existing navy color from Tailwind config). Ensure no image overflow or clipping at any screen size."
+        }
+      ]
+    },
+    {
+      "id": "REQ-42",
+      "summary": "Update Test Page answer review section to render question and option images with user/correct answer highlighting",
+      "acceptanceCriteria": [
+        "Answer review shows question images with object-contain in responsive containers",
+        "Option images are shown as cards in a 2-column grid on desktop, 1-column on mobile",
+        "User's selected answer is highlighted with a blue border",
+        "Correct answer is highlighted with a green border",
+        "Images do not overflow or get clipped at any screen size"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/Test.tsx",
+          "operation": "modify",
+          "description": "Update the answer review section (rendered after test submission) to display image-based questions and options. For each reviewed question, render question.questionImageUrl in a responsive container with object-contain and max-h-64 classes. Display all four option images (question.optionImageUrls) as styled cards in a grid that is 2-column on desktop and 1-column on mobile (grid grid-cols-1 md:grid-cols-2 gap-4). Each option image card should use object-contain and max-h-40 classes. Highlight the user's selected answer card with a blue border (e.g., border-4 border-blue-500) and the correct answer card with a green border (e.g., border-4 border-green-500). If the user's answer matches the correct answer, apply only the green border. Ensure images do not overflow or get clipped at any screen size."
         }
       ]
     }

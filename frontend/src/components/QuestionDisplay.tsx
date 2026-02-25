@@ -18,7 +18,7 @@ export default function QuestionDisplay({
   totalQuestions,
 }: QuestionDisplayProps) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Question header */}
       <div className="flex items-center gap-3">
         <span className="bg-navy text-white text-sm font-bold px-3 py-1 rounded-full">
@@ -27,46 +27,68 @@ export default function QuestionDisplay({
       </div>
 
       {/* Question image */}
-      <div className="bg-gray-50 rounded-2xl border border-gray-100 overflow-hidden">
+      <div className="w-full bg-navy/5 rounded-2xl border border-navy/10 overflow-hidden flex items-center justify-center p-2">
         <img
           src={question.questionImageUrl}
           alt={`Question ${questionNumber}`}
-          className="w-full max-h-64 object-contain p-4"
+          className="w-full object-contain rounded-xl"
+          style={{ maxHeight: '280px', minHeight: '100px' }}
           onError={(e) => {
-            (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2YzZjRmNiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzk5YTNhZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIG5vdCBhdmFpbGFibGU8L3RleHQ+PC9zdmc+';
+            const el = e.currentTarget as HTMLImageElement;
+            el.style.display = 'none';
+            const parent = el.parentElement;
+            if (parent && !parent.querySelector('.img-err')) {
+              const msg = document.createElement('p');
+              msg.className = 'img-err text-sm text-gray-400 py-6 text-center w-full';
+              msg.textContent = 'Question image could not be loaded.';
+              parent.appendChild(msg);
+            }
           }}
         />
       </div>
 
-      {/* Options */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {question.optionImageUrls.map((url, idx) => (
+      {/* Options — 1 column on mobile, 2×2 grid on md+ */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {question.optionImageUrls.map((optUrl, idx) => (
           <button
             key={idx}
             onClick={() => onChange(idx)}
-            className={`relative rounded-xl border-2 overflow-hidden transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-navy/50 ${
+            className={`relative rounded-2xl border-2 overflow-hidden transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-navy/50 ${
               selectedAnswer === idx
                 ? 'border-navy shadow-md ring-2 ring-navy/20'
-                : 'border-gray-200 hover:border-navy/40 hover:shadow-sm'
+                : 'border-gray-200 bg-white hover:border-navy/40 hover:shadow-sm'
             }`}
           >
             {/* Option label badge */}
-            <div
-              className={`absolute top-2 left-2 z-10 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
+            <span
+              className={`absolute top-2 left-2 z-10 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shadow-sm transition-colors ${
                 selectedAnswer === idx
                   ? 'bg-navy text-white'
                   : 'bg-white text-navy border border-navy/30'
               }`}
             >
               {OPTION_LABELS[idx]}
-            </div>
-            <div className="bg-gray-50 p-2 pt-8">
+            </span>
+
+            {/* Option image */}
+            <div className={`w-full flex items-center justify-center p-2 pt-8 ${
+              selectedAnswer === idx ? 'bg-navy/5' : 'bg-gray-50'
+            }`} style={{ minHeight: '120px', maxHeight: '180px' }}>
               <img
-                src={url}
+                src={optUrl}
                 alt={`Option ${OPTION_LABELS[idx]}`}
-                className="w-full max-h-32 object-contain"
+                className="w-full object-contain"
+                style={{ maxHeight: '160px' }}
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2YzZjRmNiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzk5YTNhZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk9wdGlvbjwvdGV4dD48L3N2Zz4=';
+                  const el = e.currentTarget as HTMLImageElement;
+                  el.style.display = 'none';
+                  const parent = el.parentElement;
+                  if (parent && !parent.querySelector('.img-err')) {
+                    const msg = document.createElement('p');
+                    msg.className = 'img-err text-xs text-gray-400 py-4 text-center w-full';
+                    msg.textContent = 'Image unavailable';
+                    parent.appendChild(msg);
+                  }
                 }}
               />
             </div>

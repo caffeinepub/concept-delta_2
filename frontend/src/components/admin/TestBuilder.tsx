@@ -9,8 +9,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { PlusCircle, ClipboardList, Tag } from 'lucide-react';
 import { toast } from 'sonner';
 
-const OPTION_LABELS = ['A', 'B', 'C', 'D'];
-
 export default function TestBuilder() {
   const [testName, setTestName] = useState('');
   const [subject, setSubject] = useState('');
@@ -51,7 +49,7 @@ export default function TestBuilder() {
       setDurationMinutes('');
       setSelectedQuestions(new Set());
       setErrors({});
-    } catch (err) {
+    } catch {
       toast.error('Failed to create test. Please try again.');
     }
   };
@@ -69,7 +67,7 @@ export default function TestBuilder() {
     try {
       await setTestPublished.mutateAsync({ testId, published: !currentPublished });
       toast.success(`Test ${!currentPublished ? 'published' : 'unpublished'} successfully!`);
-    } catch (err) {
+    } catch {
       toast.error('Failed to update test status.');
     }
   };
@@ -137,10 +135,10 @@ export default function TestBuilder() {
 
               {questionsLoading ? (
                 <div className="space-y-2">
-                  {[1, 2, 3].map((i) => <Skeleton key={i} className="h-16 rounded-xl" />)}
+                  {[1, 2, 3].map((i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
                 </div>
               ) : questions && questions.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-80 overflow-y-auto pr-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-96 overflow-y-auto pr-1">
                   {questions.map((q, idx) => (
                     <label
                       key={q.id}
@@ -156,14 +154,25 @@ export default function TestBuilder() {
                         onChange={() => toggleQuestion(q.id)}
                         className="accent-navy w-4 h-4 shrink-0"
                       />
-                      <div className="flex items-center gap-2 min-w-0">
-                        <img
-                          src={q.questionImageUrl}
-                          alt={`Q${idx + 1}`}
-                          className="w-12 h-10 object-contain bg-gray-50 rounded shrink-0"
-                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                        />
-                        <span className="text-sm font-medium text-navy truncate">Question {idx + 1}</span>
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-navy/10 text-navy text-xs font-bold flex items-center justify-center">
+                          {idx + 1}
+                        </span>
+                        {/* Question thumbnail */}
+                        <div className="flex-shrink-0 w-14 h-10 rounded-lg overflow-hidden bg-gray-100 border border-gray-200 flex items-center justify-center">
+                          <img
+                            src={q.questionImageUrl}
+                            alt={`Q${idx + 1}`}
+                            className="w-full h-full object-contain"
+                            onError={(e) => {
+                              const el = e.currentTarget as HTMLImageElement;
+                              el.style.display = 'none';
+                            }}
+                          />
+                        </div>
+                        <span className="text-xs font-medium text-navy truncate">
+                          Question {idx + 1}
+                        </span>
                       </div>
                     </label>
                   ))}

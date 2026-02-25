@@ -1,12 +1,14 @@
 # Specification
 
 ## Summary
-**Goal:** Designate the first user to log in as the permanent admin, and restrict the Admin Panel to that user only.
+**Goal:** Revert the Concept Delta app to a fully image-based question/option model, updating both the backend data schema and all relevant frontend components to store, display, and review questions and options as images with responsive, non-cropping image containers.
 
 **Planned changes:**
-- In the Motoko backend, store the first principal to authenticate as the admin in stable storage; reject admin-only calls from any other principal; ensure the admin principal persists across canister upgrades.
-- Update `useIsCallerAdmin` hook to call the backend `isCallerAdmin()` function, return a boolean, and re-fetch whenever the authenticated identity changes.
-- Update the Navbar to conditionally render the "Admin Panel" link only when the user is authenticated and `useIsCallerAdmin` returns true, in both desktop and mobile views.
-- Update the Admin Panel page (`/admin`) to redirect unauthenticated users to Home and show an "Access Denied" message to non-admin authenticated users; render the full five-tab panel only for the designated admin.
+- Update the Motoko backend (`main.mo`) to use `questionImageUrl: Text` and `optionImageUrls: [Text]` fields in the Question data model, and update `addQuestion`, `getAllQuestions`, and `getTestQuestions` accordingly
+- Add a migration module (`migration.mo`) to convert any existing text-based question records to the image-URL schema without data loss
+- Update the Admin Panel `AddQuestionModal.tsx` to use image URL text inputs (one for the question, four for options) with live preview thumbnails, a correct-option radio selector, and submit to the backend
+- Update the Admin Panel `QuestionGallery.tsx` to display question and option images using responsive `object-contain` containers, with a 2×2 grid for options and a green border highlight on the correct answer
+- Update `QuestionDisplay.tsx` to render question and option images in responsive `object-contain` containers, with a 2-column grid for options on tablet/desktop and single column on mobile, and a navy border on the selected option
+- Update `Test.tsx` answer review section to display question and option images in responsive `object-contain` containers, with a blue border for the user's selected answer and a green border for the correct answer
 
-**User-visible outcome:** The very first user to log in automatically becomes the admin and sees the Admin Panel link in the navbar. All other users (and unauthenticated visitors) do not see or access the Admin Panel.
+**User-visible outcome:** Admins can add questions and options by entering image URLs (with live previews), and test-takers see all questions and options rendered as properly scaled, fully visible images on any screen size, with correct visual highlights during review.

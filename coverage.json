@@ -1,53 +1,71 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T14:39:52.313Z",
+  "generatedAt": "2026-02-25T16:36:19.607Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
-    "implemented": 3,
+    "total": 6,
+    "implemented": 4,
     "items": [
       {
-        "id": "REQ-28",
-        "summary": "In the Motoko backend (backend/main.mo), ensure the admin designation logic works as follows: the very first principal to successfully authenticate and trigger any backend call (or explicitly the first call to a designated 'claimAdmin' or first admin-gated function) is permanently stored as the admin principal in stable storage. All subsequent calls to admin-only functions from a different principal must be rejected. The admin principal must persist across canister upgrades.",
+        "id": "REQ-37",
+        "summary": "In the Motoko backend (backend/main.mo), revert the Question data model back to image-based fields: replace any plain-text question/option fields with `questionImageUrl: Text` and `optionImageUrls: [Text]` (array of 4 image URLs). Update all related backend functions — addQuestion, getAllQuestions, getTestQuestions — to use these image URL fields. Ensure the data model is consistent with the original image-based schema.",
         "status": "unknown",
         "plannedFiles": [],
         "matchedFiles": []
       },
       {
-        "id": "REQ-29",
-        "summary": "In frontend/src/hooks/useQueries.ts, ensure the `useIsCallerAdmin` query correctly calls the backend `isCallerAdmin()` function and returns its boolean result. The query must re-fetch when the authenticated identity changes so the Admin Panel link appears immediately after the first-login admin logs in.",
+        "id": "REQ-38",
+        "summary": "Write a migration module (backend/migration.mo) that transforms any existing questions stored with plain-text fields to the image-URL-based schema (initializing image URL fields as empty strings if needed), so stable state is preserved across the canister upgrade.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-39",
+        "summary": "Update the Admin Panel 'Add Question' modal (frontend/src/components/admin/AddQuestionModal.tsx) to use image URL input fields instead of plain text fields. The modal must contain: a text input for the question image URL, four text inputs labeled 'Option 1 Image URL' through 'Option 4 Image URL', a correct option selector (radio buttons), and a Submit button. On submit, call the addQuestion backend function with the image URL values. Show a preview thumbnail (small, e.g. max-h-32) below each URL input field so the admin can verify the image before submitting.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/components/admin/AddQuestionModal.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/components/admin/AddQuestionModal.tsx"
         ]
       },
       {
-        "id": "REQ-30",
-        "summary": "In frontend/src/components/Navbar.tsx, confirm that the 'Admin Panel' navigation link (navigating to /admin) is conditionally rendered only when the user is authenticated AND useIsCallerAdmin returns true. The link must not appear for any non-admin authenticated user. This applies to both the desktop nav and the mobile hamburger menu.",
+        "id": "REQ-40",
+        "summary": "Update the Admin Panel Question Gallery (frontend/src/components/admin/QuestionGallery.tsx) to display questions and options as images instead of text. Each question card must render the question image prominently, and show all four option images in a 2×2 grid below it, with the correct answer option visually highlighted (e.g. green border). Image containers must be responsive: use `w-full object-contain` with a defined max height (e.g. max-h-48 for question, max-h-24 for options) so images scale to fit without overflow, and are clearly visible on both mobile and desktop.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/Navbar.tsx"
+          "frontend/src/components/admin/QuestionGallery.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/Navbar.tsx"
+          "frontend/src/components/admin/QuestionGallery.tsx"
         ]
       },
       {
-        "id": "REQ-31",
-        "summary": "In frontend/src/pages/Admin.tsx, confirm that the Admin Panel page access guard redirects or shows an 'Access Denied' message for any authenticated user who is not the designated admin. The guard must use the result of useIsCallerAdmin and must not rely solely on client-side state — admin-only backend calls will naturally be rejected server-side as well.",
+        "id": "REQ-41",
+        "summary": "Update the QuestionDisplay component (frontend/src/components/QuestionDisplay.tsx) to render the question and answer options as images instead of text. Display the question image in a responsive container (w-full, object-contain, adjustable max height e.g. max-h-64 on mobile, max-h-80 on desktop) so it is clearly visible. Display each of the four option images as a selectable card in a 2-column grid on tablet/desktop and single column on mobile. Each option image container must use object-contain with a defined max height (e.g. max-h-40) so images are fully visible. The selected option card is highlighted with a navy border.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/Admin.tsx"
+          "frontend/src/components/QuestionDisplay.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/Admin.tsx"
+          "frontend/src/components/QuestionDisplay.tsx"
+        ]
+      },
+      {
+        "id": "REQ-42",
+        "summary": "Update the Test Page answer review section (frontend/src/pages/Test.tsx) to render question and option images instead of text. For each reviewed question, display the question image in a responsive container (object-contain, max-h-64). Show all four option images as styled cards in a 2-column grid on desktop and single column on mobile, each with object-contain and max-h-40. Highlight the user's selected answer card with a blue border and the correct answer card with a green border.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/Test.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/Test.tsx"
         ]
       }
     ]
@@ -61,11 +79,14 @@
     "frontend-implementation-plan.json",
     "frontend/src/backend.d.ts",
     "frontend/src/backend.ts",
-    "frontend/src/components/Navbar.tsx",
+    "frontend/src/components/QuestionDisplay.tsx",
+    "frontend/src/components/admin/AddQuestionModal.tsx",
+    "frontend/src/components/admin/QuestionGallery.tsx",
+    "frontend/src/components/admin/TestBuilder.tsx",
     "frontend/src/declarations/backend.did.d.ts",
     "frontend/src/declarations/backend.did.js",
     "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/Admin.tsx",
+    "frontend/src/pages/Test.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

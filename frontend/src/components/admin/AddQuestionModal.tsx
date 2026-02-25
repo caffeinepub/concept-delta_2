@@ -10,7 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { CheckCircle2, Circle, PlusCircle } from 'lucide-react';
+import { CheckCircle2, Circle, PlusCircle, ImageIcon } from 'lucide-react';
 import { useAddQuestion } from '../../hooks/useQueries';
 import { toast } from 'sonner';
 
@@ -22,9 +22,32 @@ interface AddQuestionModalProps {
   onSuccess?: () => void;
 }
 
+function ImagePreview({ url, alt }: { url: string; alt: string }) {
+  if (!url.trim()) return null;
+  return (
+    <div className="mt-2 w-full flex items-center justify-center bg-gray-50 border border-gray-200 rounded-xl overflow-hidden min-h-[80px]">
+      <img
+        src={url}
+        alt={alt}
+        className="max-h-40 w-auto object-contain"
+        onError={(e) => {
+          (e.currentTarget as HTMLImageElement).style.display = 'none';
+          const parent = e.currentTarget.parentElement;
+          if (parent && !parent.querySelector('.img-error-msg')) {
+            const msg = document.createElement('p');
+            msg.className = 'img-error-msg text-xs text-red-400 py-3 px-2 text-center';
+            msg.textContent = 'Could not load image. Check the URL.';
+            parent.appendChild(msg);
+          }
+        }}
+      />
+    </div>
+  );
+}
+
 export default function AddQuestionModal({ open, onClose, onSuccess }: AddQuestionModalProps) {
   const [questionImageUrl, setQuestionImageUrl] = useState('');
-  const [optionUrls, setOptionUrls] = useState(['', '', '', '']);
+  const [optionImageUrls, setOptionImageUrls] = useState(['', '', '', '']);
   const [correctOption, setCorrectOption] = useState<number>(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -32,7 +55,7 @@ export default function AddQuestionModal({ open, onClose, onSuccess }: AddQuesti
 
   const resetForm = () => {
     setQuestionImageUrl('');
-    setOptionUrls(['', '', '', '']);
+    setOptionImageUrls(['', '', '', '']);
     setCorrectOption(0);
     setErrors({});
   };
@@ -45,15 +68,14 @@ export default function AddQuestionModal({ open, onClose, onSuccess }: AddQuesti
   const validate = () => {
     const newErrors: Record<string, string> = {};
     if (!questionImageUrl.trim()) newErrors.questionImageUrl = 'Question image URL is required';
-    optionUrls.forEach((url, i) => {
-      if (!url.trim()) newErrors[`option${i}`] = `Option ${OPTION_LABELS[i]} URL is required`;
+    optionImageUrls.forEach((url, i) => {
+      if (!url.trim()) newErrors[`option${i}`] = `Option ${OPTION_LABELS[i]} image URL is required`;
     });
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const isFormEmpty =
-    !questionImageUrl.trim() || optionUrls.some((u) => !u.trim());
+  const isFormEmpty = !questionImageUrl.trim() || optionImageUrls.some((u) => !u.trim());
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,7 +84,7 @@ export default function AddQuestionModal({ open, onClose, onSuccess }: AddQuesti
     try {
       await addQuestion.mutateAsync({
         questionImageUrl: questionImageUrl.trim(),
-        optionImageUrls: optionUrls.map((u) => u.trim()),
+        optionImageUrls: optionImageUrls.map((u) => u.trim()),
         correctOption: BigInt(correctOption),
       });
       toast.success('Question added successfully!');
@@ -76,47 +98,47 @@ export default function AddQuestionModal({ open, onClose, onSuccess }: AddQuesti
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) handleClose(); }}>
-      <DialogContent className="max-w-lg w-full bg-white rounded-2xl p-0 overflow-hidden border-0 shadow-2xl">
+      <DialogContent className="max-w-2xl w-full bg-white rounded-2xl p-0 overflow-hidden border-0 shadow-2xl">
         {/* Header */}
         <DialogHeader className="bg-navy px-6 py-5">
           <DialogTitle className="text-white text-lg font-bold flex items-center gap-2">
             <PlusCircle className="h-5 w-5 text-white/80" />
-            Add New Question
+            Add New Question (Image-Based)
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-5">
+        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-6 max-h-[78vh] overflow-y-auto">
           {/* Question Image URL */}
           <div className="space-y-1.5">
-            <Label className="text-navy font-semibold text-sm">Question Image URL</Label>
+            <Label className="text-navy font-semibold text-sm flex items-center gap-1.5">
+              <ImageIcon className="h-4 w-4" />
+              Question Image URL
+            </Label>
             <Input
               type="url"
-              placeholder="https://example.com/question.png"
+              placeholder="https://example.com/question-image.png"
               value={questionImageUrl}
               onChange={(e) => {
                 setQuestionImageUrl(e.target.value);
                 if (errors.questionImageUrl) setErrors((prev) => { const n = { ...prev }; delete n.questionImageUrl; return n; });
               }}
-              className="border-gray-200 focus:border-navy focus:ring-navy/20 rounded-xl"
+              className="border-gray-200 focus:border-navy focus:ring-navy/20 rounded-xl text-sm"
             />
             {errors.questionImageUrl && (
               <p className="text-red-500 text-xs">{errors.questionImageUrl}</p>
             )}
-            {questionImageUrl.trim() && (
-              <img
-                src={questionImageUrl}
-                alt="Question preview"
-                className="mt-2 w-full h-24 object-contain bg-gray-50 rounded-lg border border-gray-100"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-              />
-            )}
+            {/* Live preview */}
+            <ImagePreview url={questionImageUrl} alt="Question preview" />
           </div>
 
           {/* Option Image URLs */}
           <div className="space-y-3">
-            <Label className="text-navy font-semibold text-sm">Option Images</Label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {optionUrls.map((url, idx) => (
+            <Label className="text-navy font-semibold text-sm flex items-center gap-1.5">
+              <ImageIcon className="h-4 w-4" />
+              Option Images
+            </Label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {optionImageUrls.map((url, idx) => (
                 <div key={idx} className="space-y-1.5">
                   <div className="flex items-center gap-2">
                     {/* Correct option tick selector */}
@@ -145,12 +167,12 @@ export default function AddQuestionModal({ open, onClose, onSuccess }: AddQuesti
                   </div>
                   <Input
                     type="url"
-                    placeholder={`https://example.com/opt-${OPTION_LABELS[idx].toLowerCase()}.png`}
+                    placeholder={`https://example.com/option-${OPTION_LABELS[idx].toLowerCase()}.png`}
                     value={url}
                     onChange={(e) => {
-                      const updated = [...optionUrls];
+                      const updated = [...optionImageUrls];
                       updated[idx] = e.target.value;
-                      setOptionUrls(updated);
+                      setOptionImageUrls(updated);
                       if (errors[`option${idx}`]) {
                         setErrors((prev) => { const n = { ...prev }; delete n[`option${idx}`]; return n; });
                       }
@@ -162,15 +184,22 @@ export default function AddQuestionModal({ open, onClose, onSuccess }: AddQuesti
                   {errors[`option${idx}`] && (
                     <p className="text-red-500 text-xs">{errors[`option${idx}`]}</p>
                   )}
+                  {/* Live preview for option */}
                   {url.trim() && (
-                    <img
-                      src={url}
-                      alt={`Option ${OPTION_LABELS[idx]} preview`}
-                      className={`w-full h-14 object-contain bg-gray-50 rounded-lg border ${
-                        correctOption === idx ? 'border-green-300' : 'border-gray-100'
-                      }`}
-                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                    />
+                    <div className={`w-full flex items-center justify-center rounded-xl overflow-hidden min-h-[64px] border ${
+                      correctOption === idx
+                        ? 'bg-green-50 border-green-200'
+                        : 'bg-gray-50 border-gray-200'
+                    }`}>
+                      <img
+                        src={url}
+                        alt={`Option ${OPTION_LABELS[idx]} preview`}
+                        className="max-h-32 w-auto object-contain"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                    </div>
                   )}
                 </div>
               ))}

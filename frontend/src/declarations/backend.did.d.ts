@@ -54,87 +54,53 @@ export type UserRole = { 'admin' : null } |
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   /**
-   * / Adds a question. Admin only.
+   * / ADMIN: Add image-based question (requires 4 image URLs)
    */
   'addQuestion' : ActorMethod<[string, Array<string>, bigint], string>,
   /**
-   * / Returns all user profiles. Admin only.
+   * / ADMIN: Get all users (anonymous profiles)
    */
   'adminGetAllUsers' : ActorMethod<[], Array<AnonymousProfile>>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
-  /**
-   * / Claims admin rights if no admin exists yet; the first caller becomes the permanent admin.
-   * / Subsequent calls from a different principal are rejected.
-   */
   'claimAdmin' : ActorMethod<[], undefined>,
   /**
-   * / Creates a test. Admin only.
+   * / ADMIN: Create test
    */
   'createTest' : ActorMethod<
     [string, [] | [string], bigint, Array<string>],
     string
   >,
-  /**
-   * / Returns the current admin principal. Publicly readable so the frontend can check.
-   */
   'getAdminPrincipal' : ActorMethod<[], [] | [Principal]>,
   /**
-   * / Returns all questions. Admin only.
+   * / ADMIN: Get all questions (returns original image-based Question schema)
    */
   'getAllQuestions' : ActorMethod<[], Array<Question>>,
   /**
-   * / Returns all test results. Admin only.
+   * / ADMIN: Get all test results sorted by submittedAt
    */
   'getAllResults' : ActorMethod<[], Array<TestResult>>,
-  /**
-   * / Returns the caller's own profile. Requires authenticated user.
-   */
   'getCallerUserProfile' : ActorMethod<[], [] | [AnonymousProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   /**
-   * / Returns aggregated stats for all users sorted by average score descending. Admin only.
+   * / ADMIN: Get leaderboard entries sorted by average score
    */
   'getLeaderboard' : ActorMethod<[], Array<LeaderboardEntry>>,
-  /**
-   * / Returns the caller's own profile (anonymous shape). Requires authenticated user.
-   */
   'getMyProfile' : ActorMethod<[], [] | [AnonymousProfile]>,
-  /**
-   * / Returns all test results for the caller (most recent first). Requires authenticated user.
-   */
   'getMyResults' : ActorMethod<[], Array<TestResult>>,
-  /**
-   * / Returns summaries of all published tests. Available to any caller (no auth required).
-   */
   'getPublishedTests' : ActorMethod<[], Array<TestSummary>>,
   /**
-   * / Returns questions for a published test. Requires authenticated user (or admin).
+   * / Requires authentication; admin can view any.
    */
   'getTestQuestions' : ActorMethod<[string], Array<Question>>,
-  /**
-   * / Fetches another user's profile. Caller can view their own; admins can view any.
-   */
   'getUserProfile' : ActorMethod<[Principal], [] | [AnonymousProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
-  /**
-   * / Returns whether the caller has completed profile setup. Requires authenticated user.
-   */
   'isProfileComplete' : ActorMethod<[], boolean>,
-  /**
-   * / Saves the caller's own profile. Requires authenticated user.
-   */
   'saveCallerUserProfile' : ActorMethod<[AnonymousProfile], undefined>,
-  /**
-   * / Saves or updates the caller's profile. Requires authenticated user.
-   */
   'saveUserProfile' : ActorMethod<[string, UserClass, string], undefined>,
   /**
-   * / Publishes or unpublishes a test. Admin only.
+   * / ADMIN: Publish/unpublish test
    */
   'setTestPublished' : ActorMethod<[string, boolean], undefined>,
-  /**
-   * / Submits answers for a test, stores the result, and returns the score. Requires authenticated user.
-   */
   'submitTest' : ActorMethod<[string, Array<bigint>], bigint>,
 }
 export declare const idlService: IDL.ServiceClass;

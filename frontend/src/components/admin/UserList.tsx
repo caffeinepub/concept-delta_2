@@ -1,4 +1,4 @@
-import { useAdminGetAllUsers } from '../../hooks/useQueries';
+import { useGetAllUsers } from '../../hooks/useQueries';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -15,7 +15,7 @@ function formatClass(userClass: UserClass): string {
 }
 
 export default function UserList() {
-  const { data: users, isLoading } = useAdminGetAllUsers();
+  const { data: users, isLoading } = useGetAllUsers();
 
   return (
     <Card className="border border-gray-100 rounded-2xl shadow-sm">

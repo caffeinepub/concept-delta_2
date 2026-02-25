@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 17,
-  "summary": "Building 'Concept Delta' – a responsive MHT-CET Test Series website with Navy Blue theme. Includes Home Page, Dashboard, Test Page, and Admin Panel. Features Google/Internet Identity auth with profile setup (name, class, contact), Motoko backend with users/questions/tests/results data models, image-based questions with 4 options, timed auto-submit tests, and an admin panel for question/test management and user/result viewing.",
+  "projectStateVersion": 21,
+  "summary": "Building 'Concept Delta' – a responsive MHT-CET Test Series website with Navy Blue theme. Includes Home Page, Dashboard, Test Page, and Admin Panel. Features Google/Internet Identity auth with profile setup (name, class, contact), Motoko backend with users/questions/tests/results data models, image-based questions with 4 image options (reverting from text-based back to image URLs), timed auto-submit tests, and an admin panel for question/test management and user/result viewing. Questions and options are stored as image URLs, displayed responsively with adjustable/resizable image containers so images are clearly visible on mobile and desktop.",
   "architectural_notes": [
     "Motoko backend on Internet Computer with stable storage for Users, Questions, Tests, TestResults",
     "React/TypeScript frontend with Tailwind CSS, Navy Blue (#0D1B4B) primary color, white background",
     "Internet Identity (passkey/Google-style) for authentication; admin protected by principal check",
-    "Image-based questions: question image + 4 option images stored/referenced by URL",
     "Mobile-first responsive design with hamburger menu on mobile",
     "Navbar links: Home (all), Dashboard (authenticated), Admin (admin only). My Results and Leaderboard removed from navbar.",
-    "First principal to authenticate is auto-designated as admin; admin role stored in stable backend state"
+    "First principal to authenticate is auto-designated as admin; admin role stored in stable backend state",
+    "Questions and options are stored as image URLs (questionImageUrl, optionImageUrls); image containers are responsive and adjustable for clarity on all screen sizes"
   ],
   "known_issues": [],
   "isFixRequest": false,
@@ -213,6 +213,70 @@
         "REQ-31"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-update-the-admin-panel-add-question-modal-frontend-src-components-admin-addquestionmodal-tsx-to-replace-image-url-input-fields-with-plain-text-input-fields-the-modal-must-contain-a-multi-line-textarea-for-the-question-text-four-text-input-fields-labeled-option-1-through-option-4-a-correct-option-selector-radio-buttons-and-a-submit-button-on-submit-call-the-updated-addquestion-backend-function-with-the-text-values",
+      "title": "Update the Admin Panel 'Add Question' modal (frontend/src/components/admin/AddQuestionModal.tsx) to replace image URL input fields with plain text input fields. The modal must contain: a multi-line textarea for the question text, four text input fields labeled 'Option 1' through 'Option 4', a correct option selector (radio buttons), and a Submit button. On submit, call the updated addQuestion backend function with the text values.",
+      "reqIds": [
+        "REQ-33"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-admin-panel-question-gallery-frontend-src-components-admin-questiongallery-tsx-to-display-questions-and-options-as-text-instead-of-rendering-images-each-question-card-must-show-the-full-question-text-prominently-and-list-all-four-option-texts-with-the-correct-answer-clearly-labelled",
+      "title": "Update the Admin Panel Question Gallery (frontend/src/components/admin/QuestionGallery.tsx) to display questions and options as text instead of rendering images. Each question card must show the full question text prominently, and list all four option texts with the correct answer clearly labelled.",
+      "reqIds": [
+        "REQ-34"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-questiondisplay-component-frontend-src-components-questiondisplay-tsx-to-render-questions-and-options-as-text-instead-of-images-display-the-question-text-in-a-readable-responsive-typographic-style-display-each-of-the-four-options-as-a-selectable-card-containing-the-option-text-the-layout-must-be-responsive-on-mobile-screens-options-stack-in-a-single-column-on-tablet-desktop-screens-options-are-arranged-in-a-2-column-grid-selected-option-is-highlighted-with-a-navy-border-and-label-badge-as-before",
+      "title": "Update the QuestionDisplay component (frontend/src/components/QuestionDisplay.tsx) to render questions and options as text instead of images. Display the question text in a readable, responsive typographic style. Display each of the four options as a selectable card containing the option text. The layout must be responsive: on mobile screens, options stack in a single column; on tablet/desktop screens, options are arranged in a 2-column grid. Selected option is highlighted with a navy border and label badge as before.",
+      "reqIds": [
+        "REQ-35"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-test-page-answer-review-section-frontend-src-pages-test-tsx-to-show-question-text-and-option-texts-instead-of-question-option-images-for-each-reviewed-question-display-the-question-text-all-four-option-texts-as-styled-cards-highlight-the-user-s-selected-answer-with-a-blue-border-and-highlight-the-correct-answer-with-a-green-border-the-layout-must-be-responsive-single-column-on-mobile-2-column-option-grid-on-desktop",
+      "title": "Update the Test Page answer review section (frontend/src/pages/Test.tsx) to show question text and option texts instead of question/option images. For each reviewed question, display the question text, all four option texts as styled cards, highlight the user's selected answer with a blue border, and highlight the correct answer with a green border. The layout must be responsive: single-column on mobile, 2-column option grid on desktop.",
+      "reqIds": [
+        "REQ-36"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-admin-panel-add-question-modal-frontend-src-components-admin-addquestionmodal-tsx-to-use-image-url-input-fields-instead-of-plain-text-fields-the-modal-must-contain-a-text-input-for-the-question-image-url-four-text-inputs-labeled-option-1-image-url-through-option-4-image-url-a-correct-option-selector-radio-buttons-and-a-submit-button-on-submit-call-the-addquestion-backend-function-with-the-image-url-values-show-a-preview-thumbnail-small-e-g-max-h-32-below-each-url-input-field-so-the-admin-can-verify-the-image-before-submitting",
+      "title": "Update the Admin Panel 'Add Question' modal (frontend/src/components/admin/AddQuestionModal.tsx) to use image URL input fields instead of plain text fields. The modal must contain: a text input for the question image URL, four text inputs labeled 'Option 1 Image URL' through 'Option 4 Image URL', a correct option selector (radio buttons), and a Submit button. On submit, call the addQuestion backend function with the image URL values. Show a preview thumbnail (small, e.g. max-h-32) below each URL input field so the admin can verify the image before submitting.",
+      "reqIds": [
+        "REQ-39"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-admin-panel-question-gallery-frontend-src-components-admin-questiongallery-tsx-to-display-questions-and-options-as-images-instead-of-text-each-question-card-must-render-the-question-image-prominently-and-show-all-four-option-images-in-a-2-2-grid-below-it-with-the-correct-answer-option-visually-highlighted-e-g-green-border-image-containers-must-be-responsive-use-w-full-object-contain-with-a-defined-max-height-e-g-max-h-48-for-question-max-h-24-for-options-so-images-scale-to-fit-without-overflow-and-are-clearly-visible-on-both-mobile-and-desktop",
+      "title": "Update the Admin Panel Question Gallery (frontend/src/components/admin/QuestionGallery.tsx) to display questions and options as images instead of text. Each question card must render the question image prominently, and show all four option images in a 2×2 grid below it, with the correct answer option visually highlighted (e.g. green border). Image containers must be responsive: use `w-full object-contain` with a defined max height (e.g. max-h-48 for question, max-h-24 for options) so images scale to fit without overflow, and are clearly visible on both mobile and desktop.",
+      "reqIds": [
+        "REQ-40"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-questiondisplay-component-frontend-src-components-questiondisplay-tsx-to-render-the-question-and-answer-options-as-images-instead-of-text-display-the-question-image-in-a-responsive-container-w-full-object-contain-adjustable-max-height-e-g-max-h-64-on-mobile-max-h-80-on-desktop-so-it-is-clearly-visible-display-each-of-the-four-option-images-as-a-selectable-card-in-a-2-column-grid-on-tablet-desktop-and-single-column-on-mobile-each-option-image-container-must-use-object-contain-with-a-defined-max-height-e-g-max-h-40-so-images-are-fully-visible-the-selected-option-card-is-highlighted-with-a-navy-border",
+      "title": "Update the QuestionDisplay component (frontend/src/components/QuestionDisplay.tsx) to render the question and answer options as images instead of text. Display the question image in a responsive container (w-full, object-contain, adjustable max height e.g. max-h-64 on mobile, max-h-80 on desktop) so it is clearly visible. Display each of the four option images as a selectable card in a 2-column grid on tablet/desktop and single column on mobile. Each option image container must use object-contain with a defined max height (e.g. max-h-40) so images are fully visible. The selected option card is highlighted with a navy border.",
+      "reqIds": [
+        "REQ-41"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-test-page-answer-review-section-frontend-src-pages-test-tsx-to-render-question-and-option-images-instead-of-text-for-each-reviewed-question-display-the-question-image-in-a-responsive-container-object-contain-max-h-64-show-all-four-option-images-as-styled-cards-in-a-2-column-grid-on-desktop-and-single-column-on-mobile-each-with-object-contain-and-max-h-40-highlight-the-user-s-selected-answer-card-with-a-blue-border-and-the-correct-answer-card-with-a-green-border",
+      "title": "Update the Test Page answer review section (frontend/src/pages/Test.tsx) to render question and option images instead of text. For each reviewed question, display the question image in a responsive container (object-contain, max-h-64). Show all four option images as styled cards in a 2-column grid on desktop and single column on mobile, each with object-contain and max-h-40. Highlight the user's selected answer card with a blue border and the correct answer card with a green border.",
+      "reqIds": [
+        "REQ-42"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -315,6 +379,28 @@
       "summary": "In the Motoko backend (backend/main.mo), ensure the admin designation logic works as follows: the very first principal to successfully authenticate and trigger any backend call (or explicitly the first call to a designated 'claimAdmin' or first admin-gated function) is permanently stored as the admin principal in stable storage. All subsequent calls to admin-only functions from a different principal must be rejected. The admin principal must persist across canister upgrades.",
       "reqIds": [
         "REQ-28"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-24",
+      "summary": "Revert questions and options from text-based back to image-based: restore image URL fields (questionImageUrl, optionImageUrls) in the backend data model and all related functions. In the Admin Panel Question Gallery, replace text input fields with image URL inputs and display question/option images in the gallery. On the Test Page and answer review section, render question and option images instead of text. Image containers must be responsive and adjustable so images are clearly visible on mobile and desktop.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-25",
+      "summary": "In the Motoko backend (backend/main.mo), revert the Question data model back to image-based fields: replace any plain-text question/option fields with `questionImageUrl: Text` and `optionImageUrls: [Text]` (array of 4 image URLs). Update all related backend functions — addQuestion, getAllQuestions, getTestQuestions — to use these image URL fields. Ensure the data model is consistent with the original image-based schema.",
+      "reqIds": [
+        "REQ-37"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-26",
+      "summary": "Write a migration module (backend/migration.mo) that transforms any existing questions stored with plain-text fields to the image-URL-based schema (initializing image URL fields as empty strings if needed), so stable state is preserved across the canister upgrade.",
+      "reqIds": [
+        "REQ-38"
       ],
       "status": "pending"
     }

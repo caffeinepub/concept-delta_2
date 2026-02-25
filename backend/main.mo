@@ -1,19 +1,26 @@
 import Array "mo:core/Array";
 import Map "mo:core/Map";
+import Iter "mo:core/Iter";
 import Nat "mo:core/Nat";
-import Int "mo:core/Int";
 import Text "mo:core/Text";
 import Time "mo:core/Time";
 import Principal "mo:core/Principal";
-import Iter "mo:core/Iter";
+import Int "mo:core/Int";
 import Order "mo:core/Order";
 import Runtime "mo:core/Runtime";
-import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
+import MixinAuthorization "authorization/MixinAuthorization";
 import Migration "migration";
 
 (with migration = Migration.run)
 actor {
+  // Anonymous user profile type (no internal principal)
+  type AnonymousProfile = {
+    fullName : Text;
+    userClass : UserClass;
+    contactNumber : Text;
+  };
+
   type UserProfile = {
     principal : Principal;
     fullName : Text;
@@ -34,10 +41,11 @@ actor {
     #dropper;
   };
 
+  /// New image-based question type; only fields changed vs original: image url instead of text
   type Question = {
     id : Text;
-    questionImageUrl : Text;
-    optionImageUrls : [Text];
+    questionImageUrl : Text; // Image URL instead of plain text
+    optionImageUrls : [Text]; // Image URLs instead of plain text
     correctOption : Nat;
     createdAt : Time.Time;
   };
@@ -59,15 +67,6 @@ actor {
     questionIds : [Text];
     isPublished : Bool;
     createdAt : Time.Time;
-  };
-
-  module Test {
-    public func compare(t1 : Test, t2 : Test) : Order.Order {
-      switch (Text.compare(t1.id, t2.id)) {
-        case (#equal) { Int.compare(t1.createdAt, t2.createdAt) };
-        case (order) { order };
-      };
-    };
   };
 
   type TestResult = {
@@ -101,14 +100,7 @@ actor {
     bestScore : Nat;
   };
 
-  // The public-facing profile type (without internal principal field)
-  type AnonymousProfile = {
-    fullName : Text;
-    userClass : UserClass;
-    contactNumber : Text;
-  };
-
-  // Admin principal for persistent storage across upgrades
+  // Persistent admin principal: set on first claim and kept forever
   var adminPrincipal : ?Principal = null;
 
   let accessControlState = AccessControl.initState();
@@ -119,10 +111,8 @@ actor {
   let tests = Map.empty<Text, Test>();
   let results = Map.empty<Text, TestResult>();
 
-  // ── Persistent Admin Management ───────────
+  // -------------------------- Persistent Admin Management -----------------------
 
-  /// Claims admin rights if no admin exists yet; the first caller becomes the permanent admin.
-  /// Subsequent calls from a different principal are rejected.
   public shared ({ caller }) func claimAdmin() : async () {
     if (caller.isAnonymous()) {
       Runtime.trap("Anonymous principals cannot claim admin");
@@ -132,7 +122,7 @@ actor {
         if (caller != admin) {
           Runtime.trap("Unauthorized: Admin has already been claimed by another principal");
         };
-        // Caller is already the admin; no-op.
+        // Already admin - no-op
       };
       case (null) {
         adminPrincipal := ?caller;
@@ -140,26 +130,6 @@ actor {
     };
   };
 
-  /// Enforces that the caller is the persistent admin (update context — may not mutate state here).
-  /// Used in update calls only.
-  func requirePersistentAdminUpdate(caller : Principal) {
-    switch (adminPrincipal) {
-      case (?admin) {
-        if (caller != admin) {
-          Runtime.trap("Unauthorized: Only the persistent admin can perform this action");
-        };
-      };
-      case (null) {
-        // No admin has been set yet; the first caller to an admin-gated update becomes admin.
-        if (caller.isAnonymous()) {
-          Runtime.trap("Anonymous principals cannot become admin");
-        };
-        adminPrincipal := ?caller;
-      };
-    };
-  };
-
-  /// Enforces that the caller is the persistent admin (query context — must NOT mutate state).
   func requirePersistentAdminQuery(caller : Principal) {
     switch (adminPrincipal) {
       case (?admin) {
@@ -168,13 +138,27 @@ actor {
         };
       };
       case (null) {
-        // No admin set yet; reject all query-context admin checks until claimAdmin is called.
-        Runtime.trap("Unauthorized: No admin has been designated yet. Call claimAdmin first.");
+        Runtime.trap("Unauthorized: No admin has been designated yet. Call claimAdmin first");
       };
     };
   };
 
-  /// Returns true if the caller is the persistent admin.
+  func requirePersistentAdminUpdate(caller : Principal) {
+    switch (adminPrincipal) {
+      case (?admin) {
+        if (caller != admin) {
+          Runtime.trap("Unauthorized: Only the persistent admin can perform this action");
+        };
+      };
+      case (null) {
+        if (caller.isAnonymous()) {
+          Runtime.trap("Anonymous principals cannot become admin");
+        };
+        adminPrincipal := ?caller;
+      };
+    };
+  };
+
   func isPersistentAdmin(caller : Principal) : Bool {
     switch (adminPrincipal) {
       case (?admin) { caller == admin };
@@ -182,9 +166,7 @@ actor {
     };
   };
 
-  // ── Required frontend profile functions ───────────────────────────────
-
-  /// Returns the caller's own profile. Requires authenticated user.
+  // -------------------------- Required Frontend Profile Functions -------------
   public query ({ caller }) func getCallerUserProfile() : async ?AnonymousProfile {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only users can view their profile");
@@ -201,7 +183,6 @@ actor {
     };
   };
 
-  /// Saves the caller's own profile. Requires authenticated user.
   public shared ({ caller }) func saveCallerUserProfile(profile : AnonymousProfile) : async () {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only users can save profiles");
@@ -216,7 +197,6 @@ actor {
     users.add(caller, fullProfile);
   };
 
-  /// Fetches another user's profile. Caller can view their own; admins can view any.
   public query ({ caller }) func getUserProfile(user : Principal) : async ?AnonymousProfile {
     if (caller != user and not AccessControl.isAdmin(accessControlState, caller) and not isPersistentAdmin(caller)) {
       Runtime.trap("Unauthorized: Can only view your own profile");
@@ -233,9 +213,7 @@ actor {
     };
   };
 
-  // ── User-facing profile helpers ────────────────────────────────────
-
-  /// Saves or updates the caller's profile. Requires authenticated user.
+  // ------------------------------- User Profile Helpers --------------------------
   public shared ({ caller }) func saveUserProfile(fullName : Text, userClass : UserClass, contactNumber : Text) : async () {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only users can save profiles");
@@ -250,7 +228,6 @@ actor {
     users.add(caller, profile);
   };
 
-  /// Returns the caller's own profile (anonymous shape). Requires authenticated user.
   public query ({ caller }) func getMyProfile() : async ?AnonymousProfile {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only users can view their profile");
@@ -267,7 +244,6 @@ actor {
     };
   };
 
-  /// Returns whether the caller has completed profile setup. Requires authenticated user.
   public query ({ caller }) func isProfileComplete() : async Bool {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only users can check profile status");
@@ -275,14 +251,12 @@ actor {
     users.containsKey(caller);
   };
 
-  // ── Admin Functions ────────────────────────────────────────────────
-
-  /// Generates a simple unique ID using principal and time.
+  // ----------------------------- Admin Functions ---------------------------------
   func generateUUID(caller : Principal) : Text {
     (caller.toText() # "_" # debug_show (Time.now()));
   };
 
-  /// Adds a question. Admin only.
+  /// ADMIN: Add image-based question (requires 4 image URLs)
   public shared ({ caller }) func addQuestion(questionImageUrl : Text, optionImageUrls : [Text], correctOption : Nat) : async Text {
     requirePersistentAdminUpdate(caller);
     if (optionImageUrls.size() != 4) { Runtime.trap("Exactly 4 option images required") };
@@ -299,13 +273,13 @@ actor {
     id;
   };
 
-  /// Returns all questions. Admin only.
+  /// ADMIN: Get all questions (returns original image-based Question schema)
   public query ({ caller }) func getAllQuestions() : async [Question] {
     requirePersistentAdminQuery(caller);
     questions.values().toArray().sort();
   };
 
-  /// Creates a test. Admin only.
+  /// ADMIN: Create test
   public shared ({ caller }) func createTest(name : Text, subject : ?Text, durationSeconds : Nat, questionIds : [Text]) : async Text {
     requirePersistentAdminUpdate(caller);
     let id = generateUUID(caller);
@@ -322,7 +296,7 @@ actor {
     id;
   };
 
-  /// Publishes or unpublishes a test. Admin only.
+  /// ADMIN: Publish/unpublish test
   public shared ({ caller }) func setTestPublished(testId : Text, published : Bool) : async () {
     requirePersistentAdminUpdate(caller);
     switch (tests.get(testId)) {
@@ -333,7 +307,7 @@ actor {
     };
   };
 
-  /// Returns all user profiles. Admin only.
+  /// ADMIN: Get all users (anonymous profiles)
   public query ({ caller }) func adminGetAllUsers() : async [AnonymousProfile] {
     requirePersistentAdminQuery(caller);
     users.values().toArray().map(
@@ -347,15 +321,13 @@ actor {
     );
   };
 
-  /// Returns all test results. Admin only.
+  /// ADMIN: Get all test results sorted by submittedAt
   public query ({ caller }) func getAllResults() : async [TestResult] {
     requirePersistentAdminQuery(caller);
     results.values().toArray().sort();
   };
 
-  // ── Test-Taking Functions ───────────────────────────────────────────
-
-  /// Returns summaries of all published tests. Available to any caller (no auth required).
+  // -------------------------- Test-Taking (User) Functions ---------------------------
   public query ({ caller }) func getPublishedTests() : async [TestSummary] {
     tests.values().toArray().filter(func(t : Test) : Bool { t.isPublished }).map(
       func(t : Test) : TestSummary {
@@ -370,14 +342,14 @@ actor {
     );
   };
 
-  /// Returns questions for a published test. Requires authenticated user (or admin).
+  /// Requires authentication; admin can view any.
   public query ({ caller }) func getTestQuestions(testId : Text) : async [Question] {
     if (not AccessControl.hasPermission(accessControlState, caller, #user) and not isPersistentAdmin(caller)) {
       Runtime.trap("Unauthorized: Only users or admins can view test questions");
     };
     switch (tests.get(testId)) {
       case (?test) {
-        // Non-admins may only access published tests
+        // Non-admins: must be published
         if (not test.isPublished and not isPersistentAdmin(caller)) {
           Runtime.trap("Unauthorized: Test is not published");
         };
@@ -387,13 +359,13 @@ actor {
     };
   };
 
-  /// Submits answers for a test, stores the result, and returns the score. Requires authenticated user.
   public shared ({ caller }) func submitTest(testId : Text, answers : [Nat]) : async Nat {
     if (not AccessControl.hasPermission(accessControlState, caller, #user) and not isPersistentAdmin(caller)) {
       Runtime.trap("Unauthorized: Only users can submit tests");
     };
     switch (tests.get(testId)) {
       case (?test) {
+        // Non-admins: must be published
         if (not test.isPublished and not isPersistentAdmin(caller)) {
           Runtime.trap("Unauthorized: Test is not published");
         };
@@ -426,9 +398,6 @@ actor {
     };
   };
 
-  // ── User Results/Leaderboard ─────────────────────────────────────────
-
-  /// Returns all test results for the caller (most recent first). Requires authenticated user.
   public query ({ caller }) func getMyResults() : async [TestResult] {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only users can access their results");
@@ -436,7 +405,7 @@ actor {
     results.values().toArray().filter(func(r) { r.userId == caller }).sort().reverse();
   };
 
-  /// Helper: compute (totalTests, averageScore, bestScore) for a set of results.
+  /// Helper: calculate user stats
   func calculateUserStats(userResults : [TestResult]) : (Nat, Nat, Nat) {
     let totalTests = userResults.size();
     if (totalTests == 0) { return (0, 0, 0) };
@@ -450,7 +419,7 @@ actor {
     (totalTests, average, bestScore);
   };
 
-  /// Returns aggregated stats for all users sorted by average score descending. Admin only.
+  /// ADMIN: Get leaderboard entries sorted by average score
   public query ({ caller }) func getLeaderboard() : async [LeaderboardEntry] {
     requirePersistentAdminQuery(caller);
     let entries = users.toArray().map(
@@ -484,9 +453,6 @@ actor {
     sortedEntries;
   };
 
-  // ── Admin Principal Query ─────────────────────────────────────────────
-
-  /// Returns the current admin principal. Publicly readable so the frontend can check.
   public query ({ caller }) func getAdminPrincipal() : async ?Principal {
     adminPrincipal;
   };

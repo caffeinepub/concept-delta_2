@@ -1,4 +1,4 @@
-import { useGetAllResults, useGetPublishedTests, useAdminGetAllUsers } from '../../hooks/useQueries';
+import { useGetAllResults, useGetPublishedTests, useGetAllUsers } from '../../hooks/useQueries';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -7,16 +7,10 @@ import { BarChart3 } from 'lucide-react';
 export default function ResultsList() {
   const { data: results, isLoading: resultsLoading } = useGetAllResults();
   const { data: tests } = useGetPublishedTests();
-  const { data: users } = useAdminGetAllUsers();
+  const { data: _users } = useGetAllUsers();
 
   const getTestName = (testId: string) => {
     return tests?.find((t) => t.id === testId)?.name ?? testId.slice(0, 12) + '...';
-  };
-
-  const getUserName = (userId: string) => {
-    // We don't have userId→name mapping directly since adminGetAllUsers doesn't return principal
-    // We'll show a truncated userId
-    return userId.slice(0, 10) + '...';
   };
 
   return (

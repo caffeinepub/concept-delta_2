@@ -54,83 +54,49 @@ export enum UserRole {
 }
 export interface backendInterface {
     /**
-     * / Adds a question. Admin only.
+     * / ADMIN: Add image-based question (requires 4 image URLs)
      */
     addQuestion(questionImageUrl: string, optionImageUrls: Array<string>, correctOption: bigint): Promise<string>;
     /**
-     * / Returns all user profiles. Admin only.
+     * / ADMIN: Get all users (anonymous profiles)
      */
     adminGetAllUsers(): Promise<Array<AnonymousProfile>>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    /**
-     * / Claims admin rights if no admin exists yet; the first caller becomes the permanent admin.
-     * / Subsequent calls from a different principal are rejected.
-     */
     claimAdmin(): Promise<void>;
     /**
-     * / Creates a test. Admin only.
+     * / ADMIN: Create test
      */
     createTest(name: string, subject: string | null, durationSeconds: bigint, questionIds: Array<string>): Promise<string>;
-    /**
-     * / Returns the current admin principal. Publicly readable so the frontend can check.
-     */
     getAdminPrincipal(): Promise<Principal | null>;
     /**
-     * / Returns all questions. Admin only.
+     * / ADMIN: Get all questions (returns original image-based Question schema)
      */
     getAllQuestions(): Promise<Array<Question>>;
     /**
-     * / Returns all test results. Admin only.
+     * / ADMIN: Get all test results sorted by submittedAt
      */
     getAllResults(): Promise<Array<TestResult>>;
-    /**
-     * / Returns the caller's own profile. Requires authenticated user.
-     */
     getCallerUserProfile(): Promise<AnonymousProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     /**
-     * / Returns aggregated stats for all users sorted by average score descending. Admin only.
+     * / ADMIN: Get leaderboard entries sorted by average score
      */
     getLeaderboard(): Promise<Array<LeaderboardEntry>>;
-    /**
-     * / Returns the caller's own profile (anonymous shape). Requires authenticated user.
-     */
     getMyProfile(): Promise<AnonymousProfile | null>;
-    /**
-     * / Returns all test results for the caller (most recent first). Requires authenticated user.
-     */
     getMyResults(): Promise<Array<TestResult>>;
-    /**
-     * / Returns summaries of all published tests. Available to any caller (no auth required).
-     */
     getPublishedTests(): Promise<Array<TestSummary>>;
     /**
-     * / Returns questions for a published test. Requires authenticated user (or admin).
+     * / Requires authentication; admin can view any.
      */
     getTestQuestions(testId: string): Promise<Array<Question>>;
-    /**
-     * / Fetches another user's profile. Caller can view their own; admins can view any.
-     */
     getUserProfile(user: Principal): Promise<AnonymousProfile | null>;
     isCallerAdmin(): Promise<boolean>;
-    /**
-     * / Returns whether the caller has completed profile setup. Requires authenticated user.
-     */
     isProfileComplete(): Promise<boolean>;
-    /**
-     * / Saves the caller's own profile. Requires authenticated user.
-     */
     saveCallerUserProfile(profile: AnonymousProfile): Promise<void>;
-    /**
-     * / Saves or updates the caller's profile. Requires authenticated user.
-     */
     saveUserProfile(fullName: string, userClass: UserClass, contactNumber: string): Promise<void>;
     /**
-     * / Publishes or unpublishes a test. Admin only.
+     * / ADMIN: Publish/unpublish test
      */
     setTestPublished(testId: string, published: boolean): Promise<void>;
-    /**
-     * / Submits answers for a test, stores the result, and returns the score. Requires authenticated user.
-     */
     submitTest(testId: string, answers: Array<bigint>): Promise<bigint>;
 }

@@ -3,10 +3,33 @@ import { useGetAllQuestions } from '../../hooks/useQueries';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { PlusCircle, CheckCircle, ImageOff } from 'lucide-react';
+import { PlusCircle, CheckCircle, FileQuestion } from 'lucide-react';
 import AddQuestionModal from './AddQuestionModal';
 
 const OPTION_LABELS = ['A', 'B', 'C', 'D'];
+
+function QuestionImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
+  return (
+    <div className={`w-full flex items-center justify-center bg-gray-50 rounded-xl overflow-hidden ${className ?? ''}`}>
+      <img
+        src={src}
+        alt={alt}
+        className="w-full h-full object-contain"
+        onError={(e) => {
+          const el = e.currentTarget as HTMLImageElement;
+          el.style.display = 'none';
+          const parent = el.parentElement;
+          if (parent && !parent.querySelector('.img-err')) {
+            const msg = document.createElement('p');
+            msg.className = 'img-err text-xs text-gray-400 py-2 text-center w-full';
+            msg.textContent = 'Image unavailable';
+            parent.appendChild(msg);
+          }
+        }}
+      />
+    </div>
+  );
+}
 
 export default function QuestionGallery() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -46,13 +69,16 @@ export default function QuestionGallery() {
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-52 rounded-2xl" />
+            <Skeleton key={i} className="h-72 rounded-2xl" />
           ))}
         </div>
       ) : questions && questions.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {questions.map((q, idx) => (
-            <Card key={q.id} className="border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <Card
+              key={q.id}
+              className="border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+            >
               <CardHeader className="pb-2 pt-3 px-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-navy bg-navy/10 px-2.5 py-1 rounded-full">
@@ -64,55 +90,62 @@ export default function QuestionGallery() {
                   </span>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-2 px-4 pb-4">
+              <CardContent className="space-y-3 px-4 pb-4">
                 {/* Question image */}
-                <div className="w-full h-24 bg-gray-50 rounded-lg border border-gray-100 flex items-center justify-center overflow-hidden">
-                  <img
+                <div className="w-full border border-navy/10 rounded-xl overflow-hidden bg-navy/5" style={{ minHeight: '120px', maxHeight: '200px' }}>
+                  <QuestionImage
                     src={q.questionImageUrl}
                     alt={`Question ${idx + 1}`}
-                    className="w-full h-full object-contain"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                      const parent = (e.target as HTMLImageElement).parentElement;
-                      if (parent) {
-                        parent.innerHTML = '<span class="text-gray-300 text-xs flex flex-col items-center gap-1"><svg xmlns=\'http://www.w3.org/2000/svg\' width=\'20\' height=\'20\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\'><rect width=\'18\' height=\'18\' x=\'3\' y=\'3\' rx=\'2\' ry=\'2\'/><circle cx=\'9\' cy=\'9\' r=\'2\'/><path d=\'m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21\'/></svg>No image</span>';
-                      }
-                    }}
+                    className="min-h-[120px] max-h-[200px]"
                   />
                 </div>
 
-                {/* Option images grid */}
-                <div className="grid grid-cols-2 gap-1.5">
-                  {q.optionImageUrls.map((url, oi) => (
-                    <div
-                      key={oi}
-                      className={`relative rounded-lg overflow-hidden border ${
-                        Number(q.correctOption) === oi
-                          ? 'border-green-400 ring-1 ring-green-300'
-                          : 'border-gray-200'
-                      }`}
-                    >
-                      <span
-                        className={`absolute top-1 left-1 z-10 text-xs font-bold px-1.5 py-0.5 rounded ${
-                          Number(q.correctOption) === oi
-                            ? 'bg-green-500 text-white'
-                            : 'bg-white/90 text-gray-600'
+                {/* Options 2×2 grid */}
+                <div className="grid grid-cols-2 gap-2">
+                  {q.optionImageUrls.map((optUrl, oi) => {
+                    const isCorrect = Number(q.correctOption) === oi;
+                    return (
+                      <div
+                        key={oi}
+                        className={`relative rounded-xl overflow-hidden border-2 ${
+                          isCorrect
+                            ? 'border-green-500 ring-1 ring-green-300'
+                            : 'border-gray-200'
                         }`}
+                        style={{ minHeight: '80px', maxHeight: '120px' }}
                       >
-                        {OPTION_LABELS[oi]}
-                      </span>
-                      <div className="w-full h-14 bg-gray-50 flex items-center justify-center">
-                        <img
-                          src={url}
-                          alt={`Option ${OPTION_LABELS[oi]}`}
-                          className="w-full h-full object-contain"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                          }}
-                        />
+                        {/* Label badge */}
+                        <span
+                          className={`absolute top-1.5 left-1.5 z-10 text-xs font-bold px-1.5 py-0.5 rounded ${
+                            isCorrect
+                              ? 'bg-green-500 text-white'
+                              : 'bg-white/90 text-gray-600 border border-gray-200'
+                          }`}
+                        >
+                          {OPTION_LABELS[oi]}
+                        </span>
+                        <div className={`w-full h-full flex items-center justify-center ${isCorrect ? 'bg-green-50' : 'bg-gray-50'}`} style={{ minHeight: '80px', maxHeight: '120px' }}>
+                          <img
+                            src={optUrl}
+                            alt={`Option ${OPTION_LABELS[oi]}`}
+                            className="w-full h-full object-contain"
+                            style={{ maxHeight: '120px' }}
+                            onError={(e) => {
+                              const el = e.currentTarget as HTMLImageElement;
+                              el.style.display = 'none';
+                              const parent = el.parentElement;
+                              if (parent && !parent.querySelector('.img-err')) {
+                                const msg = document.createElement('p');
+                                msg.className = 'img-err text-xs text-gray-400 py-2 text-center w-full';
+                                msg.textContent = 'N/A';
+                                parent.appendChild(msg);
+                              }
+                            }}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
@@ -120,7 +153,7 @@ export default function QuestionGallery() {
         </div>
       ) : (
         <div className="text-center py-16 text-gray-400 flex flex-col items-center gap-3">
-          <ImageOff className="h-10 w-10 text-gray-200" />
+          <FileQuestion className="h-10 w-10 text-gray-200" />
           <p className="text-sm">No questions added yet.</p>
           <Button
             onClick={() => setModalOpen(true)}
