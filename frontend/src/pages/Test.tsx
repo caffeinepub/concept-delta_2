@@ -42,91 +42,56 @@ function AnswerReview({ questions, userAnswers }: AnswerReviewProps) {
               )}
             </div>
 
-            {/* Single question image — full width, responsive */}
-            <div className="px-5 pt-4 pb-2">
-              <div className="w-full bg-white rounded-xl border border-navy/10 shadow-sm overflow-hidden flex items-center justify-center">
+            {/* Single question image — large, scrollable */}
+            <div className="px-4 pt-4 pb-2">
+              <div
+                className="w-full bg-white rounded-xl border border-navy/10 shadow-sm overflow-y-auto flex items-start justify-center"
+                style={{ maxHeight: 'calc(100vh - 200px)' }}
+              >
                 {question.questionImageData ? (
-                  <div className="w-full overflow-y-auto" style={{ maxHeight: '48vh' }}>
-                    <img
-                      src={question.questionImageData}
-                      alt={`Question ${idx + 1}`}
-                      className="w-full h-auto object-contain block"
-                      style={{ minHeight: '60px' }}
-                      onError={(e) => {
-                        const el = e.currentTarget as HTMLImageElement;
-                        el.style.display = 'none';
-                        const parent = el.parentElement;
-                        if (parent && !parent.querySelector('.img-err')) {
-                          const msg = document.createElement('p');
-                          msg.className = 'img-err text-sm text-gray-400 py-6 text-center w-full';
-                          msg.textContent = 'Question image unavailable';
-                          parent.appendChild(msg);
-                        }
-                      }}
-                    />
-                  </div>
+                  <img
+                    src={question.questionImageData}
+                    alt={`Question ${idx + 1}`}
+                    className="w-full h-auto object-contain block"
+                    style={{ minHeight: '60px' }}
+                    onError={(e) => {
+                      const el = e.currentTarget as HTMLImageElement;
+                      el.style.display = 'none';
+                      const parent = el.parentElement;
+                      if (parent && !parent.querySelector('.img-err')) {
+                        const msg = document.createElement('p');
+                        msg.className = 'img-err text-sm text-gray-400 py-6 text-center w-full';
+                        msg.textContent = 'Question image unavailable';
+                        parent.appendChild(msg);
+                      }
+                    }}
+                  />
                 ) : (
                   <p className="text-sm text-gray-400 py-6 text-center w-full">No question image</p>
                 )}
               </div>
             </div>
 
-            {/* Answer option labels — A, B, C, D as full-width cards */}
-            <div className="flex flex-col gap-2 px-5 pb-5 pt-3">
+            {/* Compact A/B/C/D buttons — single row */}
+            <div className="flex items-center justify-center gap-3 px-5 pb-4 pt-3">
               {OPTION_LABELS.map((label, optIdx) => {
                 const isUserChoice = userAnswer === optIdx;
                 const isCorrectOption = correctAnswer === optIdx;
 
-                let borderClass = 'border-gray-200';
-                let bgClass = 'bg-white';
-                let textClass = 'text-gray-700';
-                let circleBg = 'bg-gray-100 text-gray-600 border-gray-200';
+                let buttonClass = 'border-gray-300 bg-white text-gray-600';
 
                 if (isCorrectOption) {
-                  borderClass = 'border-green-500';
-                  bgClass = 'bg-green-50';
-                  textClass = 'text-green-800';
-                  circleBg = 'bg-green-500 text-white border-green-500';
+                  buttonClass = 'border-green-500 bg-green-100 text-green-800';
                 } else if (isUserChoice) {
-                  borderClass = 'border-blue-400';
-                  bgClass = 'bg-blue-50';
-                  textClass = 'text-blue-800';
-                  circleBg = 'bg-blue-400 text-white border-blue-400';
+                  buttonClass = 'border-blue-500 bg-blue-100 text-blue-800';
                 }
 
                 return (
                   <div
                     key={optIdx}
-                    className={`w-full flex items-center gap-4 px-5 rounded-xl border-2 ${borderClass} ${bgClass}`}
-                    style={{ minHeight: '52px' }}
+                    className={`w-11 h-11 rounded-lg border-2 font-bold text-sm flex items-center justify-center flex-shrink-0 ${buttonClass}`}
                   >
-                    {/* Option label circle */}
-                    <span
-                      className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 ${circleBg}`}
-                    >
-                      {label}
-                    </span>
-                    <span className={`font-semibold text-sm flex-1 ${textClass}`}>
-                      Option {label}
-                    </span>
-                    {/* Indicators */}
-                    <div className="flex gap-1.5 flex-shrink-0">
-                      {isCorrectOption && (
-                        <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-semibold">
-                          ✓ Correct
-                        </span>
-                      )}
-                      {isUserChoice && !isCorrectOption && (
-                        <span className="text-xs bg-blue-400 text-white px-2 py-0.5 rounded-full font-semibold">
-                          Your answer
-                        </span>
-                      )}
-                      {isUserChoice && isCorrectOption && (
-                        <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-semibold">
-                          ✓ Your answer
-                        </span>
-                      )}
-                    </div>
+                    {label}
                   </div>
                 );
               })}
@@ -190,11 +155,11 @@ export default function Test() {
         <div className="max-w-3xl mx-auto px-4 py-10 space-y-4">
           <Skeleton className="h-10 w-48 rounded-xl" />
           <Skeleton className="h-[60vh] w-full rounded-2xl" />
-          <div className="flex flex-col gap-3">
-            <Skeleton className="h-14 rounded-xl" />
-            <Skeleton className="h-14 rounded-xl" />
-            <Skeleton className="h-14 rounded-xl" />
-            <Skeleton className="h-14 rounded-xl" />
+          <div className="flex gap-4 justify-center">
+            <Skeleton className="h-11 w-11 rounded-lg" />
+            <Skeleton className="h-11 w-11 rounded-lg" />
+            <Skeleton className="h-11 w-11 rounded-lg" />
+            <Skeleton className="h-11 w-11 rounded-lg" />
           </div>
         </div>
       </div>
@@ -275,47 +240,47 @@ export default function Test() {
   const currentQuestion = questions[currentIndex];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
 
-      {/* Top bar: test name + timer */}
-      <div className="sticky top-16 z-30 bg-white border-b border-gray-100 shadow-sm">
-        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-          <div className="min-w-0">
-            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Test</p>
-            <p className="text-sm font-bold text-navy truncate">{currentTest?.name ?? 'Loading...'}</p>
+      {/* Top bar: test name + timer + question counter */}
+      <div className="sticky top-16 z-30 bg-white border-b border-gray-100 shadow-sm flex-shrink-0">
+        <div className="max-w-3xl mx-auto px-4 py-2 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <span className="bg-navy text-white text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0">
+              {currentIndex + 1}/{totalQuestions}
+            </span>
+            <p className="text-sm font-bold text-navy truncate hidden sm:block">{currentTest?.name ?? ''}</p>
           </div>
-          {currentTest && (
-            <TestTimer
-              durationSeconds={Number(currentTest.durationSeconds)}
-              onTimeUp={handleTimeUp}
-            />
-          )}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            {/* Compact progress indicator */}
+            <div className="flex items-center gap-1.5">
+              <div className="w-20 bg-gray-200 rounded-full h-1.5">
+                <div
+                  className="bg-navy h-1.5 rounded-full transition-all duration-300"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+              <span className="text-xs text-gray-400 font-medium w-8 text-right">{answeredCount}/{totalQuestions}</span>
+            </div>
+            {currentTest && (
+              <TestTimer
+                durationSeconds={Number(currentTest.durationSeconds)}
+                onTimeUp={handleTimeUp}
+              />
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
-        {/* Progress bar */}
-        <div className="space-y-1.5">
-          <div className="flex justify-between text-xs text-gray-400 font-medium">
-            <span>{answeredCount} of {totalQuestions} answered</span>
-            <span>{progressPercent}%</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-navy h-2 rounded-full transition-all duration-300"
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
-        </div>
-
-        {/* Question navigation dots */}
-        <div className="flex flex-wrap gap-2">
+      {/* Question navigation dots — compact scrollable row */}
+      <div className="bg-white border-b border-gray-100 flex-shrink-0">
+        <div className="max-w-3xl mx-auto px-4 py-2 flex gap-1.5 overflow-x-auto scrollbar-hide">
           {questions.map((_, i) => (
             <button
               key={i}
               onClick={() => setCurrentIndex(i)}
-              className={`w-8 h-8 rounded-full text-xs font-bold transition-all ${
+              className={`w-7 h-7 rounded-full text-xs font-bold transition-all flex-shrink-0 ${
                 i === currentIndex
                   ? 'bg-navy text-white shadow-md scale-110'
                   : answers[i] !== undefined
@@ -327,51 +292,96 @@ export default function Test() {
             </button>
           ))}
         </div>
+      </div>
 
-        {/* Current question */}
-        <QuestionDisplay
-          question={currentQuestion}
-          selectedAnswer={answers[currentIndex] ?? null}
-          onChange={handleAnswer}
-          questionNumber={currentIndex + 1}
-          totalQuestions={totalQuestions}
-        />
+      {/* Main content: question + answer buttons */}
+      <div className="flex-1 max-w-3xl w-full mx-auto px-3 py-3 flex flex-col">
+        {/* Question image — fills all remaining space */}
+        <div className="flex-1 w-full bg-white rounded-2xl border border-navy/10 shadow-sm overflow-y-auto flex items-start justify-center min-h-0">
+          {currentQuestion.questionImageData ? (
+            <img
+              src={currentQuestion.questionImageData}
+              alt={`Question ${currentIndex + 1} of ${totalQuestions}`}
+              className="w-full h-auto object-contain block"
+              style={{ minHeight: '80px' }}
+              onError={(e) => {
+                const el = e.currentTarget as HTMLImageElement;
+                el.style.display = 'none';
+                const parent = el.parentElement;
+                if (parent && !parent.querySelector('.img-err')) {
+                  const msg = document.createElement('p');
+                  msg.className = 'img-err text-sm text-gray-400 py-10 text-center w-full';
+                  msg.textContent = 'Question image unavailable';
+                  parent.appendChild(msg);
+                }
+              }}
+            />
+          ) : (
+            <p className="text-sm text-gray-400 py-10 text-center w-full">No question image</p>
+          )}
+        </div>
 
-        {/* Navigation buttons */}
-        <div className="flex items-center justify-between gap-3 pt-2 pb-8">
+        {/* Bottom controls: A/B/C/D + Prev/Next in one compact row */}
+        <div className="flex items-center justify-between gap-2 pt-3 pb-2 flex-shrink-0">
+          {/* Previous button */}
           <Button
             variant="outline"
             onClick={() => setCurrentIndex((i) => Math.max(0, i - 1))}
             disabled={currentIndex === 0}
-            className="rounded-xl border-navy/30 text-navy hover:bg-navy/5 flex items-center gap-2"
+            size="sm"
+            className="rounded-lg border-navy/30 text-navy hover:bg-navy/5 flex items-center gap-1 px-3 flex-shrink-0"
           >
             <ChevronLeft className="h-4 w-4" />
-            Previous
+            <span className="hidden sm:inline">Prev</span>
           </Button>
 
+          {/* Compact A/B/C/D answer buttons */}
+          <div className="flex items-center gap-2">
+            {['A', 'B', 'C', 'D'].map((label, idx) => {
+              const isSelected = (answers[currentIndex] ?? null) === idx;
+              return (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => handleAnswer(idx)}
+                  className={`w-11 h-11 rounded-lg border-2 font-bold text-sm transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-navy/40 flex items-center justify-center flex-shrink-0 ${
+                    isSelected
+                      ? 'border-navy bg-navy/10 text-navy shadow-md'
+                      : 'border-gray-300 bg-white text-gray-600 hover:border-navy/50 hover:bg-navy/5'
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Next / Submit button */}
           {currentIndex < totalQuestions - 1 ? (
             <Button
               onClick={() => setCurrentIndex((i) => Math.min(totalQuestions - 1, i + 1))}
-              className="bg-navy hover:bg-navy-dark text-white rounded-xl flex items-center gap-2"
+              size="sm"
+              className="bg-navy hover:bg-navy-dark text-white rounded-lg flex items-center gap-1 px-3 flex-shrink-0"
             >
-              Next
+              <span className="hidden sm:inline">Next</span>
               <ChevronRight className="h-4 w-4" />
             </Button>
           ) : (
             <Button
               onClick={handleSubmit}
               disabled={submitTest.isPending}
-              className="bg-green-600 hover:bg-green-700 text-white rounded-xl flex items-center gap-2"
+              size="sm"
+              className="bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center gap-1 px-3 flex-shrink-0"
             >
               {submitTest.isPending ? (
-                <span className="flex items-center gap-2">
-                  <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                  Submitting...
+                <span className="flex items-center gap-1.5">
+                  <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                  <span className="hidden sm:inline">Submitting...</span>
                 </span>
               ) : (
                 <>
-                  <Send className="h-4 w-4" />
-                  Submit Test
+                  <Send className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Submit</span>
                 </>
               )}
             </Button>

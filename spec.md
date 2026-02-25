@@ -1,11 +1,14 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the Admin Panel link not appearing in the navbar immediately after login without requiring a page refresh.
+**Goal:** Fix the Navbar so that Home, Dashboard, Admin Panel, and the Login/Logout button are always visible and never hidden due to overflow, flex-wrap, or stale query state.
 
 **Planned changes:**
-- In `useActor.ts`, add a `useEffect` that watches the identity and calls `queryClient.invalidateQueries` (targeting `isCallerAdmin` and `actor` query keys) whenever the identity changes from null to a non-null value.
-- Rewrite `useIsCallerAdmin` in `useQueries.ts` to obtain the identity directly from `useInternetIdentity`, derive a stable principal string, create an authenticated actor via `createActor`, include the principal in the query key, and set `staleTime` and `gcTime` to 0.
-- Update `Navbar.tsx` to destructure `data`, `isLoading`, and `isFetching` from `useIsCallerAdmin`, and show the Admin Panel link only when the user is logged in, loading is complete, and the result is strictly `true` — applied to both desktop and mobile nav.
+- Rewrite `Navbar.tsx` to use a flex layout with `flex-nowrap` and `overflow-visible` so no items are ever clipped or collapsed on desktop or mobile.
+- Ensure Home is always visible, Dashboard is shown only when authenticated, and Admin Panel is shown only when authenticated and the user is an admin.
+- Keep the Login/Logout button always visible on the right side of the navbar.
+- Fix the mobile hamburger menu to reliably toggle open/closed with no z-index or overflow conflicts, showing the same conditional link set.
+- Update `useIsCallerAdmin` in `useQueries.ts` to only enable when identity is non-null, use a fresh authenticated actor, include the principal string in the query key, and set `staleTime: 0` and `gcTime: 0`.
+- Add/verify a `useEffect` in `useActor.ts` that invalidates all React Query queries whenever the identity changes to a non-null value, so the navbar updates immediately after login.
 
-**User-visible outcome:** After logging in as an admin via Internet Identity, the Admin Panel link appears immediately in the navbar (desktop and mobile) without needing a page refresh. Non-admin users do not see the link.
+**User-visible outcome:** After login, the navbar immediately and reliably shows Home, Dashboard, and Admin Panel (for admins) along with the Logout button on all screen sizes, with no items ever hidden or requiring a page refresh.

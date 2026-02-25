@@ -1,78 +1,86 @@
 {
   "kind": "build_request",
-  "title": "Fix Admin Panel link not appearing in navbar after login",
+  "title": "Fix Navbar Visibility – Always Show Home, Dashboard, Admin Panel, and Login/Logout",
   "projectName": "Concept Delta",
   "priority": "high",
   "requirements": [
     {
-      "id": "REQ-66",
-      "text": "In frontend/src/hooks/useActor.ts, after Internet Identity login completes and a new authenticated identity is set, explicitly call queryClient.invalidateQueries targeting all queries (or at minimum ['isCallerAdmin'] and ['actor']) so that the admin status check re-runs immediately after login without requiring a page refresh. Use a useEffect that watches the identity object and triggers invalidation whenever the identity changes from null to a non-null value.",
+      "id": "REQ-77",
+      "text": "Rewrite frontend/src/components/Navbar.tsx so that all navigation elements are always rendered and never hidden due to layout or overflow issues. The navbar must use a flex layout with `flex-nowrap` and `overflow-visible` on the desktop nav container so items are never clipped or collapsed. The three nav links must be: 'Home' (always visible, navigates to /), 'Dashboard' (visible only when the user is authenticated, navigates to /dashboard), and 'Admin Panel' (visible only when the user is authenticated AND isAdmin is true, navigates to /admin). The Login/Logout button must always be visible on the right side of the navbar, never wrapped or hidden. On desktop (md and above), all visible links and the Login/Logout button must appear in a single horizontal row without overflow. On mobile, the hamburger menu must include the same conditional link set (Home always, Dashboard if authenticated, Admin Panel if authenticated + isAdmin) plus the Login/Logout action. The mobile menu must open and close reliably with no z-index or overflow conflicts.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-recent-1"
+          "msg-1"
         ],
         "quotes": [
-          "still not showing"
+          "in navbar clearly show home,dashboard,and admin for admin and login logout button because some times navbar hide button please fix this problem"
         ]
       },
       "acceptanceCriteria": [
-        "When the admin user logs in via Internet Identity, the Admin Panel link appears in the navbar without requiring a page refresh.",
-        "queryClient.invalidateQueries is called after the authenticated identity is set in useActor.ts.",
-        "The invalidation targets the isCallerAdmin query key so it re-fetches with the new authenticated actor."
+        "On desktop, 'Home' link is always visible in the navbar.",
+        "On desktop, 'Dashboard' link is visible when the user is authenticated and hidden when not authenticated.",
+        "On desktop, 'Admin Panel' link is visible when the user is authenticated AND isCallerAdmin returns true; it is hidden for non-admin users.",
+        "On desktop, the Login/Logout button is always visible and never clipped or hidden by overflow.",
+        "No navbar items are ever hidden due to CSS overflow, flex-wrap, or z-index issues on any screen size.",
+        "On mobile, the hamburger icon is always visible and tapping it reliably toggles the mobile menu open/closed.",
+        "The mobile menu shows the same conditional link set (Home always, Dashboard if authenticated, Admin Panel if authenticated + isAdmin) plus a Login/Logout button.",
+        "The mobile menu has no z-index or overflow conflicts that would cause it to be hidden behind other elements.",
+        "The navbar layout does not break or clip items on viewport widths between 320px and 1440px."
       ]
     },
     {
-      "id": "REQ-67",
-      "text": "In frontend/src/hooks/useQueries.ts, rewrite the useIsCallerAdmin query with a completely fresh approach: (1) obtain the identity directly from useInternetIdentity, (2) derive a stable principal string from the identity, (3) set enabled to true only when identity is non-null, (4) use the authenticated actor — obtained via a direct createActor call with the identity rather than relying on the cached actor — to call isCallerAdmin(), (5) include the principal string in the query key, and (6) set staleTime to 0 and gcTime to 0 so the result is never stale.",
+      "id": "REQ-78",
+      "text": "In frontend/src/hooks/useQueries.ts, ensure the useIsCallerAdmin query: (1) is enabled only when identity is non-null, (2) uses a fresh authenticated actor created directly with the identity (not a cached anonymous actor) to call the backend isCallerAdmin() function, (3) uses ['isCallerAdmin', principalString] as the query key so it re-fetches whenever the logged-in principal changes, and (4) has staleTime: 0 and gcTime: 0 so it never returns a stale cached result. This ensures the Admin Panel link appears reliably after login without a page refresh.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-recent-1"
+          "msg-1"
         ],
         "quotes": [
-          "still not showing"
+          "admin for admin",
+          "some times navbar hide button please fix this problem"
         ]
       },
       "acceptanceCriteria": [
-        "useIsCallerAdmin uses the authenticated identity to create an actor and call isCallerAdmin().",
-        "The query is disabled (returns false) when the user is not authenticated.",
-        "The query key includes the principal string so it re-fetches on login/logout.",
-        "staleTime is set to 0.",
-        "The query result correctly returns true for the admin principal and false for all others."
+        "useIsCallerAdmin is not enabled when identity is null/undefined.",
+        "useIsCallerAdmin uses an authenticated actor (created with the current identity) to call isCallerAdmin().",
+        "The query key includes the principal string so it re-fetches on identity change.",
+        "staleTime and gcTime are both set to 0.",
+        "After login, the admin check re-fetches automatically without requiring a page refresh.",
+        "Non-admin users receive false from the query."
       ]
     },
     {
-      "id": "REQ-68",
-      "text": "In frontend/src/components/Navbar.tsx, overhaul the Admin Panel link rendering: (1) call useIsCallerAdmin and destructure its data, isLoading, and isFetching states, (2) show the Admin Panel link only when isLoggedIn is true AND isLoading is false AND isFetching is false AND the returned value is strictly true, (3) add a console.log or debug statement (to be removed later) logging the isCallerAdmin result and loading state so the issue can be diagnosed, (4) ensure the same conditional logic applies to both the desktop nav and the mobile hamburger menu.",
+      "id": "REQ-79",
+      "text": "In frontend/src/hooks/useActor.ts, add or verify a useEffect that watches the identity object and, whenever the identity changes from null/undefined to a non-null value (user has just logged in), calls queryClient.invalidateQueries() to invalidate all queries (including isCallerAdmin) so they immediately re-fetch with the new authenticated identity. This prevents the navbar from showing stale unauthenticated state after login.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-recent-1"
+          "msg-1"
         ],
         "quotes": [
-          "still not showing"
+          "some times navbar hide button please fix this problem"
         ]
       },
       "acceptanceCriteria": [
-        "Admin Panel link appears in both desktop and mobile nav immediately after admin login without page refresh.",
-        "Admin Panel link does not appear for non-admin authenticated users.",
-        "Admin Panel link does not flicker during the loading state of the admin check.",
-        "Link navigates to /admin when clicked."
+        "After Internet Identity login completes, all React Query queries (including isCallerAdmin) are invalidated and re-fetched automatically.",
+        "The Admin Panel link appears in the navbar for the admin user immediately after login without a page refresh.",
+        "The Dashboard link appears for authenticated non-admin users immediately after login without a page refresh.",
+        "The Login button changes to a Logout button immediately after login."
       ]
     }
   ],
   "constraints": [
-    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts immutable path — if useActor.ts is immutable, implement the query invalidation in an alternative non-immutable file.",
-    "Do not change the backend isCallerAdmin() function signature or admin designation logic.",
-    "Timer, question navigation, and test submission logic must remain unchanged.",
-    "All other existing navbar links (Home, Dashboard) must remain as-is."
+    "Do not modify any file under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts immutable sections, frontend/src/main.tsx, or frontend/src/components/ui.",
+    "Do not change backend logic or data models.",
+    "Do not change Test Page timer, navigation, or submission logic.",
+    "The three navbar links must remain: Home (always), Dashboard (authenticated), Admin Panel (authenticated + admin only)."
   ],
   "nonGoals": [
-    "Adding new navigation links to the navbar.",
-    "Changing the admin designation logic in the backend.",
-    "Modifying the Admin Panel page content or tabs.",
-    "Any changes to test-taking, question display, or results pages."
+    "Adding new navigation links beyond Home, Dashboard, and Admin Panel.",
+    "Changing the visual design theme or color palette.",
+    "Modifying any backend Motoko logic.",
+    "Changing the Test Page, Dashboard page, or Admin Panel page content."
   ],
   "imageRequirements": {
     "required": [],

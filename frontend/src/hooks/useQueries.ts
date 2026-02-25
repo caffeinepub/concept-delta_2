@@ -2,51 +2,143 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
 import { useInternetIdentity } from './useInternetIdentity';
 import type { AnonymousProfile, TestSummary, Question, TestResult, LeaderboardEntry } from '../backend';
+import { createActorWithConfig } from '../config';
 
-// ─── Admin ───────────────────────────────────────────────────────────────────
+// ─── Auth / Profile ──────────────────────────────────────────────────────────
 
-export function useIsCallerAdmin() {
+export function useGetCallerUserProfile() {
   const { actor, isFetching: actorFetching } = useActor();
-  const { identity } = useInternetIdentity();
 
-  const principalStr = identity ? identity.getPrincipal().toString() : null;
-  const isAnonymous = !principalStr || principalStr === '2vxsx-fae';
-
-  return useQuery<boolean>({
-    queryKey: ['isCallerAdmin', principalStr],
+  const query = useQuery<AnonymousProfile | null>({
+    queryKey: ['currentUserProfile'],
     queryFn: async () => {
-      if (!actor) return false;
-      try {
-        const result = await actor.isCallerAdmin();
-        console.log('[useIsCallerAdmin] result:', result, 'principal:', principalStr);
-        return result;
-      } catch (e) {
-        console.error('[useIsCallerAdmin] error:', e);
-        return false;
-      }
+      if (!actor) throw new Error('Actor not available');
+      return actor.getCallerUserProfile();
     },
-    enabled: !!actor && !actorFetching && !isAnonymous,
-    staleTime: 0,
-    gcTime: 0,
+    enabled: !!actor && !actorFetching,
     retry: false,
+  });
+
+  return {
+    ...query,
+    isLoading: actorFetching || query.isLoading,
+    isFetched: !!actor && query.isFetched,
+  };
+}
+
+export function useSaveCallerUserProfile() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (profile: AnonymousProfile) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.saveCallerUserProfile(profile);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
+    },
   });
 }
 
+// ─── Admin Check ─────────────────────────────────────────────────────────────
+
+export function useIsCallerAdmin() {
+  const { identity } = useInternetIdentity();
+  const principalString = identity?.getPrincipal().toText() ?? '';
+  const isAnonymous = !identity || identity.getPrincipal().isAnonymous();
+
+  return useQuery<boolean>({
+    queryKey: ['isCallerAdmin', principalString],
+    queryFn: async () => {
+      if (!identity) return false;
+      // Create a fresh actor with the current identity to avoid stale cache issues
+      const freshActor = await createActorWithConfig({ agentOptions: { identity } });
+      return freshActor.isCallerAdmin();
+    },
+    enabled: !!identity && !isAnonymous,
+    staleTime: 0,
+    gcTime: 0,
+  });
+}
+
+// ─── Tests ───────────────────────────────────────────────────────────────────
+
+export function useGetPublishedTests() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<TestSummary[]>({
+    queryKey: ['publishedTests'],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getPublishedTests();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useGetTestQuestions(testId: string) {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<Question[]>({
+    queryKey: ['testQuestions', testId],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getTestQuestions(testId);
+    },
+    enabled: !!actor && !isFetching && !!testId,
+  });
+}
+
+export function useSubmitTest() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ testId, answers }: { testId: string; answers: bigint[] }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.submitTest(testId, answers);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['myResults'] });
+    },
+  });
+}
+
+// ─── Results ─────────────────────────────────────────────────────────────────
+
+export function useGetMyResults() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<TestResult[]>({
+    queryKey: ['myResults'],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getMyResults();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+// ─── Admin ───────────────────────────────────────────────────────────────────
+
 export function useGetAllQuestions() {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor, isFetching } = useActor();
+
   return useQuery<Question[]>({
     queryKey: ['allQuestions'],
     queryFn: async () => {
       if (!actor) return [];
       return actor.getAllQuestions();
     },
-    enabled: !!actor && !actorFetching,
+    enabled: !!actor && !isFetching,
   });
 }
 
 export function useAddQuestion() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async ({
       questionImageData,
@@ -67,20 +159,22 @@ export function useAddQuestion() {
 }
 
 export function useGetAllTests() {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor, isFetching } = useActor();
+
   return useQuery<TestSummary[]>({
     queryKey: ['allTests'],
     queryFn: async () => {
       if (!actor) return [];
       return actor.getPublishedTests();
     },
-    enabled: !!actor && !actorFetching,
+    enabled: !!actor && !isFetching,
   });
 }
 
 export function useCreateTest() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async ({
       name,
@@ -106,6 +200,7 @@ export function useCreateTest() {
 export function useSetTestPublished() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async ({ testId, published }: { testId: string; published: boolean }) => {
       if (!actor) throw new Error('Actor not available');
@@ -118,131 +213,49 @@ export function useSetTestPublished() {
   });
 }
 
-export function useGetPublishedTests() {
-  const { actor, isFetching: actorFetching } = useActor();
-  return useQuery<TestSummary[]>({
-    queryKey: ['publishedTests'],
-    queryFn: async () => {
-      if (!actor) return [];
-      return actor.getPublishedTests();
-    },
-    enabled: !!actor && !actorFetching,
-  });
-}
-
-export function useGetTestQuestions(testId: string) {
-  const { actor, isFetching: actorFetching } = useActor();
-  return useQuery<Question[]>({
-    queryKey: ['testQuestions', testId],
-    queryFn: async () => {
-      if (!actor) return [];
-      return actor.getTestQuestions(testId);
-    },
-    enabled: !!actor && !actorFetching && !!testId,
-  });
-}
-
-export function useSubmitTest() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ testId, answers }: { testId: string; answers: bigint[] }) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.submitTest(testId, answers);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['myResults'] });
-    },
-  });
-}
-
-export function useGetMyResults() {
-  const { actor, isFetching: actorFetching } = useActor();
-  const { identity } = useInternetIdentity();
-  return useQuery<TestResult[]>({
-    queryKey: ['myResults'],
-    queryFn: async () => {
-      if (!actor) return [];
-      return actor.getMyResults();
-    },
-    enabled: !!actor && !actorFetching && !!identity,
-  });
-}
-
-export function useGetAllResults() {
-  const { actor, isFetching: actorFetching } = useActor();
-  return useQuery<TestResult[]>({
-    queryKey: ['allResults'],
-    queryFn: async () => {
-      if (!actor) return [];
-      return actor.getAllResults();
-    },
-    enabled: !!actor && !actorFetching,
-  });
-}
-
 export function useGetAllUsers() {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor, isFetching } = useActor();
+
   return useQuery<AnonymousProfile[]>({
     queryKey: ['allUsers'],
     queryFn: async () => {
       if (!actor) return [];
       return actor.adminGetAllUsers();
     },
-    enabled: !!actor && !actorFetching,
+    enabled: !!actor && !isFetching,
   });
 }
 
-export function useGetCallerUserProfile() {
-  const { actor, isFetching: actorFetching } = useActor();
-  const { identity } = useInternetIdentity();
+export function useGetAllResults() {
+  const { actor, isFetching } = useActor();
 
-  const query = useQuery<AnonymousProfile | null>({
-    queryKey: ['currentUserProfile'],
+  return useQuery<TestResult[]>({
+    queryKey: ['allResults'],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getCallerUserProfile();
+      if (!actor) return [];
+      return actor.getAllResults();
     },
-    enabled: !!actor && !actorFetching && !!identity,
-    retry: false,
-  });
-
-  return {
-    ...query,
-    isLoading: actorFetching || query.isLoading,
-    isFetched: !!actor && query.isFetched,
-  };
-}
-
-export function useSaveCallerUserProfile() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (profile: AnonymousProfile) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.saveCallerUserProfile(profile);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
-    },
+    enabled: !!actor && !isFetching,
   });
 }
 
 export function useGetLeaderboard() {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor, isFetching } = useActor();
+
   return useQuery<LeaderboardEntry[]>({
     queryKey: ['leaderboard'],
     queryFn: async () => {
       if (!actor) return [];
       return actor.getLeaderboard();
     },
-    enabled: !!actor && !actorFetching,
+    enabled: !!actor && !isFetching,
   });
 }
 
 export function useGetMyDashboardStats() {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor, isFetching } = useActor();
   const { identity } = useInternetIdentity();
+
   return useQuery({
     queryKey: ['myDashboardStats'],
     queryFn: async () => {
@@ -254,6 +267,6 @@ export function useGetMyDashboardStats() {
       const best = Math.max(...scores);
       return { testsAttempted: results.length, averageScore: Math.round(avg), bestScore: best };
     },
-    enabled: !!actor && !actorFetching && !!identity,
+    enabled: !!actor && !isFetching && !!identity,
   });
 }

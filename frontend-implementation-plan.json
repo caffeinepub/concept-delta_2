@@ -1,56 +1,63 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix Admin Panel link not appearing in navbar after login",
+  "title": "Fix Navbar Visibility – Always Show Home, Dashboard, Admin Panel, and Login/Logout",
   "requirements": [
     {
-      "id": "REQ-66",
-      "summary": "Add query invalidation after Internet Identity login to force admin status re-check",
+      "id": "REQ-77",
+      "summary": "Rewrite Navbar.tsx with flex-nowrap layout to ensure all navigation elements are always rendered and never hidden due to overflow or layout issues, with conditional visibility for Dashboard and Admin Panel links based on authentication and admin status",
       "acceptanceCriteria": [
-        "When the admin user logs in via Internet Identity, the Admin Panel link appears in the navbar without requiring a page refresh.",
-        "queryClient.invalidateQueries is called after the authenticated identity is set in useActor.ts.",
-        "The invalidation targets the isCallerAdmin query key so it re-fetches with the new authenticated actor."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useActor.ts",
-          "operation": "modify",
-          "description": "Add a useEffect that watches the identity object from useInternetIdentity and calls queryClient.invalidateQueries(['isCallerAdmin']) and queryClient.invalidateQueries(['actor']) whenever the identity changes from null to a non-null value (indicating login completion). This ensures the admin status check re-runs immediately after authentication without requiring a page refresh."
-        }
-      ]
-    },
-    {
-      "id": "REQ-67",
-      "summary": "Rewrite useIsCallerAdmin query with fresh approach using identity-derived principal in query key",
-      "acceptanceCriteria": [
-        "useIsCallerAdmin uses the authenticated identity to create an actor and call isCallerAdmin().",
-        "The query is disabled (returns false) when the user is not authenticated.",
-        "The query key includes the principal string so it re-fetches on login/logout.",
-        "staleTime is set to 0.",
-        "The query result correctly returns true for the admin principal and false for all others."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Completely rewrite the useIsCallerAdmin hook: (1) obtain identity directly from useInternetIdentity, (2) derive a stable principal string from identity?.getPrincipal().toString() or null, (3) set enabled to true only when identity is non-null, (4) use the authenticated actor obtained via a direct createActor call with the identity rather than relying on the cached actor to call isCallerAdmin(), (5) include the principal string in the query key as ['isCallerAdmin', principalString], (6) set staleTime to 0 and gcTime to 0 so the result is never stale and always re-fetches on identity changes."
-        }
-      ]
-    },
-    {
-      "id": "REQ-68",
-      "summary": "Update Navbar to show Admin Panel link only when authenticated and admin check completes successfully",
-      "acceptanceCriteria": [
-        "Admin Panel link appears in both desktop and mobile nav immediately after admin login without page refresh.",
-        "Admin Panel link does not appear for non-admin authenticated users.",
-        "Admin Panel link does not flicker during the loading state of the admin check.",
-        "Link navigates to /admin when clicked."
+        "On desktop, 'Home' link is always visible in the navbar.",
+        "On desktop, 'Dashboard' link is visible when the user is authenticated and hidden when not authenticated.",
+        "On desktop, 'Admin Panel' link is visible when the user is authenticated AND isCallerAdmin returns true; it is hidden for non-admin users.",
+        "On desktop, the Login/Logout button is always visible and never clipped or hidden by overflow.",
+        "No navbar items are ever hidden due to CSS overflow, flex-wrap, or z-index issues on any screen size.",
+        "On mobile, the hamburger icon is always visible and tapping it reliably toggles the mobile menu open/closed.",
+        "The mobile menu shows the same conditional link set (Home always, Dashboard if authenticated, Admin Panel if authenticated + isAdmin) plus a Login/Logout button.",
+        "The mobile menu has no z-index or overflow conflicts that would cause it to be hidden behind other elements.",
+        "The navbar layout does not break or clip items on viewport widths between 320px and 1440px."
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/Navbar.tsx",
           "operation": "modify",
-          "description": "Overhaul the Admin Panel link rendering logic: (1) call useIsCallerAdmin and destructure data, isLoading, and isFetching states, (2) show the Admin Panel link only when isLoggedIn is true AND isLoading is false AND isFetching is false AND the returned data value is strictly true, (3) add a console.log statement (to be removed later) that logs the isCallerAdmin result and loading state for debugging, (4) ensure the same conditional logic applies to both the desktop navigation and the mobile hamburger menu so the link appears consistently across both views."
+          "description": "Rewrite the navbar component to use flex-nowrap and overflow-visible on the desktop nav container. Ensure Home link is always rendered. Conditionally render Dashboard link only when identity is non-null (authenticated). Conditionally render Admin Panel link only when identity is non-null AND isCallerAdmin returns true. Ensure the Login/Logout button is always visible on the right side and never wrapped or hidden. On mobile, ensure the hamburger menu includes the same conditional link set (Home always, Dashboard if authenticated, Admin Panel if authenticated + isAdmin) plus the Login/Logout action. Verify the mobile menu has proper z-index (e.g., z-50 or higher) and no overflow conflicts that would hide it behind other elements. Use the useInternetIdentity hook to check authentication status via identity and the useIsCallerAdmin query to check admin status. Ensure all visible links and the Login/Logout button appear in a single horizontal row on desktop (md and above) without overflow or wrapping."
+        }
+      ]
+    },
+    {
+      "id": "REQ-78",
+      "summary": "Fix useIsCallerAdmin query in useQueries.ts to use fresh authenticated actor, principal-based query key, and zero staleTime/gcTime so admin status refreshes immediately after login",
+      "acceptanceCriteria": [
+        "useIsCallerAdmin is not enabled when identity is null/undefined.",
+        "useIsCallerAdmin uses an authenticated actor (created with the current identity) to call isCallerAdmin().",
+        "The query key includes the principal string so it re-fetches on identity change.",
+        "staleTime and gcTime are both set to 0.",
+        "After login, the admin check re-fetches automatically without requiring a page refresh.",
+        "Non-admin users receive false from the query."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Modify the useIsCallerAdmin query function to ensure: (1) the query is enabled only when actor is non-null and identity is non-null (add enabled: !!actor && !!identity to the query options), (2) the query key is ['isCallerAdmin', principalString] where principalString is identity.getPrincipal().toString() so it re-fetches whenever the logged-in principal changes, (3) staleTime: 0 and gcTime: 0 are set in the query options so it never returns stale cached results, and (4) the query uses the actor (which is already created with the current authenticated identity in useActor.ts) to call actor.isCallerAdmin(). This ensures the Admin Panel link appears reliably after login without a page refresh."
+        }
+      ]
+    },
+    {
+      "id": "REQ-79",
+      "summary": "Add or verify useEffect in useActor.ts that invalidates all queries when identity changes from null to non-null (user logs in) so navbar state refreshes immediately",
+      "acceptanceCriteria": [
+        "After Internet Identity login completes, all React Query queries (including isCallerAdmin) are invalidated and re-fetched automatically.",
+        "The Admin Panel link appears in the navbar for the admin user immediately after login without a page refresh.",
+        "The Dashboard link appears for authenticated non-admin users immediately after login without a page refresh.",
+        "The Login button changes to a Logout button immediately after login."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useActor.ts",
+          "operation": "modify",
+          "description": "Add or verify a useEffect that watches the identity object and, whenever the identity changes from null/undefined to a non-null value (user has just logged in), calls queryClient.invalidateQueries() to invalidate all queries (including isCallerAdmin) so they immediately re-fetch with the new authenticated identity. This prevents the navbar from showing stale unauthenticated state after login. Ensure the useEffect dependency array includes identity or identity?.getPrincipal().toString() so it triggers on identity change. The queryClient should already be available from @tanstack/react-query."
         }
       ]
     }

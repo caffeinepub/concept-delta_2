@@ -1,45 +1,43 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T19:40:24.337Z",
+  "generatedAt": "2026-02-25T20:44:50.272Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
     "total": 3,
-    "implemented": 2,
+    "implemented": 1,
     "items": [
       {
-        "id": "REQ-66",
-        "summary": "In frontend/src/hooks/useActor.ts, after Internet Identity login completes and a new authenticated identity is set, explicitly call queryClient.invalidateQueries targeting all queries (or at minimum ['isCallerAdmin'] and ['actor']) so that the admin status check re-runs immediately after login without requiring a page refresh. Use a useEffect that watches the identity object and triggers invalidation whenever the identity changes from null to a non-null value.",
+        "id": "REQ-77",
+        "summary": "Rewrite frontend/src/components/Navbar.tsx so that all navigation elements are always rendered and never hidden due to layout or overflow issues. The navbar must use a flex layout with `flex-nowrap` and `overflow-visible` on the desktop nav container so items are never clipped or collapsed. The three nav links must be: 'Home' (always visible, navigates to /), 'Dashboard' (visible only when the user is authenticated, navigates to /dashboard), and 'Admin Panel' (visible only when the user is authenticated AND isAdmin is true, navigates to /admin). The Login/Logout button must always be visible on the right side of the navbar, never wrapped or hidden. On desktop (md and above), all visible links and the Login/Logout button must appear in a single horizontal row without overflow. On mobile, the hamburger menu must include the same conditional link set (Home always, Dashboard if authenticated, Admin Panel if authenticated + isAdmin) plus the Login/Logout action. The mobile menu must open and close reliably with no z-index or overflow conflicts.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/Navbar.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/Navbar.tsx"
+        ]
+      },
+      {
+        "id": "REQ-78",
+        "summary": "In frontend/src/hooks/useQueries.ts, ensure the useIsCallerAdmin query: (1) is enabled only when identity is non-null, (2) uses a fresh authenticated actor created directly with the identity (not a cached anonymous actor) to call the backend isCallerAdmin() function, (3) uses ['isCallerAdmin', principalString] as the query key so it re-fetches whenever the logged-in principal changes, and (4) has staleTime: 0 and gcTime: 0 so it never returns a stale cached result. This ensures the Admin Panel link appears reliably after login without a page refresh.",
+        "status": "missing",
+        "plannedFiles": [
+          "frontend/src/hooks/useQueries.ts"
+        ],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-79",
+        "summary": "In frontend/src/hooks/useActor.ts, add or verify a useEffect that watches the identity object and, whenever the identity changes from null/undefined to a non-null value (user has just logged in), calls queryClient.invalidateQueries() to invalidate all queries (including isCallerAdmin) so they immediately re-fetch with the new authenticated identity. This prevents the navbar from showing stale unauthenticated state after login.",
         "status": "missing",
         "plannedFiles": [
           "frontend/src/hooks/useActor.ts"
         ],
         "matchedFiles": []
-      },
-      {
-        "id": "REQ-67",
-        "summary": "In frontend/src/hooks/useQueries.ts, rewrite the useIsCallerAdmin query with a completely fresh approach: (1) obtain the identity directly from useInternetIdentity, (2) derive a stable principal string from the identity, (3) set enabled to true only when identity is non-null, (4) use the authenticated actor — obtained via a direct createActor call with the identity rather than relying on the cached actor — to call isCallerAdmin(), (5) include the principal string in the query key, and (6) set staleTime to 0 and gcTime to 0 so the result is never stale.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts"
-        ]
-      },
-      {
-        "id": "REQ-68",
-        "summary": "In frontend/src/components/Navbar.tsx, overhaul the Admin Panel link rendering: (1) call useIsCallerAdmin and destructure its data, isLoading, and isFetching states, (2) show the Admin Panel link only when isLoggedIn is true AND isLoading is false AND isFetching is false AND the returned value is strictly true, (3) add a console.log or debug statement (to be removed later) logging the isCallerAdmin result and loading state so the issue can be diagnosed, (4) ensure the same conditional logic applies to both the desktop nav and the mobile hamburger menu.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/Navbar.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/Navbar.tsx"
-        ]
       }
     ]
   },
@@ -49,7 +47,6 @@
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
     "frontend/src/components/Navbar.tsx",
-    "frontend/src/hooks/useQueries.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

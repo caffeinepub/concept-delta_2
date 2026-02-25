@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 39,
+  "projectStateVersion": 49,
   "summary": "Building 'Concept Delta' – a responsive MHT-CET Test Series website with Navy Blue theme. Includes Home Page, Dashboard, Test Page, and Admin Panel. Features Google/Internet Identity auth with profile setup (name, class, contact), Motoko backend with users/questions/tests/results data models, image-based questions where each question has one single image containing the full question and all 4 options (A, B, C, D), timed auto-submit tests, and an admin panel for question/test management and user/result viewing. Questions use a single uploaded image per question (no separate option images); answer selection is via four text buttons (A, B, C, D) shown below the question image. Images stored as base64 or via asset upload in the backend. Admin uploads images directly from device gallery.",
   "architectural_notes": [
     "Motoko backend on Internet Computer with stable storage for Users, Questions, Tests, TestResults",
@@ -12,7 +12,9 @@
     "Each question uses a single uploaded image containing the full question and all 4 options; answer selection is via A/B/C/D text buttons (no separate option images displayed on test screen)"
   ],
   "known_issues": [
-    "Admin Panel link not appearing in navbar for admin users"
+    "Admin Panel link not appearing in navbar for admin users",
+    "Question image on test screen is too small; A/B/C/D buttons take too much space, reducing image visibility on mobile",
+    "Navbar intermittently hides Home, Dashboard, Admin Panel, or Login/Logout buttons"
   ],
   "isFixRequest": true,
   "existing_features": [
@@ -410,6 +412,70 @@
         "REQ-68"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-update-the-questiondisplay-component-frontend-src-components-questiondisplay-tsx-to-make-the-question-image-container-full-screen-height-on-mobile-the-image-container-must-use-w-full-object-contain-be-centered-maintain-aspect-ratio-have-a-white-background-and-occupy-the-full-available-viewport-height-minus-the-navbar-and-the-answer-buttons-row-e-g-use-h-calc-100vh-180px-or-equivalent-so-the-image-fills-as-much-screen-space-as-possible-the-image-container-must-be-vertically-scrollable-overflow-y-auto-if-the-image-is-taller-than-the-container-below-the-image-render-four-compact-inline-row-arranged-text-buttons-labeled-a-b-c-d-displayed-horizontally-in-a-single-row-not-stacked-full-width-each-button-must-be-small-and-compact-e-g-w-12-h-12-or-similar-square-size-rounded-with-just-the-letter-label-centered-inside-the-selected-button-must-be-highlighted-with-a-navy-border-and-a-light-navy-background-clicking-a-button-stores-the-selected-option-0-3-via-the-existing-onselect-callback-no-option-images-are-rendered-anywhere-in-this-component",
+      "title": "Update the QuestionDisplay component (frontend/src/components/QuestionDisplay.tsx) to make the question image container full-screen height on mobile. The image container must use w-full, object-contain, be centered, maintain aspect ratio, have a white background, and occupy the full available viewport height minus the navbar and the answer buttons row (e.g. use `h-[calc(100vh-180px)]` or equivalent so the image fills as much screen space as possible). The image container must be vertically scrollable (overflow-y-auto) if the image is taller than the container. Below the image, render four compact inline/row-arranged text buttons labeled 'A', 'B', 'C', 'D' displayed horizontally in a single row (not stacked full-width). Each button must be small and compact (e.g. w-12 h-12 or similar square size, rounded) with just the letter label centered inside. The selected button must be highlighted with a navy border and a light navy background. Clicking a button stores the selected option (0–3) via the existing onSelect callback. No option images are rendered anywhere in this component.",
+      "reqIds": [
+        "REQ-69"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-test-page-answer-review-section-frontend-src-pages-test-tsx-to-match-the-new-layout-for-each-reviewed-question-display-the-question-image-in-a-large-responsive-container-w-full-object-contain-h-calc-100vh-220px-or-similar-tall-height-white-background-overflow-y-auto-below-the-question-image-show-four-compact-square-inline-buttons-labeled-a-b-c-d-in-a-single-horizontal-row-highlight-the-button-matching-the-user-s-selected-answer-with-a-blue-border-and-light-blue-background-highlight-the-button-matching-the-correct-answer-with-a-green-border-and-light-green-background-if-both-are-the-same-show-green-timer-question-navigation-submission-logic-and-the-back-to-dashboard-button-must-remain-completely-unchanged",
+      "title": "Update the Test Page answer review section (frontend/src/pages/Test.tsx) to match the new layout: for each reviewed question, display the question image in a large responsive container (w-full, object-contain, h-[calc(100vh-220px)] or similar tall height, white background, overflow-y-auto). Below the question image, show four compact square inline buttons labeled 'A', 'B', 'C', 'D' in a single horizontal row. Highlight the button matching the user's selected answer with a blue border and light blue background. Highlight the button matching the correct answer with a green border and light green background. If both are the same, show green. Timer, question navigation, submission logic, and the 'Back to Dashboard' button must remain completely unchanged.",
+      "reqIds": [
+        "REQ-70"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-components-navbar-tsx-update-the-navigation-links-so-that-exactly-three-links-are-shown-home-always-visible-navigates-to-dashboard-visible-only-when-the-user-is-authenticated-navigates-to-dashboard-and-admin-panel-visible-only-when-the-user-is-authenticated-and-useiscalleradmin-returns-true-navigates-to-admin-remove-the-my-results-link-entirely-from-both-the-desktop-nav-and-the-mobile-hamburger-menu-no-other-nav-links-should-be-present-the-mobile-hamburger-menu-must-reflect-this-same-conditional-link-set",
+      "title": "In frontend/src/components/Navbar.tsx, update the navigation links so that exactly three links are shown: 'Home' (always visible, navigates to /), 'Dashboard' (visible only when the user is authenticated, navigates to /dashboard), and 'Admin Panel' (visible only when the user is authenticated AND useIsCallerAdmin returns true, navigates to /admin). Remove the 'My Results' link entirely from both the desktop nav and the mobile hamburger menu. No other nav links should be present. The mobile hamburger menu must reflect this same conditional link set.",
+      "reqIds": [
+        "REQ-71"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-hooks-usequeries-ts-completely-rewrite-the-useiscalleradmin-query-using-a-self-contained-approach-1-import-useinternetidentity-directly-and-obtain-the-identity-object-2-derive-a-stable-principalstring-from-identity-getprincipal-totext-3-set-enabled-identity-so-the-query-only-runs-when-authenticated-4-inside-the-queryfn-create-a-fresh-authenticated-actor-by-calling-createactor-with-the-identity-do-not-rely-on-any-cached-actor-from-useactor-5-call-iscalleradmin-on-that-fresh-actor-and-return-the-boolean-result-6-use-iscalleradmin-principalstring-as-the-query-key-so-it-re-fetches-whenever-the-logged-in-principal-changes-and-7-set-both-staletime-0-and-gctime-0-to-ensure-the-result-is-never-served-from-cache",
+      "title": "In frontend/src/hooks/useQueries.ts, completely rewrite the useIsCallerAdmin query using a self-contained approach: (1) import useInternetIdentity directly and obtain the identity object, (2) derive a stable principalString from identity?.getPrincipal().toText() ?? '', (3) set enabled: !!identity so the query only runs when authenticated, (4) inside the queryFn, create a fresh authenticated actor by calling createActor with the identity (do not rely on any cached actor from useActor), (5) call isCallerAdmin() on that fresh actor and return the boolean result, (6) use ['isCallerAdmin', principalString] as the query key so it re-fetches whenever the logged-in principal changes, and (7) set both staleTime: 0 and gcTime: 0 to ensure the result is never served from cache.",
+      "reqIds": [
+        "REQ-72"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-components-navbar-tsx-fix-the-admin-panel-link-rendering-with-the-following-approach-1-call-useiscalleradmin-at-the-top-level-of-the-component-and-destructure-data-isloading-and-isfetching-2-derive-a-boolean-isadmin-data-true-3-render-the-admin-panel-link-navigating-to-admin-in-both-the-desktop-nav-and-the-mobile-hamburger-menu-only-when-isloggedin-true-and-isloading-false-and-isfetching-false-and-isadmin-true-4-do-not-render-the-link-while-the-query-is-loading-or-fetching-to-avoid-flicker-5-remove-any-console-log-or-debug-statements-that-were-added-in-earlier-iterations-the-three-nav-links-must-be-home-always-visible-dashboard-authenticated-only-admin-panel-authenticated-isadmin-only",
+      "title": "In frontend/src/components/Navbar.tsx, fix the Admin Panel link rendering with the following approach: (1) call useIsCallerAdmin at the top level of the component and destructure data, isLoading, and isFetching, (2) derive a boolean isAdmin = data === true, (3) render the 'Admin Panel' link (navigating to /admin) in BOTH the desktop nav and the mobile hamburger menu only when isLoggedIn === true AND isLoading === false AND isFetching === false AND isAdmin === true, (4) do not render the link while the query is loading or fetching to avoid flicker, (5) remove any console.log or debug statements that were added in earlier iterations. The three nav links must be: 'Home' (always visible), 'Dashboard' (authenticated only), 'Admin Panel' (authenticated + isAdmin only).",
+      "reqIds": [
+        "REQ-74"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-questiondisplay-component-frontend-src-components-questiondisplay-tsx-so-the-question-image-occupies-the-maximum-available-screen-height-the-image-container-must-use-w-full-object-contain-be-centered-have-a-white-background-and-use-h-calc-100vh-140px-so-the-image-fills-nearly-the-entire-viewport-minus-navbar-and-the-compact-button-row-the-container-must-be-vertically-scrollable-overflow-y-auto-if-the-image-exceeds-container-height-below-the-image-render-exactly-four-compact-square-buttons-labeled-a-b-c-d-arranged-in-a-single-horizontal-row-centered-on-screen-each-button-must-be-small-and-square-w-12-h-12-48-48px-rounded-lg-with-the-letter-centered-in-bold-the-selected-button-must-be-highlighted-with-a-navy-0d1b4b-border-and-a-light-navy-background-e-g-bg-blue-50-border-2-border-0d1b4b-unselected-buttons-use-a-neutral-border-clicking-a-button-stores-the-selected-option-index-0-3-via-the-existing-onselect-callback-no-option-images-are-rendered-anywhere-in-this-component-the-total-height-of-the-button-row-must-not-exceed-60px-so-the-image-area-is-maximized",
+      "title": "Update the QuestionDisplay component (frontend/src/components/QuestionDisplay.tsx) so the question image occupies the maximum available screen height. The image container must use w-full, object-contain, be centered, have a white background, and use h-[calc(100vh-140px)] so the image fills nearly the entire viewport (minus navbar and the compact button row). The container must be vertically scrollable (overflow-y-auto) if the image exceeds container height. Below the image, render exactly four compact square buttons labeled 'A', 'B', 'C', 'D' arranged in a single horizontal row centered on screen. Each button must be small and square: w-12 h-12 (48×48px), rounded-lg, with the letter centered in bold. The selected button must be highlighted with a navy (#0D1B4B) border and a light navy background (e.g. bg-blue-50 border-2 border-[#0D1B4B]). Unselected buttons use a neutral border. Clicking a button stores the selected option index (0–3) via the existing onSelect callback. No option images are rendered anywhere in this component. The total height of the button row must not exceed 60px so the image area is maximized.",
+      "reqIds": [
+        "REQ-75"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-test-page-answer-review-section-frontend-src-pages-test-tsx-to-match-the-new-compact-button-layout-for-each-reviewed-question-display-the-question-image-in-a-large-responsive-container-w-full-object-contain-h-calc-100vh-200px-white-background-overflow-y-auto-so-the-image-is-maximized-below-each-question-image-show-four-compact-square-inline-buttons-labeled-a-b-c-d-in-a-single-horizontal-row-same-sizing-as-questiondisplay-w-12-h-12-rounded-lg-highlight-the-button-matching-the-user-s-selected-answer-with-a-blue-border-and-light-blue-background-highlight-the-button-matching-the-correct-answer-with-a-green-border-and-light-green-background-if-the-selected-and-correct-answers-are-the-same-show-green-only-remove-any-large-option-image-cards-or-full-width-stacked-buttons-from-the-review-section-timer-question-navigation-submission-logic-and-the-back-to-dashboard-button-must-remain-completely-unchanged",
+      "title": "Update the Test Page answer review section (frontend/src/pages/Test.tsx) to match the new compact button layout. For each reviewed question, display the question image in a large responsive container (w-full, object-contain, h-[calc(100vh-200px)], white background, overflow-y-auto) so the image is maximized. Below each question image, show four compact square inline buttons labeled 'A', 'B', 'C', 'D' in a single horizontal row (same sizing as QuestionDisplay: w-12 h-12, rounded-lg). Highlight the button matching the user's selected answer with a blue border and light blue background. Highlight the button matching the correct answer with a green border and light green background. If the selected and correct answers are the same, show green only. Remove any large option image cards or full-width stacked buttons from the review section. Timer, question navigation, submission logic, and the 'Back to Dashboard' button must remain completely unchanged.",
+      "reqIds": [
+        "REQ-76"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-rewrite-frontend-src-components-navbar-tsx-so-that-all-navigation-elements-are-always-rendered-and-never-hidden-due-to-layout-or-overflow-issues-the-navbar-must-use-a-flex-layout-with-flex-nowrap-and-overflow-visible-on-the-desktop-nav-container-so-items-are-never-clipped-or-collapsed-the-three-nav-links-must-be-home-always-visible-navigates-to-dashboard-visible-only-when-the-user-is-authenticated-navigates-to-dashboard-and-admin-panel-visible-only-when-the-user-is-authenticated-and-isadmin-is-true-navigates-to-admin-the-login-logout-button-must-always-be-visible-on-the-right-side-of-the-navbar-never-wrapped-or-hidden-on-desktop-md-and-above-all-visible-links-and-the-login-logout-button-must-appear-in-a-single-horizontal-row-without-overflow-on-mobile-the-hamburger-menu-must-include-the-same-conditional-link-set-home-always-dashboard-if-authenticated-admin-panel-if-authenticated-isadmin-plus-the-login-logout-action-the-mobile-menu-must-open-and-close-reliably-with-no-z-index-or-overflow-conflicts",
+      "title": "Rewrite frontend/src/components/Navbar.tsx so that all navigation elements are always rendered and never hidden due to layout or overflow issues. The navbar must use a flex layout with `flex-nowrap` and `overflow-visible` on the desktop nav container so items are never clipped or collapsed. The three nav links must be: 'Home' (always visible, navigates to /), 'Dashboard' (visible only when the user is authenticated, navigates to /dashboard), and 'Admin Panel' (visible only when the user is authenticated AND isAdmin is true, navigates to /admin). The Login/Logout button must always be visible on the right side of the navbar, never wrapped or hidden. On desktop (md and above), all visible links and the Login/Logout button must appear in a single horizontal row without overflow. On mobile, the hamburger menu must include the same conditional link set (Home always, Dashboard if authenticated, Admin Panel if authenticated + isAdmin) plus the Login/Logout action. The mobile menu must open and close reliably with no z-index or overflow conflicts.",
+      "reqIds": [
+        "REQ-77"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -608,6 +674,42 @@
       "summary": "In frontend/src/hooks/useActor.ts, after Internet Identity login completes and a new authenticated identity is set, explicitly call queryClient.invalidateQueries targeting all queries (or at minimum ['isCallerAdmin'] and ['actor']) so that the admin status check re-runs immediately after login without requiring a page refresh. Use a useEffect that watches the identity object and triggers invalidation whenever the identity changes from null to a non-null value.",
       "reqIds": [
         "REQ-66"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-41",
+      "summary": "On the Test Screen, make the question image container full-screen (or near full-screen) height so the combined question+options image is easy to see on mobile. Below the image, show only small A, B, C, D option buttons for correct answer selection (no other content between image and buttons).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-43",
+      "summary": "In frontend/src/hooks/useActor.ts, add a useEffect that watches the identity object. Whenever identity changes from null/undefined to a non-null value (i.e. the user has just logged in), call queryClient.invalidateQueries() with no filter (invalidate all queries) so that isCallerAdmin and any other identity-dependent queries are immediately re-fetched after login completes.",
+      "reqIds": [
+        "REQ-73"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-44",
+      "summary": "Fix navbar so Home, Dashboard, Admin Panel (admin only), and Login/Logout buttons are always clearly visible and never hidden; resolve intermittent button/link visibility issue in both desktop and mobile navbar.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-46",
+      "summary": "In frontend/src/hooks/useQueries.ts, ensure the useIsCallerAdmin query: (1) is enabled only when identity is non-null, (2) uses a fresh authenticated actor created directly with the identity (not a cached anonymous actor) to call the backend isCallerAdmin() function, (3) uses ['isCallerAdmin', principalString] as the query key so it re-fetches whenever the logged-in principal changes, and (4) has staleTime: 0 and gcTime: 0 so it never returns a stale cached result. This ensures the Admin Panel link appears reliably after login without a page refresh.",
+      "reqIds": [
+        "REQ-78"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-47",
+      "summary": "In frontend/src/hooks/useActor.ts, add or verify a useEffect that watches the identity object and, whenever the identity changes from null/undefined to a non-null value (user has just logged in), calls queryClient.invalidateQueries() to invalidate all queries (including isCallerAdmin) so they immediately re-fetch with the new authenticated identity. This prevents the navbar from showing stale unauthenticated state after login.",
+      "reqIds": [
+        "REQ-79"
       ],
       "status": "pending"
     }
