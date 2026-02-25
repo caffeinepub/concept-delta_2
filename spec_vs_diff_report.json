@@ -1,22 +1,38 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T18:48:38.171Z",
-  "summary": "The diff implements all three requirements (REQ-51, REQ-52, REQ-53). REQ-51 is addressed in useQueries.ts with staleTime:0, refetchOnMount:true, principal-based query key, and enabled guard. REQ-52 is addressed in Navbar.tsx with showAdminLink derived variable and conditional rendering in both desktop and mobile menus. REQ-53 is partially addressed via a useEffect in Navbar.tsx that calls refetchIsAdmin on identity change, though explicit queryClient.invalidateQueries in useActor.ts is not evidenced in the diff since useActor.ts was not modified.",
+  "generatedAt": "2026-02-25T19:40:24.332Z",
+  "summary": "The diff implements REQ-67 and REQ-68 largely as specified. REQ-66 (adding queryClient.invalidateQueries in useActor.ts via a useEffect watching identity changes) is not evidenced in the diff — the constraint says useActor.ts is immutable, but the requirement still mandates the invalidation be implemented somewhere alternative. The diff shows no such alternative implementation. REQ-67 is partially implemented but deviates from the spec: it uses the cached actor from useActor rather than creating a fresh actor via a direct createActor call with the identity. REQ-68 is well-implemented with console.log, isLoading/isFetching guards, and both desktop/mobile nav coverage.",
   "missing_requirements": [
     {
-      "id": "REQ-53",
-      "requirement": "In frontend/src/hooks/useActor.ts, verify that when the user logs in via Internet Identity, the authenticated actor is created and cached correctly with the new identity, and that React Query is notified to invalidate or refetch queries that depend on the authenticated actor (including isCallerAdmin). If query invalidation is not triggered after login, add an explicit queryClient.invalidateQueries call targeting the admin check query key upon identity change.",
-      "reason": "The diff shows no modification to frontend/src/hooks/useActor.ts. The requirement explicitly states to add invalidation logic there if not already present. The workaround via useEffect in Navbar.tsx partially compensates, but the requirement mandates verification and potential changes in useActor.ts.",
+      "id": "REQ-66",
+      "requirement": "After Internet Identity login completes and a new authenticated identity is set, explicitly call queryClient.invalidateQueries targeting ['isCallerAdmin'] and ['actor'] so the admin status check re-runs immediately after login without a page refresh. Use a useEffect watching identity changes from null to non-null. If useActor.ts is immutable, implement this in an alternative non-immutable file.",
+      "reason": "No evidence in the diff of queryClient.invalidateQueries being called in response to identity changes in any file. useActor.ts was listed as immutable and the diff shows no alternative file implementing this invalidation logic. The only queryClient usage in Navbar.tsx is queryClient.clear() on logout, not invalidation on login.",
       "evidence": [
-        "frontend/src/hooks/useActor.ts"
+        "frontend/src/components/Navbar.tsx",
+        "frontend/src/hooks/useQueries.ts"
+      ]
+    },
+    {
+      "id": "REQ-67",
+      "requirement": "Use the authenticated actor obtained via a direct createActor call with the identity rather than relying on the cached actor from useActor.",
+      "reason": "The implemented useIsCallerAdmin in useQueries.ts still uses the actor from useActor() rather than creating a fresh actor via createActor with the identity as specified.",
+      "evidence": [
+        "frontend/src/hooks/useQueries.ts"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "useClaimAdmin mutation is called automatically after login in handleAuth to attempt claiming admin status, with silent error handling for non-admin users.",
-      "reason": "The build request does not mention calling claimAdmin after login in the Navbar, nor integrating useClaimAdmin into the auth flow. This is extra logic not requested in any of the three requirements.",
+      "description": "actorFetching guard added to useIsCallerAdmin enabled condition",
+      "reason": "The spec says enabled should be true only when identity is non-null and the actor is created directly from the identity. The added actorFetching dependency from useActor was not specified in REQ-67.",
+      "evidence": [
+        "frontend/src/hooks/useQueries.ts"
+      ]
+    },
+    {
+      "description": "My Results nav link added to Navbar",
+      "reason": "The build request explicitly states all other existing navbar links must remain as-is and adding new navigation links is a non-goal. A My Results link with path /results appears in the navLinks array but was not requested.",
       "evidence": [
         "frontend/src/components/Navbar.tsx"
       ]

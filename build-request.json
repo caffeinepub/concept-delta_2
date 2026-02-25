@@ -1,78 +1,78 @@
 {
   "kind": "build_request",
-  "title": "Fix Admin Panel link not appearing in Navbar",
+  "title": "Fix Admin Panel link not appearing in navbar after login",
   "projectName": "Concept Delta",
   "priority": "high",
   "requirements": [
     {
-      "id": "REQ-51",
-      "text": "In frontend/src/hooks/useQueries.ts, fix the `useIsCallerAdmin` query so it: (1) is enabled only when the user is authenticated (identity is available), (2) uses the authenticated actor (not anonymous) to call the backend `isCallerAdmin()` function, (3) includes the identity/principal as a query key dependency so it re-fetches automatically when the user logs in or out, and (4) has a short staleTime (e.g. 0 or 5000ms) so it re-fetches on mount after login.",
+      "id": "REQ-66",
+      "text": "In frontend/src/hooks/useActor.ts, after Internet Identity login completes and a new authenticated identity is set, explicitly call queryClient.invalidateQueries targeting all queries (or at minimum ['isCallerAdmin'] and ['actor']) so that the admin status check re-runs immediately after login without requiring a page refresh. Use a useEffect that watches the identity object and triggers invalidation whenever the identity changes from null to a non-null value.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-recent-1"
         ],
         "quotes": [
-          "admin panel not show in navbar, please solve this issue"
+          "still not showing"
         ]
       },
       "acceptanceCriteria": [
-        "useIsCallerAdmin calls isCallerAdmin() on the authenticated backend actor",
-        "The query key includes the user's principal or identity so it invalidates on login/logout",
-        "The query is disabled when no identity is present (unauthenticated)",
-        "After admin logs in, the query re-fetches and returns true without requiring a page reload"
+        "When the admin user logs in via Internet Identity, the Admin Panel link appears in the navbar without requiring a page refresh.",
+        "queryClient.invalidateQueries is called after the authenticated identity is set in useActor.ts.",
+        "The invalidation targets the isCallerAdmin query key so it re-fetches with the new authenticated actor."
       ]
     },
     {
-      "id": "REQ-52",
-      "text": "In frontend/src/components/Navbar.tsx, fix the Admin Panel link visibility: (1) call `useIsCallerAdmin` at the top of the component, (2) after login completes, ensure the query result is awaited before deciding whether to show the link, (3) conditionally render the 'Admin Panel' link (navigating to /admin) in both the desktop nav and mobile hamburger menu only when `isLoggedIn === true` AND `isCallerAdmin === true`, (4) do not render the link during the loading state of the admin check to avoid flicker.",
+      "id": "REQ-67",
+      "text": "In frontend/src/hooks/useQueries.ts, rewrite the useIsCallerAdmin query with a completely fresh approach: (1) obtain the identity directly from useInternetIdentity, (2) derive a stable principal string from the identity, (3) set enabled to true only when identity is non-null, (4) use the authenticated actor — obtained via a direct createActor call with the identity rather than relying on the cached actor — to call isCallerAdmin(), (5) include the principal string in the query key, and (6) set staleTime to 0 and gcTime to 0 so the result is never stale.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-recent-1"
         ],
         "quotes": [
-          "admin panel not show in navbar, please solve this issue"
+          "still not showing"
         ]
       },
       "acceptanceCriteria": [
-        "Admin Panel link is visible in the desktop navbar when the admin user is logged in",
-        "Admin Panel link is visible in the mobile hamburger menu when the admin user is logged in",
-        "Admin Panel link is NOT visible for non-admin authenticated users",
-        "Admin Panel link is NOT visible for unauthenticated users",
-        "Link does not flicker or briefly appear for non-admins during the loading state"
+        "useIsCallerAdmin uses the authenticated identity to create an actor and call isCallerAdmin().",
+        "The query is disabled (returns false) when the user is not authenticated.",
+        "The query key includes the principal string so it re-fetches on login/logout.",
+        "staleTime is set to 0.",
+        "The query result correctly returns true for the admin principal and false for all others."
       ]
     },
     {
-      "id": "REQ-53",
-      "text": "In frontend/src/hooks/useActor.ts, verify that when the user logs in via Internet Identity, the authenticated actor is created and cached correctly with the new identity, and that React Query is notified to invalidate or refetch queries that depend on the authenticated actor (including `isCallerAdmin`). If query invalidation is not triggered after login, add an explicit `queryClient.invalidateQueries` call targeting the admin check query key upon identity change.",
+      "id": "REQ-68",
+      "text": "In frontend/src/components/Navbar.tsx, overhaul the Admin Panel link rendering: (1) call useIsCallerAdmin and destructure its data, isLoading, and isFetching states, (2) show the Admin Panel link only when isLoggedIn is true AND isLoading is false AND isFetching is false AND the returned value is strictly true, (3) add a console.log or debug statement (to be removed later) logging the isCallerAdmin result and loading state so the issue can be diagnosed, (4) ensure the same conditional logic applies to both the desktop nav and the mobile hamburger menu.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-recent-1"
         ],
         "quotes": [
-          "admin panel not show in navbar, please solve this issue"
+          "still not showing"
         ]
       },
       "acceptanceCriteria": [
-        "After login, the authenticated actor is immediately available for backend calls",
-        "The isCallerAdmin query is invalidated/refetched after a new identity is set",
-        "The Admin Panel link appears in the navbar within one render cycle after the admin logs in"
+        "Admin Panel link appears in both desktop and mobile nav immediately after admin login without page refresh.",
+        "Admin Panel link does not appear for non-admin authenticated users.",
+        "Admin Panel link does not flicker during the loading state of the admin check.",
+        "Link navigates to /admin when clicked."
       ]
     }
   ],
   "constraints": [
-    "Do not modify any files listed in frontend.immutablePaths",
-    "Do not change the backend Motoko logic or data models",
-    "Do not alter timer, navigation, or test submission logic in Test.tsx",
-    "Preserve all existing tab functionality in Admin.tsx"
+    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts immutable path — if useActor.ts is immutable, implement the query invalidation in an alternative non-immutable file.",
+    "Do not change the backend isCallerAdmin() function signature or admin designation logic.",
+    "Timer, question navigation, and test submission logic must remain unchanged.",
+    "All other existing navbar links (Home, Dashboard) must remain as-is."
   ],
   "nonGoals": [
-    "Adding new navbar links beyond Home, Dashboard, and Admin Panel",
-    "Changing the Admin Panel page content or tabs",
-    "Modifying backend admin designation logic",
-    "Any changes to question, test, or result data models"
+    "Adding new navigation links to the navbar.",
+    "Changing the admin designation logic in the backend.",
+    "Modifying the Admin Panel page content or tabs.",
+    "Any changes to test-taking, question display, or results pages."
   ],
   "imageRequirements": {
     "required": [],

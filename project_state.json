@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 29,
+  "projectStateVersion": 39,
   "summary": "Building 'Concept Delta' – a responsive MHT-CET Test Series website with Navy Blue theme. Includes Home Page, Dashboard, Test Page, and Admin Panel. Features Google/Internet Identity auth with profile setup (name, class, contact), Motoko backend with users/questions/tests/results data models, image-based questions where each question has one single image containing the full question and all 4 options (A, B, C, D), timed auto-submit tests, and an admin panel for question/test management and user/result viewing. Questions use a single uploaded image per question (no separate option images); answer selection is via four text buttons (A, B, C, D) shown below the question image. Images stored as base64 or via asset upload in the backend. Admin uploads images directly from device gallery.",
   "architectural_notes": [
     "Motoko backend on Internet Computer with stable storage for Users, Questions, Tests, TestResults",
@@ -351,6 +351,65 @@
         "REQ-52"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-hooks-usequeries-ts-fix-the-useiscalleradmin-query-so-it-1-is-enabled-only-when-the-user-is-authenticated-identity-is-non-null-2-uses-the-authenticated-actor-to-call-the-backend-iscalleradmin-function-3-includes-the-identity-principal-string-as-a-query-key-dependency-so-it-re-fetches-automatically-when-the-user-logs-in-or-out-and-4-has-staletime-set-to-0-so-it-re-fetches-on-every-mount-after-login",
+      "title": "In frontend/src/hooks/useQueries.ts, fix the `useIsCallerAdmin` query so it: (1) is enabled only when the user is authenticated (identity is non-null), (2) uses the authenticated actor to call the backend `isCallerAdmin()` function, (3) includes the identity principal string as a query key dependency so it re-fetches automatically when the user logs in or out, and (4) has staleTime set to 0 so it re-fetches on every mount after login.",
+      "reqIds": [
+        "REQ-54"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-components-navbar-tsx-fix-the-admin-panel-link-so-it-correctly-appears-for-authenticated-admin-users-1-call-useiscalleradmin-at-the-top-level-of-the-component-2-conditionally-render-the-admin-panel-link-navigating-to-admin-in-both-the-desktop-nav-and-the-mobile-hamburger-menu-only-when-the-user-is-authenticated-and-iscalleradmin-is-true-3-do-not-render-the-link-while-the-admin-check-query-is-in-a-loading-state-to-prevent-flicker-4-do-not-render-the-link-for-any-non-admin-authenticated-user",
+      "title": "In frontend/src/components/Navbar.tsx, fix the Admin Panel link so it correctly appears for authenticated admin users: (1) call `useIsCallerAdmin` at the top level of the component, (2) conditionally render the 'Admin Panel' link (navigating to /admin) in both the desktop nav and the mobile hamburger menu only when the user is authenticated AND `isCallerAdmin` is true, (3) do not render the link while the admin check query is in a loading state to prevent flicker, (4) do not render the link for any non-admin authenticated user.",
+      "reqIds": [
+        "REQ-56"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-hooks-usequeries-ts-rewrite-the-useiscalleradmin-query-so-that-1-it-is-enabled-only-when-the-user-is-authenticated-identity-is-non-null-2-it-uses-the-authenticated-actor-to-call-the-backend-iscalleradmin-function-3-its-query-key-includes-the-identity-principal-string-as-a-dependency-so-it-automatically-re-fetches-when-the-user-logs-in-or-out-and-4-staletime-is-set-to-0-so-it-re-fetches-on-every-component-mount-after-login",
+      "title": "In frontend/src/hooks/useQueries.ts, rewrite the useIsCallerAdmin query so that: (1) it is enabled only when the user is authenticated (identity is non-null), (2) it uses the authenticated actor to call the backend isCallerAdmin() function, (3) its query key includes the identity principal string as a dependency so it automatically re-fetches when the user logs in or out, and (4) staleTime is set to 0 so it re-fetches on every component mount after login.",
+      "reqIds": [
+        "REQ-58",
+        "REQ-61"
+      ],
+      "version": 2
+    },
+    {
+      "id": "feature-in-frontend-src-components-navbar-tsx-fix-the-admin-panel-link-so-it-reliably-appears-for-authenticated-admin-users-1-call-useiscalleradmin-at-the-top-level-of-the-navbar-component-2-conditionally-render-the-admin-panel-link-navigating-to-admin-in-both-the-desktop-nav-and-the-mobile-hamburger-menu-only-when-the-user-is-authenticated-and-iscalleradmin-is-true-3-do-not-render-the-link-while-the-admin-check-query-is-in-a-loading-state-to-avoid-flicker-4-do-not-render-the-link-for-any-non-admin-authenticated-user",
+      "title": "In frontend/src/components/Navbar.tsx, fix the Admin Panel link so it reliably appears for authenticated admin users: (1) call useIsCallerAdmin at the top level of the Navbar component, (2) conditionally render the 'Admin Panel' link (navigating to /admin) in both the desktop nav and the mobile hamburger menu only when the user is authenticated AND isCallerAdmin is true, (3) do not render the link while the admin check query is in a loading state to avoid flicker, (4) do not render the link for any non-admin authenticated user.",
+      "reqIds": [
+        "REQ-59",
+        "REQ-62",
+        "REQ-65"
+      ],
+      "version": 3
+    },
+    {
+      "id": "feature-in-frontend-src-hooks-usequeries-ts-rewrite-the-useiscalleradmin-query-so-that-1-it-is-enabled-only-when-the-user-is-authenticated-identity-is-non-null-2-it-uses-the-authenticated-actor-not-the-anonymous-actor-to-call-the-backend-iscalleradmin-function-3-its-query-key-includes-the-identity-principal-string-as-a-dependency-so-it-automatically-re-fetches-when-the-user-logs-in-or-out-and-4-staletime-is-set-to-0-so-it-re-fetches-on-every-component-mount-after-login",
+      "title": "In frontend/src/hooks/useQueries.ts, rewrite the useIsCallerAdmin query so that: (1) it is enabled only when the user is authenticated (identity is non-null), (2) it uses the authenticated actor — not the anonymous actor — to call the backend isCallerAdmin() function, (3) its query key includes the identity principal string as a dependency so it automatically re-fetches when the user logs in or out, and (4) staleTime is set to 0 so it re-fetches on every component mount after login.",
+      "reqIds": [
+        "REQ-63"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-hooks-usequeries-ts-rewrite-the-useiscalleradmin-query-with-a-completely-fresh-approach-1-obtain-the-identity-directly-from-useinternetidentity-2-derive-a-stable-principal-string-from-the-identity-3-set-enabled-to-true-only-when-identity-is-non-null-4-use-the-authenticated-actor-obtained-via-a-direct-createactor-call-with-the-identity-rather-than-relying-on-the-cached-actor-to-call-iscalleradmin-5-include-the-principal-string-in-the-query-key-and-6-set-staletime-to-0-and-gctime-to-0-so-the-result-is-never-stale",
+      "title": "In frontend/src/hooks/useQueries.ts, rewrite the useIsCallerAdmin query with a completely fresh approach: (1) obtain the identity directly from useInternetIdentity, (2) derive a stable principal string from the identity, (3) set enabled to true only when identity is non-null, (4) use the authenticated actor — obtained via a direct createActor call with the identity rather than relying on the cached actor — to call isCallerAdmin(), (5) include the principal string in the query key, and (6) set staleTime to 0 and gcTime to 0 so the result is never stale.",
+      "reqIds": [
+        "REQ-67"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-components-navbar-tsx-overhaul-the-admin-panel-link-rendering-1-call-useiscalleradmin-and-destructure-its-data-isloading-and-isfetching-states-2-show-the-admin-panel-link-only-when-isloggedin-is-true-and-isloading-is-false-and-isfetching-is-false-and-the-returned-value-is-strictly-true-3-add-a-console-log-or-debug-statement-to-be-removed-later-logging-the-iscalleradmin-result-and-loading-state-so-the-issue-can-be-diagnosed-4-ensure-the-same-conditional-logic-applies-to-both-the-desktop-nav-and-the-mobile-hamburger-menu",
+      "title": "In frontend/src/components/Navbar.tsx, overhaul the Admin Panel link rendering: (1) call useIsCallerAdmin and destructure its data, isLoading, and isFetching states, (2) show the Admin Panel link only when isLoggedIn is true AND isLoading is false AND isFetching is false AND the returned value is strictly true, (3) add a console.log or debug statement (to be removed later) logging the isCallerAdmin result and loading state so the issue can be diagnosed, (4) ensure the same conditional logic applies to both the desktop nav and the mobile hamburger menu.",
+      "reqIds": [
+        "REQ-68"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -509,6 +568,46 @@
       "summary": "In frontend/src/hooks/useActor.ts, verify that when the user logs in via Internet Identity, the authenticated actor is created and cached correctly with the new identity, and that React Query is notified to invalidate or refetch queries that depend on the authenticated actor (including `isCallerAdmin`). If query invalidation is not triggered after login, add an explicit `queryClient.invalidateQueries` call targeting the admin check query key upon identity change.",
       "reqIds": [
         "REQ-53"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-35",
+      "summary": "In frontend/src/hooks/useActor.ts, ensure that when the Internet Identity login completes and a new authenticated identity is set, React Query explicitly invalidates all queries (or at minimum the isCallerAdmin query key) so that the admin status check re-runs immediately after login without requiring a page refresh.",
+      "reqIds": [
+        "REQ-55"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-36",
+      "summary": "In frontend/src/hooks/useActor.ts, after Internet Identity login completes and a new authenticated identity is set, explicitly call queryClient.invalidateQueries (or invalidateQueries with the isCallerAdmin query key) so that the admin status check re-runs immediately after login without requiring a page refresh. Ensure the authenticated actor is created and cached correctly with the new identity before the query is invalidated.",
+      "reqIds": [
+        "REQ-57"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-37",
+      "summary": "In frontend/src/hooks/useActor.ts, after Internet Identity login completes and a new authenticated identity is set, explicitly call queryClient.invalidateQueries targeting the ['isCallerAdmin'] query key so that the admin status check re-runs immediately after login without requiring a page refresh. Ensure the authenticated actor is created and cached with the new identity before the invalidation call.",
+      "reqIds": [
+        "REQ-60"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-39",
+      "summary": "In frontend/src/hooks/useActor.ts, after Internet Identity login completes and a new authenticated identity is set, explicitly call queryClient.invalidateQueries targeting the ['isCallerAdmin'] query key so that the admin status check re-runs immediately after login without requiring a page refresh. Ensure the authenticated actor is created and cached with the new identity before the invalidation call.",
+      "reqIds": [
+        "REQ-64"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-40",
+      "summary": "In frontend/src/hooks/useActor.ts, after Internet Identity login completes and a new authenticated identity is set, explicitly call queryClient.invalidateQueries targeting all queries (or at minimum ['isCallerAdmin'] and ['actor']) so that the admin status check re-runs immediately after login without requiring a page refresh. Use a useEffect that watches the identity object and triggers invalidation whenever the identity changes from null to a non-null value.",
+      "reqIds": [
+        "REQ-66"
       ],
       "status": "pending"
     }

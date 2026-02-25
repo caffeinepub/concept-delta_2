@@ -2,8 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-in-frontend-src-hooks-usequeries-ts-fix-the-useiscalleradmin-query-so-it-1-is-enabled-only-when-the-user-is-authenticated-identity-is-available-2-uses-the-authenticated-actor-not-anonymous-to-call-the-backend-iscalleradmin-function-3-includes-the-identity-principal-as-a-query-key-dependency-so-it-re-fetches-automatically-when-the-user-logs-in-or-out-and-4-has-a-short-staletime-e-g-0-or-5000ms-so-it-re-fetches-on-mount-after-login",
-      "featureTitle": "In frontend/src/hooks/useQueries.ts, fix the `useIsCallerAdmin` query so it: (1) is enabled only when the user is authenticated (identity is available), (2) uses the authenticated actor (not anonymous) to call the backend `isCallerAdmin()` function, (3) includes the identity/principal as a query key dependency so it re-fetches automatically when the user logs in or out, and (4) has a short staleTime (e.g. 0 or 5000ms) so it re-fetches on mount after login.",
+      "featureId": "feature-in-frontend-src-hooks-usequeries-ts-rewrite-the-useiscalleradmin-query-with-a-completely-fresh-approach-1-obtain-the-identity-directly-from-useinternetidentity-2-derive-a-stable-principal-string-from-the-identity-3-set-enabled-to-true-only-when-identity-is-non-null-4-use-the-authenticated-actor-obtained-via-a-direct-createactor-call-with-the-identity-rather-than-relying-on-the-cached-actor-to-call-iscalleradmin-5-include-the-principal-string-in-the-query-key-and-6-set-staletime-to-0-and-gctime-to-0-so-the-result-is-never-stale",
+      "featureTitle": "In frontend/src/hooks/useQueries.ts, rewrite the useIsCallerAdmin query with a completely fresh approach: (1) obtain the identity directly from useInternetIdentity, (2) derive a stable principal string from the identity, (3) set enabled to true only when identity is non-null, (4) use the authenticated actor — obtained via a direct createActor call with the identity rather than relying on the cached actor — to call isCallerAdmin(), (5) include the principal string in the query key, and (6) set staleTime to 0 and gcTime to 0 so the result is never stale.",
       "files": [
         "frontend/src/hooks/useQueries.ts"
       ],
@@ -16,13 +16,13 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-51"
+        "REQ-67"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-in-frontend-src-components-navbar-tsx-fix-the-admin-panel-link-visibility-1-call-useiscalleradmin-at-the-top-of-the-component-2-after-login-completes-ensure-the-query-result-is-awaited-before-deciding-whether-to-show-the-link-3-conditionally-render-the-admin-panel-link-navigating-to-admin-in-both-the-desktop-nav-and-mobile-hamburger-menu-only-when-isloggedin-true-and-iscalleradmin-true-4-do-not-render-the-link-during-the-loading-state-of-the-admin-check-to-avoid-flicker",
-      "featureTitle": "In frontend/src/components/Navbar.tsx, fix the Admin Panel link visibility: (1) call `useIsCallerAdmin` at the top of the component, (2) after login completes, ensure the query result is awaited before deciding whether to show the link, (3) conditionally render the 'Admin Panel' link (navigating to /admin) in both the desktop nav and mobile hamburger menu only when `isLoggedIn === true` AND `isCallerAdmin === true`, (4) do not render the link during the loading state of the admin check to avoid flicker.",
+      "featureId": "feature-in-frontend-src-components-navbar-tsx-overhaul-the-admin-panel-link-rendering-1-call-useiscalleradmin-and-destructure-its-data-isloading-and-isfetching-states-2-show-the-admin-panel-link-only-when-isloggedin-is-true-and-isloading-is-false-and-isfetching-is-false-and-the-returned-value-is-strictly-true-3-add-a-console-log-or-debug-statement-to-be-removed-later-logging-the-iscalleradmin-result-and-loading-state-so-the-issue-can-be-diagnosed-4-ensure-the-same-conditional-logic-applies-to-both-the-desktop-nav-and-the-mobile-hamburger-menu",
+      "featureTitle": "In frontend/src/components/Navbar.tsx, overhaul the Admin Panel link rendering: (1) call useIsCallerAdmin and destructure its data, isLoading, and isFetching states, (2) show the Admin Panel link only when isLoggedIn is true AND isLoading is false AND isFetching is false AND the returned value is strictly true, (3) add a console.log or debug statement (to be removed later) logging the isCallerAdmin result and loading state so the issue can be diagnosed, (4) ensure the same conditional logic applies to both the desktop nav and the mobile hamburger menu.",
       "files": [
         "frontend/src/components/Navbar.tsx"
       ],
@@ -35,7 +35,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-52"
+        "REQ-68"
       ],
       "confidence": "high"
     }
