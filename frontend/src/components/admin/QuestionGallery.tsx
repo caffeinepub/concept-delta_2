@@ -8,13 +8,26 @@ import AddQuestionModal from './AddQuestionModal';
 
 const OPTION_LABELS = ['A', 'B', 'C', 'D'];
 
-function QuestionImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
+interface AdaptiveImageProps {
+  src: string;
+  alt: string;
+  className?: string;
+}
+
+function AdaptiveImage({ src, alt, className }: AdaptiveImageProps) {
+  if (!src) {
+    return (
+      <div className={`w-full flex items-center justify-center bg-gray-100 rounded-xl ${className ?? ''}`} style={{ minHeight: '80px' }}>
+        <span className="text-xs text-gray-400">No image</span>
+      </div>
+    );
+  }
   return (
     <div className={`w-full flex items-center justify-center bg-gray-50 rounded-xl overflow-hidden ${className ?? ''}`}>
       <img
         src={src}
         alt={alt}
-        className="w-full h-full object-contain"
+        className="w-full h-auto object-contain"
         onError={(e) => {
           const el = e.currentTarget as HTMLImageElement;
           el.style.display = 'none';
@@ -91,18 +104,17 @@ export default function QuestionGallery() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-3 px-4 pb-4">
-                {/* Question image */}
-                <div className="w-full border border-navy/10 rounded-xl overflow-hidden bg-navy/5" style={{ minHeight: '120px', maxHeight: '200px' }}>
-                  <QuestionImage
-                    src={q.questionImageUrl}
+                {/* Question image — adaptive height, no fixed max */}
+                <div className="w-full border border-navy/10 rounded-xl overflow-hidden bg-navy/5">
+                  <AdaptiveImage
+                    src={q.questionImageData}
                     alt={`Question ${idx + 1}`}
-                    className="min-h-[120px] max-h-[200px]"
                   />
                 </div>
 
-                {/* Options 2×2 grid */}
+                {/* Options 2×2 grid — each cell adapts to its image */}
                 <div className="grid grid-cols-2 gap-2">
-                  {q.optionImageUrls.map((optUrl, oi) => {
+                  {q.optionImageData.map((optData, oi) => {
                     const isCorrect = Number(q.correctOption) === oi;
                     return (
                       <div
@@ -112,7 +124,6 @@ export default function QuestionGallery() {
                             ? 'border-green-500 ring-1 ring-green-300'
                             : 'border-gray-200'
                         }`}
-                        style={{ minHeight: '80px', maxHeight: '120px' }}
                       >
                         {/* Label badge */}
                         <span
@@ -124,24 +135,32 @@ export default function QuestionGallery() {
                         >
                           {OPTION_LABELS[oi]}
                         </span>
-                        <div className={`w-full h-full flex items-center justify-center ${isCorrect ? 'bg-green-50' : 'bg-gray-50'}`} style={{ minHeight: '80px', maxHeight: '120px' }}>
-                          <img
-                            src={optUrl}
-                            alt={`Option ${OPTION_LABELS[oi]}`}
-                            className="w-full h-full object-contain"
-                            style={{ maxHeight: '120px' }}
-                            onError={(e) => {
-                              const el = e.currentTarget as HTMLImageElement;
-                              el.style.display = 'none';
-                              const parent = el.parentElement;
-                              if (parent && !parent.querySelector('.img-err')) {
-                                const msg = document.createElement('p');
-                                msg.className = 'img-err text-xs text-gray-400 py-2 text-center w-full';
-                                msg.textContent = 'N/A';
-                                parent.appendChild(msg);
-                              }
-                            }}
-                          />
+                        <div
+                          className={`w-full flex items-center justify-center pt-6 pb-1 px-1 ${
+                            isCorrect ? 'bg-green-50' : 'bg-gray-50'
+                          }`}
+                          style={{ minHeight: '72px' }}
+                        >
+                          {optData ? (
+                            <img
+                              src={optData}
+                              alt={`Option ${OPTION_LABELS[oi]}`}
+                              className="w-full h-auto object-contain"
+                              onError={(e) => {
+                                const el = e.currentTarget as HTMLImageElement;
+                                el.style.display = 'none';
+                                const parent = el.parentElement;
+                                if (parent && !parent.querySelector('.img-err')) {
+                                  const msg = document.createElement('p');
+                                  msg.className = 'img-err text-xs text-gray-400 py-2 text-center w-full';
+                                  msg.textContent = 'N/A';
+                                  parent.appendChild(msg);
+                                }
+                              }}
+                            />
+                          ) : (
+                            <span className="text-xs text-gray-400 py-2">No image</span>
+                          )}
                         </div>
                       </div>
                     );

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 21,
-  "summary": "Building 'Concept Delta' – a responsive MHT-CET Test Series website with Navy Blue theme. Includes Home Page, Dashboard, Test Page, and Admin Panel. Features Google/Internet Identity auth with profile setup (name, class, contact), Motoko backend with users/questions/tests/results data models, image-based questions with 4 image options (reverting from text-based back to image URLs), timed auto-submit tests, and an admin panel for question/test management and user/result viewing. Questions and options are stored as image URLs, displayed responsively with adjustable/resizable image containers so images are clearly visible on mobile and desktop.",
+  "projectStateVersion": 27,
+  "summary": "Building 'Concept Delta' – a responsive MHT-CET Test Series website with Navy Blue theme. Includes Home Page, Dashboard, Test Page, and Admin Panel. Features Google/Internet Identity auth with profile setup (name, class, contact), Motoko backend with users/questions/tests/results data models, image-based questions where each question has one single image containing the full question and all 4 options (A, B, C, D), timed auto-submit tests, and an admin panel for question/test management and user/result viewing. Questions use a single uploaded image per question (no separate option images); answer selection is via four text buttons (A, B, C, D) shown below the question image. Images stored as base64 or via asset upload in the backend. Admin uploads images directly from device gallery.",
   "architectural_notes": [
     "Motoko backend on Internet Computer with stable storage for Users, Questions, Tests, TestResults",
     "React/TypeScript frontend with Tailwind CSS, Navy Blue (#0D1B4B) primary color, white background",
@@ -9,7 +9,7 @@
     "Mobile-first responsive design with hamburger menu on mobile",
     "Navbar links: Home (all), Dashboard (authenticated), Admin (admin only). My Results and Leaderboard removed from navbar.",
     "First principal to authenticate is auto-designated as admin; admin role stored in stable backend state",
-    "Questions and options are stored as image URLs (questionImageUrl, optionImageUrls); image containers are responsive and adjustable for clarity on all screen sizes"
+    "Each question uses a single uploaded image containing the full question and all 4 options; answer selection is via A/B/C/D text buttons (no separate option images displayed on test screen)"
   ],
   "known_issues": [],
   "isFixRequest": false,
@@ -277,6 +277,62 @@
         "REQ-42"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-update-the-admin-panel-add-question-modal-frontend-src-components-admin-addquestionmodal-tsx-to-replace-all-image-url-text-inputs-with-file-picker-inputs-type-file-accept-image-that-allow-the-admin-to-upload-images-directly-from-their-device-gallery-there-must-be-one-file-picker-for-the-question-image-and-four-file-pickers-for-option-images-option-1-4-when-a-file-is-selected-read-it-as-a-base64-data-uri-using-filereader-and-store-it-in-component-state-show-a-live-preview-thumbnail-max-h-32-object-contain-w-full-below-each-file-picker-so-the-admin-can-verify-the-image-before-submitting-on-submit-call-the-addquestion-backend-function-with-the-base64-data-uri-strings-close-the-modal-on-success-show-a-success-toast-and-refresh-the-question-gallery",
+      "title": "Update the Admin Panel 'Add Question' modal (frontend/src/components/admin/AddQuestionModal.tsx) to replace all image URL text inputs with file picker inputs (type='file', accept='image/*') that allow the admin to upload images directly from their device gallery. There must be one file picker for the question image and four file pickers for option images (Option 1–4). When a file is selected, read it as a base64 data URI using FileReader and store it in component state. Show a live preview thumbnail (max-h-32, object-contain, w-full) below each file picker so the admin can verify the image before submitting. On submit, call the addQuestion backend function with the base64 data URI strings. Close the modal on success, show a success toast, and refresh the question gallery.",
+      "reqIds": [
+        "REQ-44"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-admin-panel-question-gallery-frontend-src-components-admin-questiongallery-tsx-to-render-question-and-option-images-from-base64-data-uris-returned-by-the-backend-each-question-card-must-display-the-question-image-in-a-responsive-container-using-w-full-object-contain-and-a-max-height-that-adjusts-to-the-natural-aspect-ratio-of-the-image-use-max-h-48-as-default-allow-vertical-scroll-within-the-container-if-image-is-taller-show-all-four-option-images-in-a-2-2-grid-below-the-question-image-each-in-an-object-contain-container-with-max-h-24-and-a-defined-min-height-so-small-images-are-still-clearly-visible-highlight-the-correct-answer-option-card-with-a-green-border-all-image-containers-must-be-clearly-visible-and-non-cropped-on-both-mobile-and-desktop",
+      "title": "Update the Admin Panel Question Gallery (frontend/src/components/admin/QuestionGallery.tsx) to render question and option images from base64 data URIs returned by the backend. Each question card must display the question image in a responsive container using w-full, object-contain, and a max-height that adjusts to the natural aspect ratio of the image (use max-h-48 as default, allow vertical scroll within the container if image is taller). Show all four option images in a 2×2 grid below the question image, each in an object-contain container with max-h-24 and a defined min-height so small images are still clearly visible. Highlight the correct answer option card with a green border. All image containers must be clearly visible and non-cropped on both mobile and desktop.",
+      "reqIds": [
+        "REQ-45"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-questiondisplay-component-frontend-src-components-questiondisplay-tsx-to-render-the-question-image-and-four-option-images-from-base64-data-uris-the-question-image-container-must-use-w-full-object-contain-and-an-adaptive-max-height-max-h-56-on-mobile-max-h-80-on-tablet-desktop-using-responsive-tailwind-classes-so-images-of-varying-sizes-are-fully-visible-without-cropping-each-of-the-four-option-images-must-be-displayed-as-a-selectable-card-in-a-2-column-grid-on-tablet-desktop-and-single-column-on-mobile-option-image-containers-must-use-object-contain-with-max-h-40-and-a-min-height-so-small-images-are-still-clearly-visible-the-selected-option-card-is-highlighted-with-a-navy-border-and-option-label-badge-a-d-as-before",
+      "title": "Update the QuestionDisplay component (frontend/src/components/QuestionDisplay.tsx) to render the question image and four option images from base64 data URIs. The question image container must use w-full, object-contain, and an adaptive max-height: max-h-56 on mobile, max-h-80 on tablet/desktop (using responsive Tailwind classes), so images of varying sizes are fully visible without cropping. Each of the four option images must be displayed as a selectable card in a 2-column grid on tablet/desktop and single column on mobile. Option image containers must use object-contain with max-h-40 and a min-height so small images are still clearly visible. The selected option card is highlighted with a navy border and option label badge (A–D) as before.",
+      "reqIds": [
+        "REQ-46"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-test-page-answer-review-section-frontend-src-pages-test-tsx-to-render-question-and-option-images-from-base64-data-uris-for-each-reviewed-question-display-the-question-image-in-a-responsive-container-with-object-contain-and-max-h-64-adaptive-max-h-48-on-mobile-max-h-64-on-desktop-show-all-four-option-images-as-styled-cards-in-a-2-column-grid-on-desktop-and-single-column-on-mobile-each-with-object-contain-and-max-h-40-highlight-the-user-s-selected-answer-card-with-a-blue-border-and-the-correct-answer-card-with-a-green-border-image-containers-must-be-adjustable-and-clearly-display-images-of-varying-sizes",
+      "title": "Update the Test Page answer review section (frontend/src/pages/Test.tsx) to render question and option images from base64 data URIs. For each reviewed question, display the question image in a responsive container with object-contain and max-h-64 (adaptive: max-h-48 on mobile, max-h-64 on desktop). Show all four option images as styled cards in a 2-column grid on desktop and single column on mobile, each with object-contain and max-h-40. Highlight the user's selected answer card with a blue border and the correct answer card with a green border. Image containers must be adjustable and clearly display images of varying sizes.",
+      "reqIds": [
+        "REQ-47"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-questiondisplay-component-frontend-src-components-questiondisplay-tsx-to-show-only-a-single-question-image-per-question-remove-all-four-separate-option-image-blocks-a-b-c-d-image-cards-the-question-image-must-use-w-full-object-contain-be-centered-maintain-aspect-ratio-have-a-white-background-container-and-have-a-max-height-of-approximately-70-75vh-on-mobile-e-g-max-h-70vh-md-max-h-75vh-the-image-container-must-be-vertically-scrollable-overflow-y-auto-if-the-image-height-exceeds-the-viewport-below-the-image-render-four-full-width-text-buttons-labeled-a-b-c-d-stacked-vertically-with-consistent-spacing-between-them-each-button-must-have-a-minimum-height-of-48-56px-e-g-min-h-52px-the-selected-button-must-be-highlighted-with-a-navy-border-and-a-light-navy-background-change-to-indicate-selection-clicking-a-button-stores-the-selected-option-0-3-in-the-parent-provided-state-via-the-existing-onselect-callback-no-option-images-are-rendered-anywhere-in-this-component",
+      "title": "Update the QuestionDisplay component (frontend/src/components/QuestionDisplay.tsx) to show only a single question image per question — remove all four separate option image blocks (A, B, C, D image cards). The question image must use w-full, object-contain, be centered, maintain aspect ratio, have a white background container, and have a max-height of approximately 70–75vh on mobile (e.g. `max-h-[70vh] md:max-h-[75vh]`). The image container must be vertically scrollable (overflow-y-auto) if the image height exceeds the viewport. Below the image, render four full-width text buttons labeled 'A', 'B', 'C', 'D' stacked vertically with consistent spacing between them. Each button must have a minimum height of 48–56px (e.g. `min-h-[52px]`). The selected button must be highlighted with a navy border and a light navy background change to indicate selection. Clicking a button stores the selected option (0–3) in the parent-provided state via the existing onSelect callback. No option images are rendered anywhere in this component.",
+      "reqIds": [
+        "REQ-48"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-test-page-frontend-src-pages-test-tsx-answer-review-section-shown-after-test-submission-to-reflect-the-new-single-image-layout-for-each-reviewed-question-display-only-the-question-image-w-full-object-contain-max-h-48vh-on-mobile-max-h-64-on-desktop-white-background-container-remove-all-option-image-rendering-from-the-review-section-below-each-question-image-show-four-full-width-text-cards-buttons-labeled-a-b-c-d-highlight-the-card-matching-the-user-s-selected-answer-with-a-blue-border-highlight-the-card-matching-the-correct-answer-with-a-green-border-if-both-are-the-same-show-the-green-border-timer-question-navigation-submission-logic-and-the-back-to-dashboard-button-must-remain-completely-unchanged",
+      "title": "Update the Test Page (frontend/src/pages/Test.tsx) answer review section (shown after test submission) to reflect the new single-image layout: for each reviewed question, display only the question image (w-full, object-contain, max-h-[48vh] on mobile, max-h-64 on desktop, white background container). Remove all option image rendering from the review section. Below each question image, show four full-width text cards/buttons labeled 'A', 'B', 'C', 'D'. Highlight the card matching the user's selected answer with a blue border. Highlight the card matching the correct answer with a green border. If both are the same, show the green border. Timer, question navigation, submission logic, and the 'Back to Dashboard' button must remain completely unchanged.",
+      "reqIds": [
+        "REQ-49"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-the-admin-panel-add-question-modal-frontend-src-components-admin-addquestionmodal-tsx-remove-all-four-option-image-file-picker-inputs-option-1-4-the-modal-must-retain-only-the-single-question-image-file-picker-with-live-preview-thumbnail-the-correct-option-selector-radio-buttons-for-a-b-c-d-and-the-submit-button-on-submit-call-the-addquestion-backend-function-passing-the-single-question-image-base64-data-uri-and-empty-strings-or-a-placeholder-for-the-four-option-image-data-fields-to-maintain-backend-compatibility-close-the-modal-on-success-show-a-success-toast-and-refresh-the-question-gallery",
+      "title": "In the Admin Panel 'Add Question' modal (frontend/src/components/admin/AddQuestionModal.tsx), remove all four option image file picker inputs (Option 1–4). The modal must retain only: the single question image file picker (with live preview thumbnail), the correct option selector (radio buttons for A, B, C, D), and the Submit button. On submit, call the addQuestion backend function passing the single question image base64 data URI and empty strings (or a placeholder) for the four option image data fields to maintain backend compatibility. Close the modal on success, show a success toast, and refresh the question gallery.",
+      "reqIds": [
+        "REQ-50"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -402,6 +458,32 @@
       "reqIds": [
         "REQ-38"
       ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-27",
+      "summary": "Replace image URL input fields in the Admin Panel Add Question modal with direct image upload inputs (file picker from device gallery). Store uploaded images (e.g. as base64 or asset uploads) in the backend. Question and option image containers must be adjustable/resizable and clearly display images on both mobile and desktop.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-28",
+      "summary": "Update the Motoko backend (backend/main.mo) to store question images and option images as Blob/binary data (Base64-encoded bytes) rather than URL strings. Update the Question data model to use `questionImageData: Text` (base64 data URI) and `optionImageData: [Text]` (array of 4 base64 data URIs). Update addQuestion, getAllQuestions, and getTestQuestions to accept and return base64 image data. Write a migration in backend/migration.mo that maps existing questionImageUrl/optionImageUrls fields to the new base64 fields (initializing empty strings if no prior data exists).",
+      "reqIds": [
+        "REQ-43"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-29",
+      "summary": "Modify Test Screen UI: each question shows one single image (w-full, object-contain, max-height ~70-75vh on mobile, scrollable, centered, white bg container) containing the full question and all 4 options. Remove separate A/B/C/D option image blocks. Below the image, show 4 full-width text buttons (A, B, C, D, min-height 48-56px) for answer selection with clear selected state (border highlight + background change). Timer, navigation, and submission logic unchanged. Fully responsive (mobile priority).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-30",
+      "summary": "In the Admin Panel Add Question modal, remove the four option image upload/input fields (Option 1–4 image pickers). The question creation form should only have a single image upload for the combined question+options image. All other logic (correct option selector A/B/C/D, submit, preview) remains unchanged.",
+      "reqIds": [],
       "status": "pending"
     }
   ],

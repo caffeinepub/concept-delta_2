@@ -171,16 +171,16 @@ export function useAddQuestion() {
 
   return useMutation({
     mutationFn: async ({
-      questionImageUrl,
-      optionImageUrls,
+      questionImageData,
+      optionImageData,
       correctOption,
     }: {
-      questionImageUrl: string;
-      optionImageUrls: string[];
+      questionImageData: string;
+      optionImageData: string[];
       correctOption: bigint;
     }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.addQuestion(questionImageUrl, optionImageUrls, correctOption);
+      return actor.addQuestion(questionImageData, optionImageData, correctOption);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['allQuestions'] });

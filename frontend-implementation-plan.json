@@ -1,79 +1,25 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Revert to Image-Based Questions and Options with Responsive Image Display",
+  "title": "Remove option image upload fields from Add Question modal",
   "requirements": [
     {
-      "id": "REQ-39",
-      "summary": "Update Admin Panel 'Add Question' modal to use image URL input fields with live preview thumbnails",
+      "id": "REQ-50",
+      "summary": "Remove the four option image file picker inputs from the Add Question modal, retaining only the question image picker, correct option selector, and submit button. Update submission logic to pass empty strings for option image data fields while maintaining backend compatibility.",
       "acceptanceCriteria": [
-        "Modal has a question image URL input with a live preview thumbnail",
-        "Modal has four option image URL inputs each with a live preview thumbnail",
-        "Radio buttons allow selecting the correct option (1–4)",
-        "Submitting calls addQuestion with image URL values",
-        "Modal closes on success and shows a success toast",
-        "Question gallery refreshes to show the new question"
+        "The Add Question modal shows exactly one image file picker for the question image only.",
+        "No file picker inputs labeled Option 1, Option 2, Option 3, or Option 4 are present in the modal.",
+        "The correct option selector (radio buttons A/B/C/D) remains in the modal.",
+        "The question image file picker still shows a live preview thumbnail when a file is selected.",
+        "Submitting the form calls addQuestion with the question image base64 data URI; option image data fields are passed as empty strings to preserve backend function signature compatibility.",
+        "On successful submission the modal closes, a success toast is shown, and the question gallery refreshes.",
+        "All other modal behaviour (submit button, validation, loading state) remains unchanged."
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/admin/AddQuestionModal.tsx",
           "operation": "modify",
-          "description": "Replace the existing text input fields with image URL input fields. Add a text input for questionImageUrl and four text inputs labeled 'Option 1 Image URL' through 'Option 4 Image URL'. Below each URL input, render a live preview thumbnail using an <img> element with max-h-32, w-auto, object-contain classes to show a small preview of the image. Keep the radio button selector for the correct option (1-4). Update the form submission to call addQuestion(questionImageUrl, optionImageUrls, correctOption) with the image URL values. Ensure the modal closes on success and shows a success toast."
-        }
-      ]
-    },
-    {
-      "id": "REQ-40",
-      "summary": "Update Admin Panel Question Gallery to display questions and options as responsive images with correct answer highlighting",
-      "acceptanceCriteria": [
-        "Each question card shows the question image with object-contain and a defined max height",
-        "Four option images are shown in a 2×2 grid per card",
-        "Correct answer option image is highlighted with a green border",
-        "Image containers are responsive and do not overflow on mobile or desktop",
-        "Images are clearly visible at all screen sizes"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/admin/QuestionGallery.tsx",
-          "operation": "modify",
-          "description": "Replace text-based question rendering with image-based rendering. For each question card, display question.questionImageUrl in a responsive container with w-full, object-contain, and max-h-48 classes. Below the question image, render the four option images (question.optionImageUrls) in a 2×2 grid using a grid grid-cols-2 gap-2 layout. Each option image should use object-contain and max-h-24 classes. Highlight the correct answer option image (based on question.correctOption index) with a green border (e.g., border-4 border-green-500). Ensure all image containers are responsive and do not overflow on mobile or desktop."
-        }
-      ]
-    },
-    {
-      "id": "REQ-41",
-      "summary": "Update QuestionDisplay component to render question and answer options as responsive images with selectable cards",
-      "acceptanceCriteria": [
-        "Question image renders with object-contain in a responsive container",
-        "Question image max height is defined and adjustable, ensuring full visibility",
-        "Four option images render as selectable cards in a 2-column grid on tablet/desktop and 1-column on mobile",
-        "Option image containers use object-contain with defined max height",
-        "Selected option card shows a navy border highlight",
-        "No image overflow or clipping on any screen size"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/QuestionDisplay.tsx",
-          "operation": "modify",
-          "description": "Replace text-based question and option rendering with image-based rendering. Display question.questionImageUrl in a responsive container with w-full, object-contain, and responsive max height classes (e.g., max-h-64 on mobile via default, max-h-80 on desktop via md:max-h-80). Render the four option images (question.optionImageUrls) as selectable cards in a grid that is single-column on mobile and 2-column on tablet/desktop (grid grid-cols-1 md:grid-cols-2 gap-4). Each option card should contain an <img> element with object-contain and max-h-40 classes. Highlight the selected option card with a navy border (e.g., border-4 border-navy-600 or using the existing navy color from Tailwind config). Ensure no image overflow or clipping at any screen size."
-        }
-      ]
-    },
-    {
-      "id": "REQ-42",
-      "summary": "Update Test Page answer review section to render question and option images with user/correct answer highlighting",
-      "acceptanceCriteria": [
-        "Answer review shows question images with object-contain in responsive containers",
-        "Option images are shown as cards in a 2-column grid on desktop, 1-column on mobile",
-        "User's selected answer is highlighted with a blue border",
-        "Correct answer is highlighted with a green border",
-        "Images do not overflow or get clipped at any screen size"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/Test.tsx",
-          "operation": "modify",
-          "description": "Update the answer review section (rendered after test submission) to display image-based questions and options. For each reviewed question, render question.questionImageUrl in a responsive container with object-contain and max-h-64 classes. Display all four option images (question.optionImageUrls) as styled cards in a grid that is 2-column on desktop and 1-column on mobile (grid grid-cols-1 md:grid-cols-2 gap-4). Each option image card should use object-contain and max-h-40 classes. Highlight the user's selected answer card with a blue border (e.g., border-4 border-blue-500) and the correct answer card with a green border (e.g., border-4 border-green-500). If the user's answer matches the correct answer, apply only the green border. Ensure images do not overflow or get clipped at any screen size."
+          "description": "Remove all four option image file input fields and their associated state management (optionImages state array, handleOptionImageChange handler, preview rendering). Retain the question image file input with its preview thumbnail. Update the form submission logic in handleSubmit to call the addQuestion mutation with the question image base64 data URI and an array of four empty strings for optionImageData parameter to maintain backend function signature compatibility. Keep the correct option radio button selector (A/B/C/D), Submit button, loading state, success toast, and modal close behavior unchanged."
         }
       ]
     }

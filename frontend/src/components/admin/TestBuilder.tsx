@@ -161,7 +161,7 @@ export default function TestBuilder() {
                         {/* Question thumbnail */}
                         <div className="flex-shrink-0 w-14 h-10 rounded-lg overflow-hidden bg-gray-100 border border-gray-200 flex items-center justify-center">
                           <img
-                            src={q.questionImageUrl}
+                            src={q.questionImageData}
                             alt={`Q${idx + 1}`}
                             className="w-full h-full object-contain"
                             onError={(e) => {

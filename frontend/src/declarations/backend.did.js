@@ -27,9 +27,9 @@ export const Time = IDL.Int;
 export const Question = IDL.Record({
   'id' : IDL.Text,
   'correctOption' : IDL.Nat,
-  'questionImageUrl' : IDL.Text,
   'createdAt' : Time,
-  'optionImageUrls' : IDL.Vec(IDL.Text),
+  'optionImageData' : IDL.Vec(IDL.Text),
+  'questionImageData' : IDL.Text,
 });
 export const TestResult = IDL.Record({
   'id' : IDL.Text,
@@ -114,9 +114,9 @@ export const idlFactory = ({ IDL }) => {
   const Question = IDL.Record({
     'id' : IDL.Text,
     'correctOption' : IDL.Nat,
-    'questionImageUrl' : IDL.Text,
     'createdAt' : Time,
-    'optionImageUrls' : IDL.Vec(IDL.Text),
+    'optionImageData' : IDL.Vec(IDL.Text),
+    'questionImageData' : IDL.Text,
   });
   const TestResult = IDL.Record({
     'id' : IDL.Text,

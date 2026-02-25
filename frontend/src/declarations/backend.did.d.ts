@@ -25,9 +25,9 @@ export interface LeaderboardEntry {
 export interface Question {
   'id' : string,
   'correctOption' : bigint,
-  'questionImageUrl' : string,
   'createdAt' : Time,
-  'optionImageUrls' : Array<string>,
+  'optionImageData' : Array<string>,
+  'questionImageData' : string,
 }
 export interface TestResult {
   'id' : string,
@@ -54,7 +54,7 @@ export type UserRole = { 'admin' : null } |
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   /**
-   * / ADMIN: Add image-based question (requires 4 image URLs)
+   * / ADMIN: Add image-based question with base64 image data
    */
   'addQuestion' : ActorMethod<[string, Array<string>, bigint], string>,
   /**
@@ -70,9 +70,12 @@ export interface _SERVICE {
     [string, [] | [string], bigint, Array<string>],
     string
   >,
+  /**
+   * / ADMIN: Get the admin principal (restricted to admin only)
+   */
   'getAdminPrincipal' : ActorMethod<[], [] | [Principal]>,
   /**
-   * / ADMIN: Get all questions (returns original image-based Question schema)
+   * / ADMIN: Get all questions (returns image-based Question schema)
    */
   'getAllQuestions' : ActorMethod<[], Array<Question>>,
   /**

@@ -10,9 +10,9 @@ import Order "mo:core/Order";
 import Runtime "mo:core/Runtime";
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
-import Migration "migration";
 
-(with migration = Migration.run)
+
+
 actor {
   // Anonymous user profile type (no internal principal)
   type AnonymousProfile = {
@@ -41,11 +41,10 @@ actor {
     #dropper;
   };
 
-  /// New image-based question type; only fields changed vs original: image url instead of text
   type Question = {
     id : Text;
-    questionImageUrl : Text; // Image URL instead of plain text
-    optionImageUrls : [Text]; // Image URLs instead of plain text
+    questionImageData : Text; // Base64-encoded image data
+    optionImageData : [Text]; // Array of 4 base64-encoded image data
     correctOption : Nat;
     createdAt : Time.Time;
   };
@@ -256,16 +255,20 @@ actor {
     (caller.toText() # "_" # debug_show (Time.now()));
   };
 
-  /// ADMIN: Add image-based question (requires 4 image URLs)
-  public shared ({ caller }) func addQuestion(questionImageUrl : Text, optionImageUrls : [Text], correctOption : Nat) : async Text {
+  /// ADMIN: Add image-based question with base64 image data
+  public shared ({ caller }) func addQuestion(
+    questionImageData : Text,
+    optionImageData : [Text],
+    correctOption : Nat,
+  ) : async Text {
     requirePersistentAdminUpdate(caller);
-    if (optionImageUrls.size() != 4) { Runtime.trap("Exactly 4 option images required") };
+    if (optionImageData.size() != 4) { Runtime.trap("Exactly 4 option images required") };
     if (correctOption >= 4) { Runtime.trap("Invalid correct option index") };
     let id = generateUUID(caller);
     let question = {
       id;
-      questionImageUrl;
-      optionImageUrls;
+      questionImageData;
+      optionImageData;
       correctOption;
       createdAt = Time.now();
     };
@@ -273,7 +276,7 @@ actor {
     id;
   };
 
-  /// ADMIN: Get all questions (returns original image-based Question schema)
+  /// ADMIN: Get all questions (returns image-based Question schema)
   public query ({ caller }) func getAllQuestions() : async [Question] {
     requirePersistentAdminQuery(caller);
     questions.values().toArray().sort();
@@ -329,6 +332,7 @@ actor {
 
   // -------------------------- Test-Taking (User) Functions ---------------------------
   public query ({ caller }) func getPublishedTests() : async [TestSummary] {
+    // Published tests are visible to any caller (including guests)
     tests.values().toArray().filter(func(t : Test) : Bool { t.isPublished }).map(
       func(t : Test) : TestSummary {
         {
@@ -453,7 +457,9 @@ actor {
     sortedEntries;
   };
 
+  /// ADMIN: Get the admin principal (restricted to admin only)
   public query ({ caller }) func getAdminPrincipal() : async ?Principal {
+    requirePersistentAdminQuery(caller);
     adminPrincipal;
   };
 };

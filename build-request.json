@@ -1,140 +1,44 @@
 {
   "kind": "build_request",
-  "title": "Revert to Image-Based Questions and Options with Responsive Image Display",
+  "title": "Remove option image upload fields from Add Question modal",
   "projectName": "Concept Delta",
-  "priority": "high",
+  "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-37",
-      "text": "In the Motoko backend (backend/main.mo), revert the Question data model back to image-based fields: replace any plain-text question/option fields with `questionImageUrl: Text` and `optionImageUrls: [Text]` (array of 4 image URLs). Update all related backend functions — addQuestion, getAllQuestions, getTestQuestions — to use these image URL fields. Ensure the data model is consistent with the original image-based schema.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "our question and options are image based so please add question and option image from gallery option"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Question type has `questionImageUrl: Text` and `optionImageUrls: [Text]` fields (4 URLs)",
-        "addQuestion accepts questionImageUrl and optionImageUrls parameters",
-        "getAllQuestions and getTestQuestions return image URL fields correctly",
-        "Backend compiles and deploys without errors"
-      ]
-    },
-    {
-      "id": "REQ-38",
-      "text": "Write a migration module (backend/migration.mo) that transforms any existing questions stored with plain-text fields to the image-URL-based schema (initializing image URL fields as empty strings if needed), so stable state is preserved across the canister upgrade.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "our question and options are image based"
-        ]
-      },
-      "acceptanceCriteria": [
-        "migration.mo handles the schema change from text-based to image-URL-based questions",
-        "Existing question records are migrated without data loss",
-        "Canister upgrades without trapping on old state"
-      ]
-    },
-    {
-      "id": "REQ-39",
-      "text": "Update the Admin Panel 'Add Question' modal (frontend/src/components/admin/AddQuestionModal.tsx) to use image URL input fields instead of plain text fields. The modal must contain: a text input for the question image URL, four text inputs labeled 'Option 1 Image URL' through 'Option 4 Image URL', a correct option selector (radio buttons), and a Submit button. On submit, call the addQuestion backend function with the image URL values. Show a preview thumbnail (small, e.g. max-h-32) below each URL input field so the admin can verify the image before submitting.",
+      "id": "REQ-50",
+      "text": "In the Admin Panel 'Add Question' modal (frontend/src/components/admin/AddQuestionModal.tsx), remove all four option image file picker inputs (Option 1–4). The modal must retain only: the single question image file picker (with live preview thumbnail), the correct option selector (radio buttons for A, B, C, D), and the Submit button. On submit, call the addQuestion backend function passing the single question image base64 data URI and empty strings (or a placeholder) for the four option image data fields to maintain backend compatibility. Close the modal on success, show a success toast, and refresh the question gallery.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-latest"
         ],
         "quotes": [
-          "add question and option image from gallery option"
+          "remove image upload feature of options only at the time of question creation",
+          "only remove options image upload feature and now i am upload question + options in single image"
         ]
       },
       "acceptanceCriteria": [
-        "Modal has a question image URL input with a live preview thumbnail",
-        "Modal has four option image URL inputs each with a live preview thumbnail",
-        "Radio buttons allow selecting the correct option (1–4)",
-        "Submitting calls addQuestion with image URL values",
-        "Modal closes on success and shows a success toast",
-        "Question gallery refreshes to show the new question"
-      ]
-    },
-    {
-      "id": "REQ-40",
-      "text": "Update the Admin Panel Question Gallery (frontend/src/components/admin/QuestionGallery.tsx) to display questions and options as images instead of text. Each question card must render the question image prominently, and show all four option images in a 2×2 grid below it, with the correct answer option visually highlighted (e.g. green border). Image containers must be responsive: use `w-full object-contain` with a defined max height (e.g. max-h-48 for question, max-h-24 for options) so images scale to fit without overflow, and are clearly visible on both mobile and desktop.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "images fixing folder are adjustable as per image size so that question and images see clearly to users"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Each question card shows the question image with object-contain and a defined max height",
-        "Four option images are shown in a 2×2 grid per card",
-        "Correct answer option image is highlighted with a green border",
-        "Image containers are responsive and do not overflow on mobile or desktop",
-        "Images are clearly visible at all screen sizes"
-      ]
-    },
-    {
-      "id": "REQ-41",
-      "text": "Update the QuestionDisplay component (frontend/src/components/QuestionDisplay.tsx) to render the question and answer options as images instead of text. Display the question image in a responsive container (w-full, object-contain, adjustable max height e.g. max-h-64 on mobile, max-h-80 on desktop) so it is clearly visible. Display each of the four option images as a selectable card in a 2-column grid on tablet/desktop and single column on mobile. Each option image container must use object-contain with a defined max height (e.g. max-h-40) so images are fully visible. The selected option card is highlighted with a navy border.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "images fixing folder are adjustable as per image size so that question and images see clearly to users"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Question image renders with object-contain in a responsive container",
-        "Question image max height is defined and adjustable, ensuring full visibility",
-        "Four option images render as selectable cards in a 2-column grid on tablet/desktop and 1-column on mobile",
-        "Option image containers use object-contain with defined max height",
-        "Selected option card shows a navy border highlight",
-        "No image overflow or clipping on any screen size"
-      ]
-    },
-    {
-      "id": "REQ-42",
-      "text": "Update the Test Page answer review section (frontend/src/pages/Test.tsx) to render question and option images instead of text. For each reviewed question, display the question image in a responsive container (object-contain, max-h-64). Show all four option images as styled cards in a 2-column grid on desktop and single column on mobile, each with object-contain and max-h-40. Highlight the user's selected answer card with a blue border and the correct answer card with a green border.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "our question and options are image based",
-          "images fixing folder are adjustable as per image size so that question and images see clearly to users"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Answer review shows question images with object-contain in responsive containers",
-        "Option images are shown as cards in a 2-column grid on desktop, 1-column on mobile",
-        "User's selected answer is highlighted with a blue border",
-        "Correct answer is highlighted with a green border",
-        "Images do not overflow or get clipped at any screen size"
+        "The Add Question modal shows exactly one image file picker for the question image only.",
+        "No file picker inputs labeled Option 1, Option 2, Option 3, or Option 4 are present in the modal.",
+        "The correct option selector (radio buttons A/B/C/D) remains in the modal.",
+        "The question image file picker still shows a live preview thumbnail when a file is selected.",
+        "Submitting the form calls addQuestion with the question image base64 data URI; option image data fields are passed as empty strings to preserve backend function signature compatibility.",
+        "On successful submission the modal closes, a success toast is shown, and the question gallery refreshes.",
+        "All other modal behaviour (submit button, validation, loading state) remains unchanged."
       ]
     }
   ],
   "constraints": [
-    "Do not use text fields for questions or options — all question and option content must be stored and displayed as image URLs",
-    "Image containers must use object-contain (not object-cover) so full images are always visible without cropping",
-    "Do not modify files in frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui"
+    "Do not change the backend addQuestion function signature or data model.",
+    "Do not remove or modify the correct option selector (A/B/C/D radio buttons) in the modal.",
+    "Do not alter the question image file picker, its preview thumbnail, or the submit/cancel logic.",
+    "Timer, question navigation, submission logic, QuestionDisplay, and Test Page review section must remain completely unchanged."
   ],
   "nonGoals": [
-    "Adding image upload/file-picker functionality — image URLs are entered manually",
-    "Changing the Navy Blue and white design theme",
-    "Modifying authentication or profile setup flow",
-    "Changing the leaderboard or results pages"
+    "Changing the backend Question data model or addQuestion function.",
+    "Modifying the Question Gallery display in the Admin Panel.",
+    "Modifying the QuestionDisplay component or Test Page.",
+    "Adding new fields or changing the correct option selector."
   ],
   "imageRequirements": {
     "required": [],

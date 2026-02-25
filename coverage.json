@@ -1,92 +1,34 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T16:36:19.607Z",
+  "generatedAt": "2026-02-25T18:40:37.850Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 6,
-    "implemented": 4,
+    "total": 1,
+    "implemented": 1,
     "items": [
       {
-        "id": "REQ-37",
-        "summary": "In the Motoko backend (backend/main.mo), revert the Question data model back to image-based fields: replace any plain-text question/option fields with `questionImageUrl: Text` and `optionImageUrls: [Text]` (array of 4 image URLs). Update all related backend functions — addQuestion, getAllQuestions, getTestQuestions — to use these image URL fields. Ensure the data model is consistent with the original image-based schema.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-38",
-        "summary": "Write a migration module (backend/migration.mo) that transforms any existing questions stored with plain-text fields to the image-URL-based schema (initializing image URL fields as empty strings if needed), so stable state is preserved across the canister upgrade.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-39",
-        "summary": "Update the Admin Panel 'Add Question' modal (frontend/src/components/admin/AddQuestionModal.tsx) to use image URL input fields instead of plain text fields. The modal must contain: a text input for the question image URL, four text inputs labeled 'Option 1 Image URL' through 'Option 4 Image URL', a correct option selector (radio buttons), and a Submit button. On submit, call the addQuestion backend function with the image URL values. Show a preview thumbnail (small, e.g. max-h-32) below each URL input field so the admin can verify the image before submitting.",
+        "id": "REQ-50",
+        "summary": "In the Admin Panel 'Add Question' modal (frontend/src/components/admin/AddQuestionModal.tsx), remove all four option image file picker inputs (Option 1–4). The modal must retain only: the single question image file picker (with live preview thumbnail), the correct option selector (radio buttons for A, B, C, D), and the Submit button. On submit, call the addQuestion backend function passing the single question image base64 data URI and empty strings (or a placeholder) for the four option image data fields to maintain backend compatibility. Close the modal on success, show a success toast, and refresh the question gallery.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/components/admin/AddQuestionModal.tsx"
         ],
         "matchedFiles": [
           "frontend/src/components/admin/AddQuestionModal.tsx"
-        ]
-      },
-      {
-        "id": "REQ-40",
-        "summary": "Update the Admin Panel Question Gallery (frontend/src/components/admin/QuestionGallery.tsx) to display questions and options as images instead of text. Each question card must render the question image prominently, and show all four option images in a 2×2 grid below it, with the correct answer option visually highlighted (e.g. green border). Image containers must be responsive: use `w-full object-contain` with a defined max height (e.g. max-h-48 for question, max-h-24 for options) so images scale to fit without overflow, and are clearly visible on both mobile and desktop.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/admin/QuestionGallery.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/admin/QuestionGallery.tsx"
-        ]
-      },
-      {
-        "id": "REQ-41",
-        "summary": "Update the QuestionDisplay component (frontend/src/components/QuestionDisplay.tsx) to render the question and answer options as images instead of text. Display the question image in a responsive container (w-full, object-contain, adjustable max height e.g. max-h-64 on mobile, max-h-80 on desktop) so it is clearly visible. Display each of the four option images as a selectable card in a 2-column grid on tablet/desktop and single column on mobile. Each option image container must use object-contain with a defined max height (e.g. max-h-40) so images are fully visible. The selected option card is highlighted with a navy border.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/QuestionDisplay.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/QuestionDisplay.tsx"
-        ]
-      },
-      {
-        "id": "REQ-42",
-        "summary": "Update the Test Page answer review section (frontend/src/pages/Test.tsx) to render question and option images instead of text. For each reviewed question, display the question image in a responsive container (object-contain, max-h-64). Show all four option images as styled cards in a 2-column grid on desktop and single column on mobile, each with object-contain and max-h-40. Highlight the user's selected answer card with a blue border and the correct answer card with a green border.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/Test.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/pages/Test.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/components/QuestionDisplay.tsx",
     "frontend/src/components/admin/AddQuestionModal.tsx",
-    "frontend/src/components/admin/QuestionGallery.tsx",
-    "frontend/src/components/admin/TestBuilder.tsx",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/Test.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

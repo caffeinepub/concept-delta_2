@@ -26,74 +26,63 @@ export default function QuestionDisplay({
         </span>
       </div>
 
-      {/* Question image */}
-      <div className="w-full bg-navy/5 rounded-2xl border border-navy/10 overflow-hidden flex items-center justify-center p-2">
-        <img
-          src={question.questionImageUrl}
-          alt={`Question ${questionNumber}`}
-          className="w-full object-contain rounded-xl"
-          style={{ maxHeight: '280px', minHeight: '100px' }}
-          onError={(e) => {
-            const el = e.currentTarget as HTMLImageElement;
-            el.style.display = 'none';
-            const parent = el.parentElement;
-            if (parent && !parent.querySelector('.img-err')) {
-              const msg = document.createElement('p');
-              msg.className = 'img-err text-sm text-gray-400 py-6 text-center w-full';
-              msg.textContent = 'Question image could not be loaded.';
-              parent.appendChild(msg);
-            }
-          }}
-        />
+      {/* Single question image — full width, scrollable if tall */}
+      <div className="w-full bg-white rounded-2xl border border-navy/10 shadow-sm overflow-hidden flex items-center justify-center">
+        {question.questionImageData ? (
+          <div className="w-full overflow-y-auto" style={{ maxHeight: '72vh' }}>
+            <img
+              src={question.questionImageData}
+              alt={`Question ${questionNumber}`}
+              className="w-full h-auto object-contain block"
+              style={{ minHeight: '80px' }}
+              onError={(e) => {
+                const el = e.currentTarget as HTMLImageElement;
+                el.style.display = 'none';
+                const parent = el.parentElement;
+                if (parent && !parent.querySelector('.img-err')) {
+                  const msg = document.createElement('p');
+                  msg.className = 'img-err text-sm text-gray-400 py-10 text-center w-full';
+                  msg.textContent = 'Question image unavailable';
+                  parent.appendChild(msg);
+                }
+              }}
+            />
+          </div>
+        ) : (
+          <p className="text-sm text-gray-400 py-10 text-center w-full">No question image</p>
+        )}
       </div>
 
-      {/* Options — 1 column on mobile, 2×2 grid on md+ */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {question.optionImageUrls.map((optUrl, idx) => (
-          <button
-            key={idx}
-            onClick={() => onChange(idx)}
-            className={`relative rounded-2xl border-2 overflow-hidden transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-navy/50 ${
-              selectedAnswer === idx
-                ? 'border-navy shadow-md ring-2 ring-navy/20'
-                : 'border-gray-200 bg-white hover:border-navy/40 hover:shadow-sm'
-            }`}
-          >
-            {/* Option label badge */}
-            <span
-              className={`absolute top-2 left-2 z-10 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shadow-sm transition-colors ${
-                selectedAnswer === idx
-                  ? 'bg-navy text-white'
-                  : 'bg-white text-navy border border-navy/30'
+      {/* Answer option buttons — A, B, C, D */}
+      <div className="flex flex-col gap-3">
+        {OPTION_LABELS.map((label, idx) => {
+          const isSelected = selectedAnswer === idx;
+          return (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => onChange(idx)}
+              className={`w-full flex items-center gap-4 px-5 rounded-xl border-2 font-semibold text-base transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-navy/40 ${
+                isSelected
+                  ? 'border-navy bg-navy text-white shadow-md'
+                  : 'border-gray-200 bg-white text-navy hover:border-navy/50 hover:bg-navy/5'
               }`}
+              style={{ minHeight: '52px' }}
             >
-              {OPTION_LABELS[idx]}
-            </span>
-
-            {/* Option image */}
-            <div className={`w-full flex items-center justify-center p-2 pt-8 ${
-              selectedAnswer === idx ? 'bg-navy/5' : 'bg-gray-50'
-            }`} style={{ minHeight: '120px', maxHeight: '180px' }}>
-              <img
-                src={optUrl}
-                alt={`Option ${OPTION_LABELS[idx]}`}
-                className="w-full object-contain"
-                style={{ maxHeight: '160px' }}
-                onError={(e) => {
-                  const el = e.currentTarget as HTMLImageElement;
-                  el.style.display = 'none';
-                  const parent = el.parentElement;
-                  if (parent && !parent.querySelector('.img-err')) {
-                    const msg = document.createElement('p');
-                    msg.className = 'img-err text-xs text-gray-400 py-4 text-center w-full';
-                    msg.textContent = 'Image unavailable';
-                    parent.appendChild(msg);
-                  }
-                }}
-              />
-            </div>
-          </button>
-        ))}
+              {/* Option label circle */}
+              <span
+                className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all ${
+                  isSelected
+                    ? 'bg-white text-navy border-white'
+                    : 'bg-navy/10 text-navy border-navy/20'
+                }`}
+              >
+                {label}
+              </span>
+              <span className="text-left">Option {label}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

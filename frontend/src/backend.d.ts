@@ -30,9 +30,9 @@ export interface AnonymousProfile {
 export interface Question {
     id: string;
     correctOption: bigint;
-    questionImageUrl: string;
     createdAt: Time;
-    optionImageUrls: Array<string>;
+    optionImageData: Array<string>;
+    questionImageData: string;
 }
 export interface TestResult {
     id: string;
@@ -54,9 +54,9 @@ export enum UserRole {
 }
 export interface backendInterface {
     /**
-     * / ADMIN: Add image-based question (requires 4 image URLs)
+     * / ADMIN: Add image-based question with base64 image data
      */
-    addQuestion(questionImageUrl: string, optionImageUrls: Array<string>, correctOption: bigint): Promise<string>;
+    addQuestion(questionImageData: string, optionImageData: Array<string>, correctOption: bigint): Promise<string>;
     /**
      * / ADMIN: Get all users (anonymous profiles)
      */
@@ -67,9 +67,12 @@ export interface backendInterface {
      * / ADMIN: Create test
      */
     createTest(name: string, subject: string | null, durationSeconds: bigint, questionIds: Array<string>): Promise<string>;
+    /**
+     * / ADMIN: Get the admin principal (restricted to admin only)
+     */
     getAdminPrincipal(): Promise<Principal | null>;
     /**
-     * / ADMIN: Get all questions (returns original image-based Question schema)
+     * / ADMIN: Get all questions (returns image-based Question schema)
      */
     getAllQuestions(): Promise<Array<Question>>;
     /**

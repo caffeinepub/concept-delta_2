@@ -2,8 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-admin-panel-add-question-modal-frontend-src-components-admin-addquestionmodal-tsx-to-use-image-url-input-fields-instead-of-plain-text-fields-the-modal-must-contain-a-text-input-for-the-question-image-url-four-text-inputs-labeled-option-1-image-url-through-option-4-image-url-a-correct-option-selector-radio-buttons-and-a-submit-button-on-submit-call-the-addquestion-backend-function-with-the-image-url-values-show-a-preview-thumbnail-small-e-g-max-h-32-below-each-url-input-field-so-the-admin-can-verify-the-image-before-submitting",
-      "featureTitle": "Update the Admin Panel 'Add Question' modal (frontend/src/components/admin/AddQuestionModal.tsx) to use image URL input fields instead of plain text fields. The modal must contain: a text input for the question image URL, four text inputs labeled 'Option 1 Image URL' through 'Option 4 Image URL', a correct option selector (radio buttons), and a Submit button. On submit, call the addQuestion backend function with the image URL values. Show a preview thumbnail (small, e.g. max-h-32) below each URL input field so the admin can verify the image before submitting.",
+      "featureId": "feature-in-the-admin-panel-add-question-modal-frontend-src-components-admin-addquestionmodal-tsx-remove-all-four-option-image-file-picker-inputs-option-1-4-the-modal-must-retain-only-the-single-question-image-file-picker-with-live-preview-thumbnail-the-correct-option-selector-radio-buttons-for-a-b-c-d-and-the-submit-button-on-submit-call-the-addquestion-backend-function-passing-the-single-question-image-base64-data-uri-and-empty-strings-or-a-placeholder-for-the-four-option-image-data-fields-to-maintain-backend-compatibility-close-the-modal-on-success-show-a-success-toast-and-refresh-the-question-gallery",
+      "featureTitle": "In the Admin Panel 'Add Question' modal (frontend/src/components/admin/AddQuestionModal.tsx), remove all four option image file picker inputs (Option 1–4). The modal must retain only: the single question image file picker (with live preview thumbnail), the correct option selector (radio buttons for A, B, C, D), and the Submit button. On submit, call the addQuestion backend function passing the single question image base64 data URI and empty strings (or a placeholder) for the four option image data fields to maintain backend compatibility. Close the modal on success, show a success toast, and refresh the question gallery.",
       "files": [
         "frontend/src/components/admin/AddQuestionModal.tsx"
       ],
@@ -16,64 +16,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-39"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-the-admin-panel-question-gallery-frontend-src-components-admin-questiongallery-tsx-to-display-questions-and-options-as-images-instead-of-text-each-question-card-must-render-the-question-image-prominently-and-show-all-four-option-images-in-a-2-2-grid-below-it-with-the-correct-answer-option-visually-highlighted-e-g-green-border-image-containers-must-be-responsive-use-w-full-object-contain-with-a-defined-max-height-e-g-max-h-48-for-question-max-h-24-for-options-so-images-scale-to-fit-without-overflow-and-are-clearly-visible-on-both-mobile-and-desktop",
-      "featureTitle": "Update the Admin Panel Question Gallery (frontend/src/components/admin/QuestionGallery.tsx) to display questions and options as images instead of text. Each question card must render the question image prominently, and show all four option images in a 2×2 grid below it, with the correct answer option visually highlighted (e.g. green border). Image containers must be responsive: use `w-full object-contain` with a defined max height (e.g. max-h-48 for question, max-h-24 for options) so images scale to fit without overflow, and are clearly visible on both mobile and desktop.",
-      "files": [
-        "frontend/src/components/admin/QuestionGallery.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-40"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-the-questiondisplay-component-frontend-src-components-questiondisplay-tsx-to-render-the-question-and-answer-options-as-images-instead-of-text-display-the-question-image-in-a-responsive-container-w-full-object-contain-adjustable-max-height-e-g-max-h-64-on-mobile-max-h-80-on-desktop-so-it-is-clearly-visible-display-each-of-the-four-option-images-as-a-selectable-card-in-a-2-column-grid-on-tablet-desktop-and-single-column-on-mobile-each-option-image-container-must-use-object-contain-with-a-defined-max-height-e-g-max-h-40-so-images-are-fully-visible-the-selected-option-card-is-highlighted-with-a-navy-border",
-      "featureTitle": "Update the QuestionDisplay component (frontend/src/components/QuestionDisplay.tsx) to render the question and answer options as images instead of text. Display the question image in a responsive container (w-full, object-contain, adjustable max height e.g. max-h-64 on mobile, max-h-80 on desktop) so it is clearly visible. Display each of the four option images as a selectable card in a 2-column grid on tablet/desktop and single column on mobile. Each option image container must use object-contain with a defined max height (e.g. max-h-40) so images are fully visible. The selected option card is highlighted with a navy border.",
-      "files": [
-        "frontend/src/components/QuestionDisplay.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-41"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-the-test-page-answer-review-section-frontend-src-pages-test-tsx-to-render-question-and-option-images-instead-of-text-for-each-reviewed-question-display-the-question-image-in-a-responsive-container-object-contain-max-h-64-show-all-four-option-images-as-styled-cards-in-a-2-column-grid-on-desktop-and-single-column-on-mobile-each-with-object-contain-and-max-h-40-highlight-the-user-s-selected-answer-card-with-a-blue-border-and-the-correct-answer-card-with-a-green-border",
-      "featureTitle": "Update the Test Page answer review section (frontend/src/pages/Test.tsx) to render question and option images instead of text. For each reviewed question, display the question image in a responsive container (object-contain, max-h-64). Show all four option images as styled cards in a 2-column grid on desktop and single column on mobile, each with object-contain and max-h-40. Highlight the user's selected answer card with a blue border and the correct answer card with a green border.",
-      "files": [
-        "frontend/src/pages/Test.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-42"
+        "REQ-50"
       ],
       "confidence": "high"
     }

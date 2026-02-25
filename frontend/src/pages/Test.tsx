@@ -42,99 +42,90 @@ function AnswerReview({ questions, userAnswers }: AnswerReviewProps) {
               )}
             </div>
 
-            {/* Question image */}
+            {/* Single question image — full width, responsive */}
             <div className="px-5 pt-4 pb-2">
-              <div className="w-full bg-navy/5 rounded-xl border border-navy/10 overflow-hidden flex items-center justify-center p-2">
-                <img
-                  src={question.questionImageUrl}
-                  alt={`Question ${idx + 1}`}
-                  className="w-full object-contain rounded-lg"
-                  style={{ maxHeight: '240px', minHeight: '80px' }}
-                  onError={(e) => {
-                    const el = e.currentTarget as HTMLImageElement;
-                    el.style.display = 'none';
-                    const parent = el.parentElement;
-                    if (parent && !parent.querySelector('.img-err')) {
-                      const msg = document.createElement('p');
-                      msg.className = 'img-err text-sm text-gray-400 py-4 text-center w-full';
-                      msg.textContent = 'Question image unavailable';
-                      parent.appendChild(msg);
-                    }
-                  }}
-                />
+              <div className="w-full bg-white rounded-xl border border-navy/10 shadow-sm overflow-hidden flex items-center justify-center">
+                {question.questionImageData ? (
+                  <div className="w-full overflow-y-auto" style={{ maxHeight: '48vh' }}>
+                    <img
+                      src={question.questionImageData}
+                      alt={`Question ${idx + 1}`}
+                      className="w-full h-auto object-contain block"
+                      style={{ minHeight: '60px' }}
+                      onError={(e) => {
+                        const el = e.currentTarget as HTMLImageElement;
+                        el.style.display = 'none';
+                        const parent = el.parentElement;
+                        if (parent && !parent.querySelector('.img-err')) {
+                          const msg = document.createElement('p');
+                          msg.className = 'img-err text-sm text-gray-400 py-6 text-center w-full';
+                          msg.textContent = 'Question image unavailable';
+                          parent.appendChild(msg);
+                        }
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-400 py-6 text-center w-full">No question image</p>
+                )}
               </div>
             </div>
 
-            {/* Options — 1 column on mobile, 2 columns on md+ */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 px-5 pb-5 pt-3">
-              {question.optionImageUrls.map((optUrl, optIdx) => {
+            {/* Answer option labels — A, B, C, D as full-width cards */}
+            <div className="flex flex-col gap-2 px-5 pb-5 pt-3">
+              {OPTION_LABELS.map((label, optIdx) => {
                 const isUserChoice = userAnswer === optIdx;
                 const isCorrectOption = correctAnswer === optIdx;
 
                 let borderClass = 'border-gray-200';
                 let bgClass = 'bg-white';
-                let labelBg = 'bg-gray-100 text-gray-600';
+                let textClass = 'text-gray-700';
+                let circleBg = 'bg-gray-100 text-gray-600 border-gray-200';
 
                 if (isCorrectOption) {
                   borderClass = 'border-green-500';
                   bgClass = 'bg-green-50';
-                  labelBg = 'bg-green-500 text-white';
-                } else if (isUserChoice && !isCorrectOption) {
+                  textClass = 'text-green-800';
+                  circleBg = 'bg-green-500 text-white border-green-500';
+                } else if (isUserChoice) {
                   borderClass = 'border-blue-400';
                   bgClass = 'bg-blue-50';
-                  labelBg = 'bg-blue-400 text-white';
+                  textClass = 'text-blue-800';
+                  circleBg = 'bg-blue-400 text-white border-blue-400';
                 }
 
                 return (
                   <div
                     key={optIdx}
-                    className={`relative rounded-xl border-2 overflow-hidden ${borderClass} ${bgClass}`}
+                    className={`w-full flex items-center gap-4 px-5 rounded-xl border-2 ${borderClass} ${bgClass}`}
+                    style={{ minHeight: '52px' }}
                   >
-                    {/* Label badge */}
+                    {/* Option label circle */}
                     <span
-                      className={`absolute top-2 left-2 z-10 text-xs font-bold px-1.5 py-0.5 rounded ${labelBg}`}
+                      className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 ${circleBg}`}
                     >
-                      {OPTION_LABELS[optIdx]}
+                      {label}
                     </span>
-
-                    {/* Correct / User choice indicators */}
-                    {(isCorrectOption || isUserChoice) && (
-                      <div className="absolute top-2 right-2 z-10 flex gap-1">
-                        {isCorrectOption && (
-                          <span className="text-xs bg-green-500 text-white px-1.5 py-0.5 rounded font-semibold">
-                            ✓ Correct
-                          </span>
-                        )}
-                        {isUserChoice && !isCorrectOption && (
-                          <span className="text-xs bg-blue-400 text-white px-1.5 py-0.5 rounded font-semibold">
-                            Your answer
-                          </span>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Option image */}
-                    <div
-                      className="w-full flex items-center justify-center p-2 pt-8"
-                      style={{ minHeight: '100px', maxHeight: '160px' }}
-                    >
-                      <img
-                        src={optUrl}
-                        alt={`Option ${OPTION_LABELS[optIdx]}`}
-                        className="w-full object-contain"
-                        style={{ maxHeight: '140px' }}
-                        onError={(e) => {
-                          const el = e.currentTarget as HTMLImageElement;
-                          el.style.display = 'none';
-                          const parent = el.parentElement;
-                          if (parent && !parent.querySelector('.img-err')) {
-                            const msg = document.createElement('p');
-                            msg.className = 'img-err text-xs text-gray-400 py-3 text-center w-full';
-                            msg.textContent = 'Image unavailable';
-                            parent.appendChild(msg);
-                          }
-                        }}
-                      />
+                    <span className={`font-semibold text-sm flex-1 ${textClass}`}>
+                      Option {label}
+                    </span>
+                    {/* Indicators */}
+                    <div className="flex gap-1.5 flex-shrink-0">
+                      {isCorrectOption && (
+                        <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-semibold">
+                          ✓ Correct
+                        </span>
+                      )}
+                      {isUserChoice && !isCorrectOption && (
+                        <span className="text-xs bg-blue-400 text-white px-2 py-0.5 rounded-full font-semibold">
+                          Your answer
+                        </span>
+                      )}
+                      {isUserChoice && isCorrectOption && (
+                        <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-semibold">
+                          ✓ Your answer
+                        </span>
+                      )}
                     </div>
                   </div>
                 );
@@ -198,12 +189,12 @@ export default function Test() {
         <Navbar />
         <div className="max-w-3xl mx-auto px-4 py-10 space-y-4">
           <Skeleton className="h-10 w-48 rounded-xl" />
-          <Skeleton className="h-64 w-full rounded-2xl" />
-          <div className="grid grid-cols-2 gap-4">
-            <Skeleton className="h-40 rounded-2xl" />
-            <Skeleton className="h-40 rounded-2xl" />
-            <Skeleton className="h-40 rounded-2xl" />
-            <Skeleton className="h-40 rounded-2xl" />
+          <Skeleton className="h-[60vh] w-full rounded-2xl" />
+          <div className="flex flex-col gap-3">
+            <Skeleton className="h-14 rounded-xl" />
+            <Skeleton className="h-14 rounded-xl" />
+            <Skeleton className="h-14 rounded-xl" />
+            <Skeleton className="h-14 rounded-xl" />
           </div>
         </div>
       </div>
@@ -328,8 +319,8 @@ export default function Test() {
                 i === currentIndex
                   ? 'bg-navy text-white shadow-md scale-110'
                   : answers[i] !== undefined
-                  ? 'bg-navy/20 text-navy border border-navy/30'
-                  : 'bg-gray-100 text-gray-500 border border-gray-200 hover:border-navy/30'
+                  ? 'bg-navy/20 text-navy'
+                  : 'bg-gray-200 text-gray-500 hover:bg-gray-300'
               }`}
             >
               {i + 1}
@@ -337,58 +328,54 @@ export default function Test() {
           ))}
         </div>
 
-        {/* Question display */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 md:p-6">
-          <QuestionDisplay
-            question={currentQuestion}
-            selectedAnswer={answers[currentIndex] ?? null}
-            onChange={handleAnswer}
-            questionNumber={currentIndex + 1}
-            totalQuestions={totalQuestions}
-          />
-        </div>
+        {/* Current question */}
+        <QuestionDisplay
+          question={currentQuestion}
+          selectedAnswer={answers[currentIndex] ?? null}
+          onChange={handleAnswer}
+          questionNumber={currentIndex + 1}
+          totalQuestions={totalQuestions}
+        />
 
         {/* Navigation buttons */}
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center justify-between gap-3 pt-2 pb-8">
           <Button
             variant="outline"
             onClick={() => setCurrentIndex((i) => Math.max(0, i - 1))}
             disabled={currentIndex === 0}
-            className="rounded-xl border-gray-200 text-gray-600 hover:bg-gray-50 flex items-center gap-1.5"
+            className="rounded-xl border-navy/30 text-navy hover:bg-navy/5 flex items-center gap-2"
           >
             <ChevronLeft className="h-4 w-4" />
             Previous
           </Button>
 
-          <div className="flex gap-2">
-            {currentIndex < totalQuestions - 1 ? (
-              <Button
-                onClick={() => setCurrentIndex((i) => Math.min(totalQuestions - 1, i + 1))}
-                className="bg-navy hover:bg-navy-dark text-white rounded-xl flex items-center gap-1.5"
-              >
-                Next
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            ) : (
-              <Button
-                onClick={handleSubmit}
-                disabled={submitTest.isPending}
-                className="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl flex items-center gap-2 px-6"
-              >
-                {submitTest.isPending ? (
-                  <>
-                    <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Submitting...
-                  </>
-                ) : (
-                  <>
-                    <Send className="h-4 w-4" />
-                    Submit Test
-                  </>
-                )}
-              </Button>
-            )}
-          </div>
+          {currentIndex < totalQuestions - 1 ? (
+            <Button
+              onClick={() => setCurrentIndex((i) => Math.min(totalQuestions - 1, i + 1))}
+              className="bg-navy hover:bg-navy-dark text-white rounded-xl flex items-center gap-2"
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button
+              onClick={handleSubmit}
+              disabled={submitTest.isPending}
+              className="bg-green-600 hover:bg-green-700 text-white rounded-xl flex items-center gap-2"
+            >
+              {submitTest.isPending ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                  Submitting...
+                </span>
+              ) : (
+                <>
+                  <Send className="h-4 w-4" />
+                  Submit Test
+                </>
+              )}
+            </Button>
+          )}
         </div>
       </div>
     </div>
