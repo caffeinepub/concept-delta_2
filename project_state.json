@@ -1,0 +1,326 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 17,
+  "summary": "Building 'Concept Delta' – a responsive MHT-CET Test Series website with Navy Blue theme. Includes Home Page, Dashboard, Test Page, and Admin Panel. Features Google/Internet Identity auth with profile setup (name, class, contact), Motoko backend with users/questions/tests/results data models, image-based questions with 4 options, timed auto-submit tests, and an admin panel for question/test management and user/result viewing.",
+  "architectural_notes": [
+    "Motoko backend on Internet Computer with stable storage for Users, Questions, Tests, TestResults",
+    "React/TypeScript frontend with Tailwind CSS, Navy Blue (#0D1B4B) primary color, white background",
+    "Internet Identity (passkey/Google-style) for authentication; admin protected by principal check",
+    "Image-based questions: question image + 4 option images stored/referenced by URL",
+    "Mobile-first responsive design with hamburger menu on mobile",
+    "Navbar links: Home (all), Dashboard (authenticated), Admin (admin only). My Results and Leaderboard removed from navbar.",
+    "First principal to authenticate is auto-designated as admin; admin role stored in stable backend state"
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-build-a-home-page-with-a-sticky-navbar-containing-a-triangular-delta-svg-logo-and-the-text-concept-delta-on-the-left-and-a-login-connect-button-on-the-right-using-internet-identity-a-hero-section-with-the-heading-free-mht-cet-mock-tests-subheading-created-by-coepians-coep-technological-university-one-of-the-top-engineering-colleges-in-maharashtra-motivational-student-focused-body-copy-about-smart-practice-and-free-mock-tests-and-a-large-cta-button-start-practicing-now-that-triggers-login-if-unauthenticated-or-navigates-to-dashboard-if-authenticated-social-buttons-for-telegram-https-t-me-conceptdelta-and-youtube-https-youtube-com-conceptdelta2026-below-the-cta",
+      "title": "Build a Home Page with: a sticky navbar containing a triangular delta SVG logo and the text 'Concept Delta' on the left, and a Login/Connect button on the right using Internet Identity; a hero section with the heading 'Free MHT-CET Mock Tests', subheading 'Created by COEPians – COEP Technological University, one of the top engineering colleges in Maharashtra', motivational student-focused body copy about smart practice and free mock tests, and a large CTA button 'Start Practicing Now' that triggers login if unauthenticated or navigates to Dashboard if authenticated; social buttons for Telegram (https://t.me/Conceptdelta) and YouTube (https://youtube.com/@conceptdelta2026) below the CTA.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-an-authentication-and-profile-setup-flow-after-a-user-logs-in-with-internet-identity-for-the-first-time-isprofilecomplete-returns-false-show-a-full-screen-profile-setup-modal-page-asking-for-full-name-text-input-class-dropdown-11th-12th-dropper-and-contact-number-tel-input-on-submission-call-saveuserprofile-and-then-redirect-to-dashboard-skip-the-modal-for-returning-users-with-a-complete-profile",
+      "title": "Implement an authentication and profile setup flow: after a user logs in with Internet Identity for the first time (isProfileComplete returns false), show a full-screen profile setup modal/page asking for Full Name (text input), Class (dropdown: 11th / 12th / Dropper), and Contact Number (tel input). On submission, call saveUserProfile and then redirect to Dashboard. Skip the modal for returning users with a complete profile.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-dashboard-page-protected-requires-login-complete-profile-that-fetches-all-published-tests-via-getpublishedtests-and-renders-each-as-a-card-showing-test-name-formatted-duration-e-g-30-min-and-a-start-test-button-that-navigates-to-the-test-page-for-that-test-show-a-loading-skeleton-while-fetching-and-an-empty-state-if-no-tests-are-published",
+      "title": "Build a Dashboard page (protected, requires login + complete profile) that fetches all published tests via getPublishedTests() and renders each as a card showing: test name, formatted duration (e.g. '30 min'), and a 'Start Test' button that navigates to the Test Page for that test. Show a loading skeleton while fetching and an empty state if no tests are published.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-test-page-that-receives-a-testid-fetches-questions-via-gettestquestions-and-renders-a-countdown-timer-at-the-top-showing-remaining-time-mm-ss-the-current-question-s-image-four-option-images-displayed-as-clickable-cards-visually-highlighted-on-selection-previous-next-navigation-buttons-and-a-submit-button-when-the-timer-reaches-zero-or-submit-is-clicked-call-submittest-with-the-collected-answers-array-then-show-a-result-screen-displaying-test-submitted-and-the-score-e-g-18-30-correct",
+      "title": "Build a Test Page that receives a testId, fetches questions via getTestQuestions, and renders: a countdown timer at the top showing remaining time (mm:ss), the current question's image, four option images displayed as clickable cards (visually highlighted on selection), Previous/Next navigation buttons, and a Submit button. When the timer reaches zero or Submit is clicked, call submitTest with the collected answers array, then show a result screen displaying 'Test Submitted!' and the score (e.g. '18 / 30 correct').",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-an-admin-panel-page-protected-accessible-only-to-the-designated-admin-principal-with-four-tabs-1-question-gallery-form-to-upload-question-image-url-and-four-option-image-urls-select-correct-option-radio-and-submit-via-addquestion-displays-all-existing-questions-in-a-grid-with-images-2-test-builder-form-to-enter-test-name-and-duration-select-questions-from-gallery-via-checkboxes-and-create-test-via-createtest-lists-all-tests-with-a-publish-unpublish-toggle-per-test-using-settestpublished-3-user-list-table-showing-all-users-full-name-class-contact-number-and-principal-4-results-table-showing-username-test-name-and-score-for-all-submissions",
+      "title": "Build an Admin Panel page (protected, accessible only to the designated admin principal) with four tabs: (1) Question Gallery – form to upload question image URL and four option image URLs, select correct option (radio), and submit via addQuestion; displays all existing questions in a grid with images. (2) Test Builder – form to enter test name and duration, select questions from gallery via checkboxes, and create test via createTest; lists all tests with a publish/unpublish toggle per test using setTestPublished. (3) User List – table showing all users' full name, class, contact number, and principal. (4) Results – table showing username, test name, and score for all submissions.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-a-consistent-navy-blue-0d1b4b-and-white-design-theme-across-all-pages-navy-blue-for-primary-buttons-navbar-background-and-accent-elements-white-for-page-backgrounds-and-card-surfaces-clean-sans-serif-typography-modern-minimal-card-based-layout-fully-mobile-responsive-with-a-hamburger-menu-on-small-screens-smooth-hover-and-focus-states-on-interactive-elements",
+      "title": "Apply a consistent Navy Blue (#0D1B4B) and white design theme across all pages: Navy Blue for primary buttons, navbar background, and accent elements; white for page backgrounds and card surfaces; clean sans-serif typography; modern minimal card-based layout; fully mobile-responsive with a hamburger menu on small screens; smooth hover and focus states on interactive elements.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-my-results-page-route-results-accessible-from-the-dashboard-navbar-it-should-fetch-the-current-user-s-past-test-submissions-and-display-them-in-a-list-table-showing-test-name-score-e-g-18-30-percentage-and-submission-date-time-show-a-loading-skeleton-while-fetching-and-an-empty-state-message-if-no-results-exist-yet",
+      "title": "Add a 'My Results' page (route: /results) accessible from the Dashboard navbar. It should fetch the current user's past test submissions and display them in a list/table showing: test name, score (e.g. '18 / 30'), percentage, and submission date/time. Show a loading skeleton while fetching and an empty state message if no results exist yet.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-on-the-test-result-screen-after-submission-display-a-detailed-answer-review-section-below-the-score-for-each-question-show-the-question-image-all-four-option-images-highlight-the-user-s-selected-answer-e-g-blue-border-and-highlight-the-correct-answer-e-g-green-border-include-a-back-to-dashboard-button",
+      "title": "On the Test result screen (after submission), display a detailed answer review section below the score. For each question, show: the question image, all four option images, highlight the user's selected answer (e.g. blue border), and highlight the correct answer (e.g. green border). Include a 'Back to Dashboard' button.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-question-count-badge-and-subject-topic-tag-field-to-the-admin-panel-test-builder-when-creating-a-test-allow-the-admin-to-optionally-enter-a-subject-label-e-g-physics-chemistry-mathematics-store-this-label-in-the-test-data-model-display-the-subject-label-and-total-question-count-on-each-test-card-on-the-dashboard",
+      "title": "Add a question count badge and subject/topic tag field to the Admin Panel Test Builder. When creating a test, allow the admin to optionally enter a subject label (e.g. 'Physics', 'Chemistry', 'Mathematics'). Store this label in the Test data model. Display the subject label and total question count on each test card on the Dashboard.",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-leaderboard-tab-to-the-admin-panel-5th-tab-leaderboard-that-shows-the-top-performers-across-all-tests-display-a-ranked-table-with-columns-rank-student-name-total-tests-taken-average-score-and-best-score-derive-this-data-from-existing-testresult-and-userprofile-records-on-the-backend-via-a-new-getleaderboard-leaderboardentry-function",
+      "title": "Add a leaderboard tab to the Admin Panel (5th tab: 'Leaderboard') that shows the top performers across all tests. Display a ranked table with columns: Rank, Student Name, Total Tests Taken, Average Score (%), and Best Score. Derive this data from existing TestResult and UserProfile records on the backend via a new `getLeaderboard() → [LeaderboardEntry]` function.",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-progress-stats-summary-section-at-the-top-of-the-dashboard-above-the-test-cards-showing-the-logged-in-student-s-personal-stats-total-tests-attempted-average-score-percentage-and-best-score-percentage-derive-these-from-the-student-s-own-past-results-using-the-existing-getmyresults-hook",
+      "title": "Add a progress/stats summary section at the top of the Dashboard (above the test cards) showing the logged-in student's personal stats: total tests attempted, average score percentage, and best score percentage. Derive these from the student's own past results using the existing getMyResults hook.",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-public-facing-leaderboard-page-route-leaderboard-accessible-to-all-logged-in-students-from-the-dashboard-navbar-fetch-data-via-the-existing-getleaderboard-backend-function-and-display-a-ranked-table-with-columns-rank-student-name-total-tests-taken-average-score-and-best-score-show-a-loading-skeleton-while-fetching-and-an-empty-state-if-no-data-exists",
+      "title": "Add a public-facing Leaderboard page (route: /leaderboard) accessible to all logged-in students from the Dashboard navbar. Fetch data via the existing getLeaderboard() backend function and display a ranked table with columns: Rank, Student Name, Total Tests Taken, Average Score (%), and Best Score. Show a loading skeleton while fetching and an empty state if no data exists.",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-leaderboard-navigation-link-in-the-navbar-component-alongside-dashboard-and-my-results-so-authenticated-students-can-navigate-to-leaderboard-from-any-page",
+      "title": "Add a 'Leaderboard' navigation link in the Navbar component (alongside Dashboard and My Results) so authenticated students can navigate to /leaderboard from any page.",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-register-the-leaderboard-route-in-the-tanstack-router-configuration-in-app-tsx-pointing-to-the-new-leaderboard-page-component",
+      "title": "Register the /leaderboard route in the TanStack Router configuration in App.tsx, pointing to the new Leaderboard page component.",
+      "reqIds": [
+        "REQ-19"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-delete-the-public-facing-leaderboard-page-component-at-frontend-src-pages-leaderboard-tsx",
+      "title": "Delete the public-facing Leaderboard page component at frontend/src/pages/Leaderboard.tsx.",
+      "reqIds": [
+        "REQ-20"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-the-leaderboard-route-registration-from-the-tanstack-router-configuration-in-frontend-src-app-tsx-so-the-route-no-longer-exists",
+      "title": "Remove the /leaderboard route registration from the TanStack Router configuration in frontend/src/App.tsx so the route no longer exists.",
+      "reqIds": [
+        "REQ-21"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-the-leaderboard-navigation-link-from-the-navbar-component-frontend-src-components-navbar-tsx-so-it-no-longer-appears-in-the-authenticated-navigation-bar",
+      "title": "Remove the 'Leaderboard' navigation link from the Navbar component (frontend/src/components/Navbar.tsx) so it no longer appears in the authenticated navigation bar.",
+      "reqIds": [
+        "REQ-22"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-the-admin-panel-question-gallery-tab-frontend-src-components-admin-questiongallery-tsx-replace-any-existing-inline-add-question-form-with-an-add-question-button-when-clicked-open-a-modal-dialog-containing-a-question-image-url-input-field-four-option-image-url-input-fields-option-1-4-a-correct-option-selector-radio-buttons-or-tick-checkmark-icons-for-each-option-and-a-submit-button-on-submit-call-the-addquestion-backend-function-with-the-provided-values-close-the-modal-on-success-show-a-success-toast-notification-and-refresh-the-question-gallery-grid-to-display-the-newly-added-question",
+      "title": "In the Admin Panel Question Gallery tab (frontend/src/components/admin/QuestionGallery.tsx), replace any existing inline add-question form with an 'Add Question' button. When clicked, open a modal dialog containing: a question image URL input field, four option image URL input fields (Option 1–4), a correct option selector (radio buttons or tick/checkmark icons for each option), and a Submit button. On submit, call the addQuestion backend function with the provided values, close the modal on success, show a success toast notification, and refresh the question gallery grid to display the newly added question.",
+      "reqIds": [
+        "REQ-23"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-components-navbar-tsx-fix-the-admin-panel-navigation-link-so-it-correctly-appears-for-authenticated-users-who-are-admins-the-link-should-navigate-to-admin-and-be-conditionally-rendered-only-when-the-user-is-logged-in-and-the-useisadmin-or-equivalent-query-returns-true-ensure-the-admin-check-hook-is-properly-called-and-its-result-is-used-to-gate-the-link-rendering",
+      "title": "In frontend/src/components/Navbar.tsx, fix the Admin Panel navigation link so it correctly appears for authenticated users who are admins. The link should navigate to /admin and be conditionally rendered only when the user is logged in AND the useIsAdmin (or equivalent) query returns true. Ensure the admin check hook is properly called and its result is used to gate the link rendering.",
+      "reqIds": [
+        "REQ-24"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-components-navbar-tsx-update-the-navigation-links-so-that-only-three-links-are-shown-home-always-visible-dashboard-visible-when-authenticated-and-admin-panel-visible-only-when-authenticated-and-useiscalleradmin-returns-true-remove-my-results-and-any-other-links-e-g-leaderboard-from-the-navbar-entirely-the-mobile-hamburger-menu-must-reflect-the-same-conditional-link-set",
+      "title": "In frontend/src/components/Navbar.tsx, update the navigation links so that only three links are shown: 'Home' (always visible), 'Dashboard' (visible when authenticated), and 'Admin Panel' (visible only when authenticated AND useIsCallerAdmin returns true). Remove 'My Results' and any other links (e.g. Leaderboard) from the navbar entirely. The mobile hamburger menu must reflect the same conditional link set.",
+      "reqIds": [
+        "REQ-25"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-pages-admin-tsx-ensure-the-admin-panel-contains-all-data-management-tabs-1-question-gallery-2-test-builder-3-user-list-4-results-and-5-leaderboard-these-tabs-must-remain-fully-functional-and-accessible-only-to-authenticated-admin-users-no-data-management-ui-should-exist-outside-the-admin-panel",
+      "title": "In frontend/src/pages/Admin.tsx, ensure the Admin Panel contains all data-management tabs: (1) Question Gallery, (2) Test Builder, (3) User List, (4) Results, and (5) Leaderboard. These tabs must remain fully functional and accessible only to authenticated admin users. No data-management UI should exist outside the Admin Panel.",
+      "reqIds": [
+        "REQ-26"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-pages-dashboard-tsx-ensure-the-dashboard-page-only-shows-the-student-facing-content-the-personal-stats-summary-section-and-the-list-of-published-test-cards-fetched-via-getpublishedtests-remove-any-admin-facing-controls-or-data-tables-questions-users-results-from-the-dashboard-the-my-results-page-at-results-must-remain-accessible-by-direct-url-navigation-even-though-its-link-is-removed-from-the-navbar",
+      "title": "In frontend/src/pages/Dashboard.tsx, ensure the Dashboard page only shows the student-facing content: the personal stats summary section and the list of published test cards (fetched via getPublishedTests). Remove any admin-facing controls or data tables (questions, users, results) from the Dashboard. The 'My Results' page at /results must remain accessible by direct URL navigation even though its link is removed from the navbar.",
+      "reqIds": [
+        "REQ-27"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-hooks-usequeries-ts-ensure-the-useiscalleradmin-query-correctly-calls-the-backend-iscalleradmin-function-and-returns-its-boolean-result-the-query-must-re-fetch-when-the-authenticated-identity-changes-so-the-admin-panel-link-appears-immediately-after-the-first-login-admin-logs-in",
+      "title": "In frontend/src/hooks/useQueries.ts, ensure the `useIsCallerAdmin` query correctly calls the backend `isCallerAdmin()` function and returns its boolean result. The query must re-fetch when the authenticated identity changes so the Admin Panel link appears immediately after the first-login admin logs in.",
+      "reqIds": [
+        "REQ-29"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-components-navbar-tsx-confirm-that-the-admin-panel-navigation-link-navigating-to-admin-is-conditionally-rendered-only-when-the-user-is-authenticated-and-useiscalleradmin-returns-true-the-link-must-not-appear-for-any-non-admin-authenticated-user-this-applies-to-both-the-desktop-nav-and-the-mobile-hamburger-menu",
+      "title": "In frontend/src/components/Navbar.tsx, confirm that the 'Admin Panel' navigation link (navigating to /admin) is conditionally rendered only when the user is authenticated AND useIsCallerAdmin returns true. The link must not appear for any non-admin authenticated user. This applies to both the desktop nav and the mobile hamburger menu.",
+      "reqIds": [
+        "REQ-30"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-pages-admin-tsx-confirm-that-the-admin-panel-page-access-guard-redirects-or-shows-an-access-denied-message-for-any-authenticated-user-who-is-not-the-designated-admin-the-guard-must-use-the-result-of-useiscalleradmin-and-must-not-rely-solely-on-client-side-state-admin-only-backend-calls-will-naturally-be-rejected-server-side-as-well",
+      "title": "In frontend/src/pages/Admin.tsx, confirm that the Admin Panel page access guard redirects or shows an 'Access Denied' message for any authenticated user who is not the designated admin. The guard must use the result of useIsCallerAdmin and must not rely solely on client-side state — admin-only backend calls will naturally be rejected server-side as well.",
+      "reqIds": [
+        "REQ-31"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Home Page with navbar, delta logo, hero section, CTA, Telegram and YouTube buttons",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Google/Internet Identity authentication with profile setup (name, class, contact)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Dashboard showing published test cards with name, duration, and Start Test button",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Test Page with question image, 4 option images, countdown timer, auto-submit, and score display",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Admin Panel with question gallery, test builder, publish toggle, user list, and results view",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Motoko backend with Users, Questions, Tests, TestResults data models and CRUD functions",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Create a Motoko backend with stable storage for four data models: Users (principal, fullName, class: {#eleventh; #twelfth; #dropper}, contactNumber, registeredAt), Questions (id, questionImageUrl, optionImageUrls: [Text; 4], correctOption: Nat, createdAt), Tests (id, name, durationSeconds: Nat, questionIds: [Text], isPublished: Bool, createdAt), and TestResults (id, userId: Principal, testId: Text, answers: [Nat], score: Nat, submittedAt).",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Implement backend functions: saveUserProfile(fullName: Text, class: UserClass, contactNumber: Text) saves or updates the caller's profile; getUserProfile() returns the caller's profile or null; isProfileComplete() returns Bool indicating whether the caller has completed profile setup.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Implement admin-only backend functions: addQuestion(questionImageUrl: Text, optionImageUrls: [Text], correctOption: Nat) → Text (returns question id); getAllQuestions() → [Question]; createTest(name: Text, durationSeconds: Nat, questionIds: [Text]) → Text (returns test id); setTestPublished(testId: Text, published: Bool); getAllUsers() → [UserProfile]; getAllResults() → [TestResult]. The first principal to call any admin function is designated the admin; subsequent admin calls from other principals are rejected.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Implement test-taking backend functions: getPublishedTests() → [TestSummary] returns name, id, durationSeconds for all published tests; getTestQuestions(testId: Text) → [Question] returns questions for a test; submitTest(testId: Text, answers: [Nat]) → Nat calculates and stores score (number of correct answers), saves a TestResult record, and returns the score.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-12",
+      "summary": "Add a backend function `getMyResults() → [TestResult]` that returns all TestResult records belonging to the calling principal, sorted by submittedAt descending.",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-13",
+      "summary": "In Admin Panel Question Gallery, add an 'Add Question' button that opens a modal window with fields for question image URL, four option image URLs, and a correct option selector (radio/tick); on submit, save via addQuestion and refresh the question gallery.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-14",
+      "summary": "Navbar should only show Home, Dashboard, and Admin (admin-only) links. Remove My Results and Leaderboard from navbar.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-15",
+      "summary": "First user to login is automatically designated as admin; only that principal sees the Admin Panel link. After confirming admin access works, proceed to build out the full Admin Panel structure.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-16",
+      "summary": "In the Motoko backend (backend/main.mo), ensure the admin designation logic works as follows: the very first principal to successfully authenticate and trigger any backend call (or explicitly the first call to a designated 'claimAdmin' or first admin-gated function) is permanently stored as the admin principal in stable storage. All subsequent calls to admin-only functions from a different principal must be rejected. The admin principal must persist across canister upgrades.",
+      "reqIds": [
+        "REQ-28"
+      ],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Concept Delta",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

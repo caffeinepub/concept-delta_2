@@ -1,0 +1,150 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 0.75rem;
+
+    /* Navy Blue palette in OKLCH */
+    --navy: 0.22 0.07 255;
+    --navy-dark: 0.17 0.06 255;
+    --navy-deeper: 0.13 0.05 255;
+    --navy-100: 0.75 0.04 255;
+
+    /* Semantic tokens */
+    --background: 1 0 0;
+    --foreground: 0.18 0.04 255;
+    --card: 1 0 0;
+    --card-foreground: 0.18 0.04 255;
+    --popover: 1 0 0;
+    --popover-foreground: 0.18 0.04 255;
+    --primary: 0.22 0.07 255;
+    --primary-foreground: 1 0 0;
+    --secondary: 0.96 0.01 255;
+    --secondary-foreground: 0.22 0.07 255;
+    --muted: 0.96 0.01 255;
+    --muted-foreground: 0.5 0.02 255;
+    --accent: 0.93 0.03 255;
+    --accent-foreground: 0.22 0.07 255;
+    --destructive: 0.577 0.245 27.325;
+    --destructive-foreground: 1 0 0;
+    --border: 0.91 0.02 255;
+    --input: 0.91 0.02 255;
+    --ring: 0.22 0.07 255;
+    --chart-1: 0.646 0.222 41.116;
+    --chart-2: 0.6 0.118 184.704;
+    --chart-3: 0.398 0.07 227.392;
+    --chart-4: 0.828 0.189 84.429;
+    --chart-5: 0.769 0.188 70.08;
+    --sidebar: 0.22 0.07 255;
+    --sidebar-foreground: 1 0 0;
+    --sidebar-primary: 1 0 0;
+    --sidebar-primary-foreground: 0.22 0.07 255;
+    --sidebar-accent: 0.28 0.07 255;
+    --sidebar-accent-foreground: 1 0 0;
+    --sidebar-border: 0.28 0.07 255;
+    --sidebar-ring: 0.5 0.04 255;
+  }
+
+  .dark {
+    --background: 0.13 0.05 255;
+    --foreground: 0.97 0.01 255;
+    --card: 0.18 0.06 255;
+    --card-foreground: 0.97 0.01 255;
+    --popover: 0.22 0.07 255;
+    --popover-foreground: 0.97 0.01 255;
+    --primary: 0.75 0.04 255;
+    --primary-foreground: 0.13 0.05 255;
+    --secondary: 0.28 0.07 255;
+    --secondary-foreground: 0.97 0.01 255;
+    --muted: 0.28 0.07 255;
+    --muted-foreground: 0.65 0.03 255;
+    --accent: 0.32 0.07 255;
+    --accent-foreground: 0.97 0.01 255;
+    --destructive: 0.704 0.191 22.216;
+    --destructive-foreground: 0.97 0.01 255;
+    --border: 1 0 0 / 10%;
+    --input: 1 0 0 / 15%;
+    --ring: 0.5 0.04 255;
+    --sidebar: 0.18 0.06 255;
+    --sidebar-foreground: 0.97 0.01 255;
+    --sidebar-primary: 0.75 0.04 255;
+    --sidebar-primary-foreground: 0.13 0.05 255;
+    --sidebar-accent: 0.28 0.07 255;
+    --sidebar-accent-foreground: 0.97 0.01 255;
+    --sidebar-border: 1 0 0 / 10%;
+    --sidebar-ring: 0.5 0.04 255;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  .bg-navy {
+    background-color: oklch(var(--navy));
+  }
+  .bg-navy-dark {
+    background-color: oklch(var(--navy-dark));
+  }
+  .bg-navy-deeper {
+    background-color: oklch(var(--navy-deeper));
+  }
+  .text-navy {
+    color: oklch(var(--navy));
+  }
+  .text-navy-dark {
+    color: oklch(var(--navy-dark));
+  }
+  .text-navy-100 {
+    color: oklch(var(--navy-100));
+  }
+  .border-navy {
+    border-color: oklch(var(--navy));
+  }
+  .hover\:bg-navy:hover {
+    background-color: oklch(var(--navy));
+  }
+  .hover\:bg-navy-dark:hover {
+    background-color: oklch(var(--navy-dark));
+  }
+  .hover\:text-navy:hover {
+    color: oklch(var(--navy));
+  }
+  .ring-navy {
+    --tw-ring-color: oklch(var(--navy));
+  }
+  .focus\:border-navy:focus {
+    border-color: oklch(var(--navy));
+  }
+  .focus\:ring-navy:focus {
+    --tw-ring-color: oklch(var(--navy));
+  }
+  .accent-navy {
+    accent-color: oklch(var(--navy));
+  }
+  .from-navy {
+    --tw-gradient-from: oklch(var(--navy));
+  }
+  .via-navy-dark {
+    --tw-gradient-via: oklch(var(--navy-dark));
+  }
+  .to-navy-deeper {
+    --tw-gradient-to: oklch(var(--navy-deeper));
+  }
+}

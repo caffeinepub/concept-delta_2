@@ -1,0 +1,99 @@
+{
+  "kind": "build_request",
+  "title": "Designate first-login user as admin and grant Admin Panel access",
+  "projectName": "Concept Delta",
+  "priority": "high",
+  "requirements": [
+    {
+      "id": "REQ-28",
+      "text": "In the Motoko backend (backend/main.mo), ensure the admin designation logic works as follows: the very first principal to successfully authenticate and trigger any backend call (or explicitly the first call to a designated 'claimAdmin' or first admin-gated function) is permanently stored as the admin principal in stable storage. All subsequent calls to admin-only functions from a different principal must be rejected. The admin principal must persist across canister upgrades.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "1st login roal as admin and show admin panel to 1st login only"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The first principal to log in and call any backend function is recorded as the admin in stable storage.",
+        "The admin principal persists across canister upgrades.",
+        "A second principal calling admin-only functions receives an authorization error.",
+        "The existing `isCallerAdmin()` function returns true only for the designated admin principal."
+      ]
+    },
+    {
+      "id": "REQ-29",
+      "text": "In frontend/src/hooks/useQueries.ts, ensure the `useIsCallerAdmin` query correctly calls the backend `isCallerAdmin()` function and returns its boolean result. The query must re-fetch when the authenticated identity changes so the Admin Panel link appears immediately after the first-login admin logs in.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "show admin panel to 1st login only",
+          "if i see admin panel then proceed to admin panel structure"
+        ]
+      },
+      "acceptanceCriteria": [
+        "useIsCallerAdmin re-fetches whenever the authenticated principal changes.",
+        "Returns true for the designated admin principal and false for all others.",
+        "Returns false (not undefined/null) when the user is not logged in."
+      ]
+    },
+    {
+      "id": "REQ-30",
+      "text": "In frontend/src/components/Navbar.tsx, confirm that the 'Admin Panel' navigation link (navigating to /admin) is conditionally rendered only when the user is authenticated AND useIsCallerAdmin returns true. The link must not appear for any non-admin authenticated user. This applies to both the desktop nav and the mobile hamburger menu.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "show admin panel to 1st login only"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Admin Panel link is visible in the navbar when the admin principal is logged in.",
+        "Admin Panel link is NOT visible when a non-admin principal is logged in.",
+        "Admin Panel link is NOT visible when no user is logged in.",
+        "Mobile hamburger menu mirrors the same conditional rendering."
+      ]
+    },
+    {
+      "id": "REQ-31",
+      "text": "In frontend/src/pages/Admin.tsx, confirm that the Admin Panel page access guard redirects or shows an 'Access Denied' message for any authenticated user who is not the designated admin. The guard must use the result of useIsCallerAdmin and must not rely solely on client-side state — admin-only backend calls will naturally be rejected server-side as well.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "if i see admin panel then proceed to admin panel structure"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Navigating to /admin while not authenticated redirects to the Home page.",
+        "Navigating to /admin as a non-admin authenticated user shows an 'Access Denied' or unauthorized message.",
+        "The full Admin Panel with all five tabs (Question Gallery, Test Builder, User List, Results, Leaderboard) is rendered only for the designated admin principal.",
+        "All five tabs remain fully functional for the admin user."
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not change the existing five-tab Admin Panel structure (Question Gallery, Test Builder, User List, Results, Leaderboard).",
+    "Admin designation must use stable storage in the Motoko backend so it survives canister upgrades.",
+    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui."
+  ],
+  "nonGoals": [
+    "Adding a manual admin assignment UI — admin is determined automatically by first login.",
+    "Supporting multiple admin principals.",
+    "Changing the visual design or layout of the Admin Panel tabs.",
+    "Adding new tabs or features to the Admin Panel beyond the existing five."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

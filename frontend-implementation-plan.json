@@ -1,0 +1,57 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Designate first-login user as admin and grant Admin Panel access",
+  "requirements": [
+    {
+      "id": "REQ-29",
+      "summary": "Ensure useIsCallerAdmin query correctly fetches admin status and re-fetches on identity change",
+      "acceptanceCriteria": [
+        "useIsCallerAdmin re-fetches whenever the authenticated principal changes.",
+        "Returns true for the designated admin principal and false for all others.",
+        "Returns false (not undefined/null) when the user is not logged in."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Modify the useIsCallerAdmin hook to ensure it properly depends on the actor and actorFetching state, includes retry: false to prevent repeated unauthorized calls, and returns false (not undefined/null) when the user is not authenticated. The query should be enabled only when actor is available and not fetching, and the queryKey should be structured to invalidate when identity changes. Verify the authorization component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-30",
+      "summary": "Conditionally render Admin Panel link in Navbar only for authenticated admin users",
+      "acceptanceCriteria": [
+        "Admin Panel link is visible in the navbar when the admin principal is logged in.",
+        "Admin Panel link is NOT visible when a non-admin principal is logged in.",
+        "Admin Panel link is NOT visible when no user is logged in.",
+        "Mobile hamburger menu mirrors the same conditional rendering."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/Navbar.tsx",
+          "operation": "modify",
+          "description": "Update the Navbar component to use both isAuthenticated from useInternetIdentity and isCallerAdmin from useIsCallerAdmin hooks. Conditionally render the 'Admin Panel' Link (navigating to /admin) only when both isAuthenticated is true AND isCallerAdmin returns true. Apply the same conditional rendering logic to both the desktop navigation menu and the mobile hamburger menu so the Admin Panel link appears consistently across all viewports only for the designated admin user. Verify the authorization component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-31",
+      "summary": "Add access guard to Admin Panel page for non-admin users",
+      "acceptanceCriteria": [
+        "Navigating to /admin while not authenticated redirects to the Home page.",
+        "Navigating to /admin as a non-admin authenticated user shows an 'Access Denied' or unauthorized message.",
+        "The full Admin Panel with all five tabs (Question Gallery, Test Builder, User List, Results, Leaderboard) is rendered only for the designated admin principal.",
+        "All five tabs remain fully functional for the admin user."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/Admin.tsx",
+          "operation": "modify",
+          "description": "Add an access guard at the top of the Admin component using both isAuthenticated from useInternetIdentity and isCallerAdmin from useIsCallerAdmin hooks. If the user is not authenticated, redirect to the Home page (/). If the user is authenticated but isCallerAdmin returns false, display an 'Access Denied' message using a styled card or alert component explaining that only the designated admin can access this page. Only render the existing five-tab Admin Panel (Question Gallery, Test Builder, User List, Results, Leaderboard) when both isAuthenticated is true AND isCallerAdmin returns true. Ensure all five tabs remain fully functional for the admin user. Verify the authorization component's usage instructions before implementing."
+        }
+      ]
+    }
+  ]
+}
