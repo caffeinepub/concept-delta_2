@@ -1,15 +1,60 @@
-# Specification
+# Concept Delta – MHT-CET Test Series
 
-## Summary
-**Goal:** Fix the Navbar component to have a fully opaque navy background at all times and ensure all navigation links are always visible and correctly rendered on both desktop and mobile.
+## Current State
 
-**Planned changes:**
-- Rewrite `Navbar.tsx` to use a solid opaque navy (`#0D1B4B`) background — remove any `bg-transparent`, `bg-opacity-*`, or `backdrop-blur` classes
-- Set explicit `z-50` on the navbar so it always renders above page content
-- Fix desktop nav layout to use `flex-nowrap` with proper spacing so all links render in a single row without clipping
-- Ensure nav links are: "Home" (always), "Dashboard" (authenticated only), "Admin Panel" (authenticated + isAdmin only), and Login/Logout button on the far right
-- Fix mobile hamburger dropdown to use a solid opaque navy background so links are readable against dark backgrounds
-- Call `useIsCallerAdmin` at the top level, derive `isAdmin = data === true`, and only show "Admin Panel" when authenticated, isAdmin is true, and the query is not loading
-- Remove any leftover `console.log` debug statements from the component
+### Backend (`main.mo`)
+- ✅ `getPublishedTests()` query returns only tests where `isPublished = true`
+- ✅ `createTest()` creates tests with `isPublished = false` by default
+- ✅ `setTestPublished()` toggles publish status
+- ❌ **Missing**: No function to get ALL tests (published + unpublished) for admin panel
 
-**User-visible outcome:** The navbar always displays a solid navy background on all pages (including the dark hero section), all navigation links (Home, Dashboard, Admin Panel) and the Login/Logout button are clearly visible and readable on both desktop and mobile, and the Admin Panel link correctly appears only for authenticated admin users.
+### Frontend
+- **Dashboard.tsx**: Uses `useGetPublishedTests()` correctly to show published tests to students
+- **Admin Panel (TestManagement)**: Uses `useGetAllTests()` which incorrectly calls `getPublishedTests()` instead of a function that returns all tests
+- Result: Newly created unpublished tests are invisible in the admin panel
+
+### User Report
+"created test not show in dashboard"
+
+**Root Cause**: Tests are created as unpublished by default, but the admin panel cannot see unpublished tests because there's no backend query to fetch all tests (regardless of publish status).
+
+---
+
+## Requested Changes (Diff)
+
+### Add
+- Backend: New query function `getAllTests()` (admin-only) that returns ALL tests regardless of publish status
+- Backend: Return full `Test` objects (not just `TestSummary`) so admin can see publish status
+
+### Modify
+- Frontend `useQueries.ts`: Update `useGetAllTests()` to call the new `getAllTests()` backend function
+- Frontend Admin Panel: Display publish status clearly for each test
+
+### Remove
+None.
+
+---
+
+## Implementation Plan
+
+### Backend (`main.mo`)
+1. Add new query function `getAllTests()` restricted to admin
+2. Return full `Test[]` array sorted by `createdAt` (newest first)
+
+### Frontend (`useQueries.ts`)
+3. Update `useGetAllTests()` to call `actor.getAllTests()`
+4. Change return type from `TestSummary[]` to include `isPublished` field
+
+### Frontend (Admin Panel)
+5. Display publish toggle correctly for each test
+6. Show badge/indicator for published vs unpublished status
+
+---
+
+## UX Notes
+
+**After this fix:**
+- Admin creates a test → it appears immediately in Admin Panel as "Unpublished"
+- Admin toggles publish → test appears on Dashboard for students
+- Students only see published tests (no change to their experience)
+- Admin can manage all tests (published + unpublished) from one view

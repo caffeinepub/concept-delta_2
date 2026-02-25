@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGetAllQuestions, useCreateTest, useGetPublishedTests, useSetTestPublished } from '../../hooks/useQueries';
+import { useGetAllQuestions, useCreateTest, useGetAllTests, useSetTestPublished } from '../../hooks/useQueries';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,7 +17,7 @@ export default function TestBuilder() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { data: questions, isLoading: questionsLoading } = useGetAllQuestions();
-  const { data: publishedTests, isLoading: testsLoading } = useGetPublishedTests();
+  const { data: allTests, isLoading: testsLoading } = useGetAllTests();
   const createTest = useCreateTest();
   const setTestPublished = useSetTestPublished();
 
@@ -205,20 +205,20 @@ export default function TestBuilder() {
         </CardContent>
       </Card>
 
-      {/* Published Tests List */}
+      {/* All Tests List */}
       <div>
         <h3 className="text-xl font-bold text-navy mb-4 flex items-center gap-2">
           <ClipboardList className="h-5 w-5" />
-          Published Tests ({publishedTests?.length ?? 0})
+          All Tests ({allTests?.length ?? 0})
         </h3>
 
         {testsLoading ? (
           <div className="space-y-3">
             {[1, 2].map((i) => <Skeleton key={i} className="h-16 rounded-xl" />)}
           </div>
-        ) : publishedTests && publishedTests.length > 0 ? (
+        ) : allTests && allTests.length > 0 ? (
           <div className="space-y-3">
-            {publishedTests.map((test) => (
+            {allTests.map((test) => (
               <div
                 key={test.id}
                 className="flex items-center justify-between bg-white border border-gray-100 rounded-xl px-5 py-4 shadow-sm"
@@ -233,16 +233,20 @@ export default function TestBuilder() {
                     )}
                   </div>
                   <p className="text-sm text-gray-400 mt-0.5">
-                    {Math.round(Number(test.durationSeconds) / 60)} min · {Number(test.questionCount)} questions
+                    {Math.round(Number(test.durationSeconds) / 60)} min · {test.questionIds.length} questions
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                    Published
+                  <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                    test.isPublished 
+                      ? 'text-green-600 bg-green-50' 
+                      : 'text-gray-500 bg-gray-100'
+                  }`}>
+                    {test.isPublished ? 'Published' : 'Unpublished'}
                   </span>
                   <Switch
-                    checked={true}
-                    onCheckedChange={() => handlePublishToggle(test.id, true)}
+                    checked={test.isPublished}
+                    onCheckedChange={() => handlePublishToggle(test.id, test.isPublished)}
                     className="data-[state=checked]:bg-navy"
                   />
                 </div>
@@ -251,7 +255,7 @@ export default function TestBuilder() {
           </div>
         ) : (
           <div className="text-center py-12 text-gray-400">
-            <p>No published tests yet. Create a test and it will appear here after publishing.</p>
+            <p>No tests yet. Create a test and it will appear here.</p>
           </div>
         )}
       </div>

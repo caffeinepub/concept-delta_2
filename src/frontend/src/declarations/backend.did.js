@@ -1,4 +1,4 @@
- 
+/* eslint-disable */
 
 // @ts-nocheck
 
@@ -39,6 +39,15 @@ export const TestResult = IDL.Record({
   'score' : IDL.Nat,
   'testId' : IDL.Text,
 });
+export const Test = IDL.Record({
+  'id' : IDL.Text,
+  'isPublished' : IDL.Bool,
+  'subject' : IDL.Opt(IDL.Text),
+  'name' : IDL.Text,
+  'createdAt' : Time,
+  'durationSeconds' : IDL.Nat,
+  'questionIds' : IDL.Vec(IDL.Text),
+});
 export const LeaderboardEntry = IDL.Record({
   'principal' : IDL.Principal,
   'totalTests' : IDL.Nat,
@@ -72,6 +81,7 @@ export const idlService = IDL.Service({
   'getAdminPrincipal' : IDL.Func([], [IDL.Opt(IDL.Principal)], ['query']),
   'getAllQuestions' : IDL.Func([], [IDL.Vec(Question)], ['query']),
   'getAllResults' : IDL.Func([], [IDL.Vec(TestResult)], ['query']),
+  'getAllTests' : IDL.Func([], [IDL.Vec(Test)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(AnonymousProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getLeaderboard' : IDL.Func([], [IDL.Vec(LeaderboardEntry)], ['query']),
@@ -126,6 +136,15 @@ export const idlFactory = ({ IDL }) => {
     'score' : IDL.Nat,
     'testId' : IDL.Text,
   });
+  const Test = IDL.Record({
+    'id' : IDL.Text,
+    'isPublished' : IDL.Bool,
+    'subject' : IDL.Opt(IDL.Text),
+    'name' : IDL.Text,
+    'createdAt' : Time,
+    'durationSeconds' : IDL.Nat,
+    'questionIds' : IDL.Vec(IDL.Text),
+  });
   const LeaderboardEntry = IDL.Record({
     'principal' : IDL.Principal,
     'totalTests' : IDL.Nat,
@@ -159,6 +178,7 @@ export const idlFactory = ({ IDL }) => {
     'getAdminPrincipal' : IDL.Func([], [IDL.Opt(IDL.Principal)], ['query']),
     'getAllQuestions' : IDL.Func([], [IDL.Vec(Question)], ['query']),
     'getAllResults' : IDL.Func([], [IDL.Vec(TestResult)], ['query']),
+    'getAllTests' : IDL.Func([], [IDL.Vec(Test)], ['query']),
     'getCallerUserProfile' : IDL.Func(
         [],
         [IDL.Opt(AnonymousProfile)],

@@ -22,10 +22,14 @@ export interface LeaderboardEntry {
     averageScore: bigint;
 }
 export type Time = bigint;
-export interface AnonymousProfile {
-    fullName: string;
-    contactNumber: string;
-    userClass: UserClass;
+export interface Test {
+    id: string;
+    isPublished: boolean;
+    subject?: string;
+    name: string;
+    createdAt: Time;
+    durationSeconds: bigint;
+    questionIds: Array<string>;
 }
 export interface Question {
     id: string;
@@ -33,6 +37,11 @@ export interface Question {
     createdAt: Time;
     optionImageData: Array<string>;
     questionImageData: string;
+}
+export interface AnonymousProfile {
+    fullName: string;
+    contactNumber: string;
+    userClass: UserClass;
 }
 export interface TestResult {
     id: string;
@@ -79,6 +88,10 @@ export interface backendInterface {
      * / ADMIN: Get all test results sorted by submittedAt
      */
     getAllResults(): Promise<Array<TestResult>>;
+    /**
+     * / ADMIN: Get all tests (published and unpublished)
+     */
+    getAllTests(): Promise<Array<Test>>;
     getCallerUserProfile(): Promise<AnonymousProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     /**

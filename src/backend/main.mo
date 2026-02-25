@@ -328,6 +328,16 @@ actor {
     results.values().toArray().sort();
   };
 
+  /// ADMIN: Get all tests (published and unpublished)
+  public query ({ caller }) func getAllTests() : async [Test] {
+    requirePersistentAdminQuery(caller);
+    tests.values().toArray().sort(
+      func(a, b) {
+        Int.compare(b.createdAt, a.createdAt);
+      }
+    );
+  };
+
   // -------------------------- Test-Taking (User) Functions ---------------------------
   public query ({ caller }) func getPublishedTests() : async [TestSummary] {
     // Published tests are visible to any caller (including guests)

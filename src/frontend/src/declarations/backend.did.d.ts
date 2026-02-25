@@ -1,4 +1,4 @@
- 
+/* eslint-disable */
 
 // @ts-nocheck
 
@@ -28,6 +28,15 @@ export interface Question {
   'createdAt' : Time,
   'optionImageData' : Array<string>,
   'questionImageData' : string,
+}
+export interface Test {
+  'id' : string,
+  'isPublished' : boolean,
+  'subject' : [] | [string],
+  'name' : string,
+  'createdAt' : Time,
+  'durationSeconds' : bigint,
+  'questionIds' : Array<string>,
 }
 export interface TestResult {
   'id' : string,
@@ -82,6 +91,10 @@ export interface _SERVICE {
    * / ADMIN: Get all test results sorted by submittedAt
    */
   'getAllResults' : ActorMethod<[], Array<TestResult>>,
+  /**
+   * / ADMIN: Get all tests (published and unpublished)
+   */
+  'getAllTests' : ActorMethod<[], Array<Test>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [AnonymousProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   /**

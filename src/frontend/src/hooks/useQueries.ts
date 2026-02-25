@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
 import { useInternetIdentity } from './useInternetIdentity';
-import type { AnonymousProfile, TestSummary, Question, TestResult, LeaderboardEntry } from '../backend';
+import type { AnonymousProfile, TestSummary, Question, TestResult, LeaderboardEntry, Test } from '../backend';
 import { createActorWithConfig } from '../config';
 
 // ─── Auth / Profile ──────────────────────────────────────────────────────────
@@ -163,11 +163,11 @@ export function useAddQuestion() {
 export function useGetAllTests() {
   const { actor, isFetching } = useActor();
 
-  return useQuery<TestSummary[]>({
+  return useQuery<Test[]>({
     queryKey: ['allTests'],
     queryFn: async () => {
       if (!actor) return [];
-      return actor.getPublishedTests();
+      return actor.getAllTests();
     },
     enabled: !!actor && !isFetching,
   });
